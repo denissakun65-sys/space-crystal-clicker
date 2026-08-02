@@ -611,6 +611,160 @@
   .chat-msg.you .m-nick { color: var(--magenta); }
   .chat-msg .m-text { font-size: 13px; margin-top: 2px; word-break: break-word; }
 
+  /* Кликабельный ник, личные сообщения и реакции */
+  .chat-msg .m-nick.clickable {
+    cursor: pointer;
+    text-decoration: underline dotted;
+    text-decoration-color: rgba(255, 255, 255, 0.4);
+  }
+
+  .chat-msg.whisper {
+    border-color: rgba(255, 210, 0, 0.4);
+    background: rgba(255, 210, 0, 0.07);
+  }
+
+  .chat-msg.whisper .m-wsp {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--gold);
+    margin-left: 6px;
+  }
+
+  .m-react-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+    min-height: 0;
+  }
+
+  .m-react-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 1px 7px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.08);
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    user-select: none;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .m-react-pill.mine {
+    background: rgba(0, 240, 255, 0.18);
+    border-color: rgba(0, 240, 255, 0.4);
+  }
+
+  .m-react-pill:hover { transform: scale(1.1); }
+
+  .m-react-add {
+    display: none;
+    gap: 4px;
+    align-items: center;
+    margin-top: 4px;
+  }
+
+  .chat-msg:hover .m-react-add { display: flex; }
+
+  .m-react-add .r-btn {
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 2px 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.1s, background 0.2s;
+  }
+
+  .m-react-add .r-btn:hover { transform: scale(1.2); background: rgba(255, 255, 255, 0.2); }
+
+  /* Модальное окно профиля игрока */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.25s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .modal-card {
+    background: #171233;
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 24px;
+    max-width: 360px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    animation: modalPop 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  }
+
+  @keyframes modalPop { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  .modal-card .mm-title {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 20px;
+    color: var(--cyan);
+    margin-bottom: 6px;
+  }
+
+  .modal-card .mm-sub { color: var(--muted); font-size: 13px; margin-bottom: 16px; }
+
+  .modal-card .mm-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    font-size: 14px;
+  }
+
+  .modal-card .mm-row .k { color: var(--muted); }
+  .modal-card .mm-row .v { font-weight: 800; }
+
+  .modal-card .mm-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .modal-card .mm-close {
+    margin-top: 12px;
+    width: 100%;
+    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text);
+    border-radius: 12px;
+    padding: 10px;
+    font-weight: 800;
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  .modal-card .mm-gift {
+    flex: 1;
+    border: none;
+    border-radius: 12px;
+    padding: 10px;
+    font-weight: 800;
+    font-family: inherit;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--gold), #ff9d00);
+    color: #000;
+  }
+
+  .modal-card .mm-gift:disabled { background: #3a3550; color: var(--muted); cursor: not-allowed; }
+
   .chat-input-row {
     display: flex;
     gap: 8px;
@@ -775,6 +929,32 @@
 
   #demo-bots-toggle:checked + .toggle-slider::before {
     transform: translateX(24px);
+  }
+
+  .community-link {
+    display: inline-block;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--glass-border);
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 13px;
+    transition: background 0.2s, transform 0.15s, border-color 0.2s;
+  }
+
+  .community-link:hover {
+    background: rgba(0, 240, 255, 0.12);
+    border-color: rgba(0, 240, 255, 0.4);
+    transform: translateY(-2px);
+  }
+
+  code {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 1px 5px;
+    border-radius: 5px;
+    font-size: 12px;
   }
 
   .reset-btn {
@@ -958,8 +1138,11 @@
           </div>
           <div class="chat-log" id="chat-log"></div>
           <div class="chat-input-row">
-            <input id="chat-input" placeholder="Написать сообщение..." maxlength="120" autocomplete="off">
+            <input id="chat-input" placeholder="Сообщение... (/help — команды)" maxlength="120" autocomplete="off">
             <button id="chat-send" title="Отправить">➤</button>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:6px">
+            💬 клик по нику — профиль и подарок · 👍 наведите на сообщение для реакций · /w ник текст — ЛС
           </div>
         </div>
         <div>
@@ -974,6 +1157,12 @@
             <div id="leaderboard"></div>
           </div>
         </div>
+      </div>
+      <div style="height:16px"></div>
+      <div class="panel" id="community-panel">
+        <div class="page-title" style="font-size:20px">💜 Сообщество и обратная связь</div>
+        <div class="page-sub" style="margin-bottom:12px">Версия <b id="version-chip"></b></div>
+        <div id="community-box"></div>
       </div>
     </div>
   </section>
@@ -1030,6 +1219,7 @@
     var SAVE_KEY = 'crystal-net-save-v1';
     var PASSIVE_TICK_MS = 100;
     var SAVE_INTERVAL_MS = 5000;
+    var GAME_VERSION = '1.2.0';
 
     var UPGRADE_DEFS = [
       { id: 'clicker', name: 'Кликер-утилита',            icon: '👆', desc: '+1 к силе клика',      baseCost: 15,      kind: 'click', per: 1 },
@@ -1716,6 +1906,32 @@
       document.getElementById('chat-online').textContent = '🟢 ' + onlineCount + ' в сети';
     }
 
+    /* Панель сообщества: версия, обратная связь, ссылки на репозиторий */
+    function renderCommunity() {
+      var vc = document.getElementById('version-chip');
+      if (vc) {
+        vc.textContent = GAME_VERSION;
+      }
+      var box = document.getElementById('community-box');
+      if (!box) {
+        return;
+      }
+      var repoUrl = 'https://github.com/denissakun65-sys/space-crystal-clicker';
+      var feedbackUrl = 'https://github.com/denissakun65-sys/space-crystal-clicker/issues/new';
+      var changelogUrl = repoUrl + '/blob/main/CHANGELOG.md';
+      box.innerHTML =
+        '<div style="font-size:14px;color:var(--muted);margin-bottom:12px">Нашли баг или есть идея? Сообщите — мы читаем каждое сообщение и добавляем фичи в обновлениях.</div>' +
+        '<div style="display:flex;gap:10px;flex-wrap:wrap">' +
+          '<a class="community-link" href="' + feedbackUrl + '" target="_blank" rel="noopener">📬 Сообщить об ошибке / идея</a>' +
+          '<a class="community-link" href="' + repoUrl + '" target="_blank" rel="noopener">⭐ GitHub-репозиторий</a>' +
+          '<a class="community-link" href="' + changelogUrl + '" target="_blank" rel="noopener">📝 Список изменений</a>' +
+          '<a class="community-link" href="mailto:?subject=CRYSTAL.NET" >✉️ Поделиться игрой</a>' +
+        '</div>' +
+        '<div style="margin-top:14px;font-size:12px;color:var(--muted)">' +
+          'Команды чата: <code>/w ник текст</code> — личное сообщение · <code>/gift ник сумма</code> — подарок · <code>/help</code>' +
+        '</div>';
+    }
+
     /* В демо-режиме объясняем, что онлайн симулируется */
     function renderProfileDemo() {
       var box = document.getElementById('profile-box');
@@ -1774,20 +1990,146 @@
     /* ----------------------------------------------------------------
        16. ЖИВОЙ ЧАТ
        ---------------------------------------------------------------- */
-    function addChatMessage(nick, text, isPlayer) {
+    var chatKeySeq = 0;
+    var chatMsgEls = {};
+
+    /* Реестр эмодзи-реакций для быстрого добавления */
+    var REACT_EMOJIS = ['👍', '❤️', '😂', '🔥', '🎉', '💎'];
+
+    /* Рендер одного сообщения в чате. Поддерживает реакции, личные
+       сообщения и клик по нику для просмотра профиля. */
+    function addChatMessage(nick, text, isPlayer, opts) {
+      opts = opts || {};
       var log = document.getElementById('chat-log');
+      var key = opts.key || ('local_' + (++chatKeySeq));
+      var uid = opts.uid || null;
+      var whisper = !!opts.whisper;
+      var reactions = opts.reactions || {};
+      var mine = opts.mine || [];
+
       var el = document.createElement('div');
-      el.className = 'chat-msg' + (isPlayer ? ' you' : '');
-      el.innerHTML = '<div class="m-nick"></div><div class="m-text"></div>';
-      el.querySelector('.m-nick').textContent = isPlayer ? '[Вы]' : nick;
+      el.className = 'chat-msg' + (isPlayer ? ' you' : '') + (whisper ? ' whisper' : '');
+      el.setAttribute('data-key', key);
+      el.setAttribute('data-uid', uid || '');
+      el.setAttribute('data-name', nick);
+      el.innerHTML =
+        '<div class="m-nick' + (uid ? ' clickable' : '') + '">' +
+          '<span class="m-nicktext"></span>' +
+          (whisper ? '<span class="m-wsp">→ вам</span>' : '') +
+        '</div>' +
+        '<div class="m-text"></div>' +
+        '<div class="m-react-row"></div>' +
+        '<div class="m-react-add"></div>';
+      el.querySelector('.m-nicktext').textContent = nick;
       el.querySelector('.m-text').textContent = text;
-      log.appendChild(el);
-      // Ограничиваем длину лога
-      while (log.children.length > 80) {
-        log.removeChild(log.firstChild);
+
+      // Клик по нику открывает профиль игрока
+      if (uid) {
+        el.querySelector('.m-nick').addEventListener('click', function (e) {
+          e.stopPropagation();
+          openPlayerProfile(uid, nick);
+        });
       }
+
+      // Кнопки быстрых реакций (появляются при наведении)
+      var addRow = el.querySelector('.m-react-add');
+      REACT_EMOJIS.forEach(function (emoji) {
+        var b = document.createElement('button');
+        b.className = 'r-btn';
+        b.textContent = emoji;
+        b.addEventListener('click', function (e) {
+          e.stopPropagation();
+          toggleReaction(key, emoji);
+        });
+        addRow.appendChild(b);
+      });
+
+      log.appendChild(el);
+      chatMsgEls[key] = el;
+      renderMessageReactions(el, reactions, mine);
+      limitChatLog();
       log.scrollTop = log.scrollHeight;
     }
+
+    function limitChatLog() {
+      var log = document.getElementById('chat-log');
+      while (log.children.length > 80) {
+        var first = log.firstChild;
+        var fkey = first.getAttribute('data-key');
+        if (fkey) {
+          delete chatMsgEls[fkey];
+        }
+        log.removeChild(first);
+      }
+    }
+
+    /* Обновление пилюлей реакций у конкретного сообщения */
+    function renderMessageReactions(el, reactions, mine) {
+      var row = el.querySelector('.m-react-row');
+      row.innerHTML = '';
+      if (!reactions || Object.keys(reactions).length === 0) {
+        row.style.display = 'none';
+        return;
+      }
+      row.style.display = 'flex';
+      var totals = {};
+      var mySet = {};
+      mine.forEach(function (e) { mySet[e] = true; });
+      Object.keys(reactions).forEach(function (emoji) {
+        var arr = reactions[emoji];
+        var count = Array.isArray(arr) ? arr.length : 0;
+        if (count > 0) {
+          totals[emoji] = count;
+        }
+      });
+      Object.keys(totals).forEach(function (emoji) {
+        var pill = document.createElement('span');
+        pill.className = 'm-react-pill' + (mySet[emoji] ? ' mine' : '');
+        pill.textContent = emoji + ' ' + totals[emoji];
+        pill.addEventListener('click', function (e) {
+          e.stopPropagation();
+          toggleReaction(el.getAttribute('data-key'), emoji);
+        });
+        row.appendChild(pill);
+      });
+    }
+
+    /* Обновление реакций сообщения по ключу (из Firebase onChildChanged) */
+    function updateChatReactions(key, reactions, mine) {
+      var el = chatMsgEls[key];
+      if (el) {
+        renderMessageReactions(el, reactions, mine);
+      }
+    }
+
+    /* Переключение реакции (реальный режим — через Firebase, демо — локально) */
+    function toggleReaction(key, emoji) {
+      if (window.Online.real && window.Online.onToggleReaction) {
+        window.Online.onToggleReaction(key, emoji);
+      } else {
+        // Демо-режим: реакция применяется локально.
+        var el = chatMsgEls[key];
+        if (!el) {
+          return;
+        }
+        var reactions = el._reacts || {};
+        var mine = el._mine || [];
+        if (!reactions[emoji]) {
+          reactions[emoji] = [];
+        }
+        if (reactions[emoji].indexOf('self') !== -1) {
+          reactions[emoji] = reactions[emoji].filter(function (x) { return x !== 'self'; });
+          mine = mine.filter(function (x) { return x !== emoji; });
+        } else {
+          reactions[emoji].push('self');
+          mine.push(emoji);
+        }
+        el._reacts = reactions;
+        el._mine = mine;
+        renderMessageReactions(el, reactions, mine);
+      }
+    }
+
 
     function scheduleBotChat() {
       // Фейковые сообщения ботов в чате отключены в реальном режиме
@@ -1812,6 +2154,11 @@
         showToast('🔒', 'Войдите в профиль', 'Чтобы общаться в чате, войдите в систему');
         return;
       }
+      // Обработка команд (личные сообщения, подарки, помощь)
+      if (trimmed.charAt(0) === '/') {
+        handleChatCommand(trimmed);
+        return;
+      }
       if (window.Online.real && window.Online.onSendPlayerChat) {
         // Реальный режим: сообщение отправляется в Firebase и появляется
         // через подписку onChildAdded (без дубликата).
@@ -1824,6 +2171,127 @@
       if (gameState.chatHistory.length > 50) {
         gameState.chatHistory = gameState.chatHistory.slice(-50);
       }
+    }
+
+    /* Разбор команд чата: /help, /w <ник> <текст>, /gift <ник> <сумма> */
+    function handleChatCommand(text) {
+      var parts = text.slice(1).split(/\s+/);
+      var cmd = (parts[0] || '').toLowerCase();
+
+      if (cmd === 'help' || cmd === 'команды') {
+        addChatMessage('[Вы]', '/w ник текст — личное сообщение · /gift ник сумма — подарить кристаллы', true);
+        return;
+      }
+
+      if (cmd === 'w' || cmd === 'whisper') {
+        var name = parts[1];
+        var msgText = parts.slice(2).join(' ');
+        if (!name || !msgText) {
+          addChatMessage('[Вы]', 'Использование: /w <ник> <сообщение>', true);
+          return;
+        }
+        sendWhisper(name, msgText);
+        return;
+      }
+
+      if (cmd === 'gift' || cmd === 'подарок') {
+        var gName = parts[1];
+        var amount = parseInt(parts[2], 10);
+        if (!gName || !amount || isNaN(amount) || amount <= 0) {
+          addChatMessage('[Вы]', 'Использование: /gift <ник> <сумма>', true);
+          return;
+        }
+        sendGift(gName, amount);
+        return;
+      }
+
+      addChatMessage('[Вы]', 'Неизвестная команда: /' + cmd + '. Наберите /help', true);
+    }
+
+    function sendWhisper(name, text) {
+      if (window.Online.real && window.Online.onSendWhisper) {
+        window.Online.onSendWhisper(name, text);
+        return;
+      }
+      // Демо-режим: показываем исходящее ЛС и имитируем ответ бота.
+      addChatMessage('[Вы]', '→ ' + name + ': ' + text, true);
+      setTimeout(function () {
+        addChatMessage(name, '✉ ' + text + ' (демо-ответ)', false, { whisper: true });
+      }, 1200);
+      showToast('✉', 'ЛС отправлено', 'Личные сообщения работают в реальном режиме (Firebase)');
+    }
+
+    function sendGift(name, amount) {
+      if (amount > Math.floor(gameState.balance)) {
+        showToast('⛔', 'Недостаточно кристаллов', 'У вас ' + formatBalance(gameState.balance));
+        return;
+      }
+      if (window.Online.real && window.Online.onSendGift) {
+        window.Online.onSendGift(name, amount);
+        return;
+      }
+      // Демо-режим: списываем и имитируем подтверждение.
+      gameState.balance -= amount;
+      refreshUI();
+      showToast('🎁', 'Подарок отправлен', name + ' получит ' + formatNumber(amount) + ' 💎 (демо)');
+    }
+
+    /* Открытие модального окна профиля игрока */
+    function openPlayerProfile(uid, name) {
+      if (window.Online.real && window.Online.onOpenProfile) {
+        window.Online.onOpenProfile(uid, name);
+        return;
+      }
+      renderProfileModal({ name: name, uid: uid, demo: true, balance: Math.floor(Math.pow(10, 4 + Math.random() * 2)) });
+    }
+
+    function closeProfileModal() {
+      var ov = document.getElementById('modal-overlay');
+      if (ov && ov.parentNode) {
+        ov.parentNode.removeChild(ov);
+      }
+    }
+
+    function renderProfileModal(info) {
+      closeProfileModal();
+      var overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      overlay.id = 'modal-overlay';
+      var canGift = !!info.uid && info.uid !== (window.Online.myUid || 'self');
+      overlay.innerHTML =
+        '<div class="modal-card">' +
+          '<div class="mm-title"></div>' +
+          '<div class="mm-sub"></div>' +
+          '<div class="mm-row"><span class="k">Баланс</span><span class="v" id="mm-bal"></span></div>' +
+          '<div class="mm-row"><span class="k">Статус</span><span class="v" id="mm-status"></span></div>' +
+          (info.demo ? '<div class="mm-row"><span class="k">Тип</span><span class="v">🤖 бот (демо)</span></div>' : '') +
+          '<div class="mm-actions">' +
+            '<button class="mm-gift" id="mm-gift" ' + (canGift ? '' : 'disabled') + '>🎁 Подарить 💎</button>' +
+          '</div>' +
+          '<button class="mm-close" id="mm-close">Закрыть</button>' +
+        '</div>';
+      overlay.querySelector('.mm-title').textContent = info.name;
+      overlay.querySelector('.mm-sub').textContent = 'Профиль игрока';
+      overlay.querySelector('#mm-bal').textContent = formatBalance(info.balance || 0);
+      overlay.querySelector('#mm-status').textContent = info.online ? '🟢 в сети' : '⚪ не в сети';
+      overlay.querySelector('#mm-close').addEventListener('click', closeProfileModal);
+      var giftBtn = overlay.querySelector('#mm-gift');
+      if (giftBtn) {
+        giftBtn.addEventListener('click', function () {
+          var amt = prompt('Сколько кристаллов подарить ' + info.name + '?');
+          var n = parseInt(amt, 10);
+          if (n && n > 0) {
+            sendGift(info.name, n);
+            closeProfileModal();
+          }
+        });
+      }
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) {
+          closeProfileModal();
+        }
+      });
+      document.body.appendChild(overlay);
     }
 
     function bindChat() {
@@ -2238,6 +2706,7 @@
       renderAchievements();
       renderNetwork();
       renderPrestige();
+      renderCommunity();
       showToast('🗑', 'Прогресс сброшен', 'Всё началось заново');
     }
 
@@ -2364,6 +2833,7 @@
       renderStats();
       renderAchievements();
       renderNetwork();
+      renderCommunity();
       scheduleBotChat();
       refreshUI();
 
@@ -2383,7 +2853,7 @@
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
     import { getAuth, onAuthStateChanged, GoogleAuthProvider, GithubAuthProvider, signInWithPopup, signInAnonymously, signOut, updateProfile } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-    import { getDatabase, ref, onValue, set, push, onDisconnect, remove, onChildAdded, query, orderByChild, limitToLast } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+    import { getDatabase, ref, onValue, set, push, onDisconnect, remove, onChildAdded, onChildChanged, query, orderByChild, limitToLast } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 
     'use strict';
 
@@ -2404,6 +2874,8 @@
       var currentNick = '';
       window.Online.real = true;
       window.Online.signedIn = false;
+      window.Online.myUid = null;
+      window.Online.uidByNick = {};
 
       /* ---- Профиль / рендер панели ---- */
       function renderProfile(user) {
@@ -2524,6 +2996,25 @@
       }
 
       /* ---- Реальный чат ---- */
+      /* Преобразование raw-реакций {uid: emoji} в вид {emoji: [uid]} + свои */
+      function processReactions(raw, myUid) {
+        var byEmoji = {};
+        var mine = [];
+        if (raw) {
+          Object.keys(raw).forEach(function (uid) {
+            var emoji = raw[uid];
+            if (!byEmoji[emoji]) {
+              byEmoji[emoji] = [];
+            }
+            byEmoji[emoji].push(uid);
+            if (uid === myUid) {
+              mine.push(emoji);
+            }
+          });
+        }
+        return { reactions: byEmoji, mine: mine };
+      }
+
       function initChat() {
         var q = query(ref(db, 'messages'), limitToLast(60));
         onChildAdded(q, function (snap) {
@@ -2531,7 +3022,23 @@
           if (!m || !m.text) {
             return;
           }
-          addChatMessage(m.name || 'Гость', m.text, m.uid === currentUid);
+          var pr = processReactions(m.reacts, currentUid);
+          addChatMessage(m.name || 'Гость', m.text, m.uid === currentUid, {
+            key: snap.key,
+            uid: m.uid,
+            reactions: pr.reactions,
+            mine: pr.mine
+          });
+        });
+        // Обновляем реакции при изменении существующих сообщений
+        onChildChanged(q, function (snap) {
+          var m = snap.val();
+          var el = chatMsgEls[snap.key];
+          if (!el || !m) {
+            return;
+          }
+          var pr = processReactions(m.reacts, currentUid);
+          updateChatReactions(snap.key, pr.reactions, pr.mine);
         });
       }
 
@@ -2540,6 +3047,107 @@
           return;
         }
         push(ref(db, 'messages'), { name: currentNick, uid: currentUid, text: text, ts: Date.now() });
+      };
+
+      /* Реакции: хранение {uid: emoji} в узле сообщения */
+      window.Online.onToggleReaction = function (key, emoji) {
+        if (!currentUid || !key) {
+          return;
+        }
+        var reactRef = ref(db, 'messages/' + key + '/reacts/' + currentUid);
+        onValue(reactRef, function (snap) {
+          var existing = snap.val();
+          if (existing === emoji) {
+            remove(reactRef);
+          } else {
+            set(reactRef, emoji);
+          }
+        }, { onlyOnce: true });
+      };
+
+      /* ---- Личные сообщения (whisper) ---- */
+      function initWhispers() {
+        if (!currentUid) {
+          return;
+        }
+        onChildAdded(ref(db, 'whispers/' + currentUid), function (snap) {
+          var w = snap.val();
+          if (!w || !w.text) {
+            return;
+          }
+          addChatMessage(w.from || 'Неизвестно', w.text, false, { whisper: true });
+        });
+      }
+
+      window.Online.onSendWhisper = function (name, text) {
+        if (!currentUid || !window.Online.uidByNick) {
+          showToast('⚠️', 'Не найден игрок', 'Ник «' + name + '» сейчас не в сети');
+          return;
+        }
+        var targetUid = window.Online.uidByNick[name.toLowerCase()];
+        if (!targetUid) {
+          showToast('⚠️', 'Не найден игрок', 'Ник «' + name + '» сейчас не в сети');
+          return;
+        }
+        push(ref(db, 'whispers/' + targetUid), { from: currentNick, text: text, ts: Date.now() });
+        addChatMessage('[Вы]', '→ ' + name + ': ' + text, true);
+      };
+
+      /* ---- Подарки кристаллов ---- */
+      function initGifts() {
+        if (!currentUid) {
+          return;
+        }
+        onChildAdded(ref(db, 'gifts/' + currentUid), function (snap) {
+          var g = snap.val();
+          if (!g || !g.amount) {
+            return;
+          }
+          gameState.balance += g.amount;
+          gameState.totalEarned += g.amount;
+          refreshUI();
+          showToast('🎁', 'Вам подарили!', g.from + ' отправил ' + formatNumber(g.amount) + ' 💎');
+          remove(ref(db, 'gifts/' + currentUid + '/' + snap.key));
+        });
+      }
+
+      window.Online.onSendGift = function (name, amount) {
+        if (!currentUid || !window.Online.uidByNick) {
+          showToast('⚠️', 'Не найден игрок', 'Ник «' + name + '» сейчас не в сети');
+          return;
+        }
+        var targetUid = window.Online.uidByNick[name.toLowerCase()];
+        if (!targetUid || targetUid === currentUid) {
+          showToast('⚠️', 'Нельзя подарить', 'Игрок «' + name + '» не найден или это вы');
+          return;
+        }
+        if (amount > Math.floor(gameState.balance)) {
+          showToast('⛔', 'Недостаточно кристаллов', 'У вас ' + formatBalance(gameState.balance));
+          return;
+        }
+        gameState.balance -= amount;
+        push(ref(db, 'gifts/' + targetUid), { from: currentNick, amount: amount, ts: Date.now() });
+        refreshUI();
+        showToast('🎁', 'Подарок отправлен', name + ' получит ' + formatNumber(amount) + ' 💎');
+      };
+
+      /* ---- Профиль игрока (реальный режим) ---- */
+      window.Online.onOpenProfile = function (uid, name) {
+        if (!uid) {
+          return;
+        }
+        onValue(ref(db, 'players/' + uid), function (snap) {
+          var v = snap.val() || {};
+          onValue(ref(db, 'online/' + uid), function (onlineSnap) {
+            var online = onlineSnap.exists();
+            renderProfileModal({
+              name: v.name || name,
+              uid: uid,
+              balance: v.balance || 0,
+              online: online
+            });
+          }, { onlyOnce: true });
+        }, { onlyOnce: true });
       };
 
       /* ---- Реальный лидерборд и список онлайна ---- */
@@ -2557,7 +3165,15 @@
             '<span class="r-rank">' + (index + 1) + '</span>' +
             '<span class="r-name"></span>' +
             '<span class="r-bal"></span>';
-          row.querySelector('.r-name').textContent = entry.name;
+          var nameEl = row.querySelector('.r-name');
+          nameEl.textContent = entry.name;
+          if (entry.uid) {
+            nameEl.style.cursor = 'pointer';
+            nameEl.style.textDecoration = 'underline dotted rgba(255,255,255,0.4)';
+            nameEl.addEventListener('click', function () {
+              openPlayerProfile(entry.uid, entry.name);
+            });
+          }
           row.querySelector('.r-bal').textContent = formatBalance(entry.balance);
           container.appendChild(row);
         });
@@ -2576,7 +3192,15 @@
             '<span class="p-dot"></span>' +
             '<span class="p-name"></span>' +
             '<span class="p-bal"></span>';
-          row.querySelector('.p-name').textContent = entry.name;
+          var nameEl = row.querySelector('.p-name');
+          nameEl.textContent = entry.name;
+          if (entry.uid) {
+            nameEl.style.cursor = 'pointer';
+            nameEl.style.textDecoration = 'underline dotted rgba(255,255,255,0.4)';
+            nameEl.addEventListener('click', function () {
+              openPlayerProfile(entry.uid, entry.name);
+            });
+          }
           row.querySelector('.p-bal').textContent = formatBalance(entry.balance);
           container.appendChild(row);
         });
@@ -2596,12 +3220,16 @@
 
         onValue(ref(db, 'online'), function (snap) {
           var rows = [];
+          var nickMap = {};
           snap.forEach(function (child) {
             var v = child.val();
-            rows.push({ name: v.name || 'Гость', balance: v.balance || 0 });
+            var nm = v.name || 'Гость';
+            rows.push({ name: nm, balance: v.balance || 0, uid: child.key });
+            nickMap[nm.toLowerCase()] = child.key;
           });
           rows.sort(function (a, b) { return b.balance - a.balance; });
           renderOnlineList(rows.slice(0, 14));
+          window.Online.uidByNick = nickMap;
         });
       }
 
@@ -2625,14 +3253,18 @@
       onAuthStateChanged(auth, function (user) {
         if (user) {
           currentUid = user.uid;
+          window.Online.myUid = user.uid;
           renderProfile(user);
           refreshPresence();
           initPresence();
           initChat();
           initLeaderboard();
+          initWhispers();
+          initGifts();
         } else {
           currentUid = null;
           currentNick = '';
+          window.Online.myUid = null;
           renderProfile(null);
         }
       });
