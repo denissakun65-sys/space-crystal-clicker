@@ -140,8 +140,35 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 10px;
     padding: 0 18px;
     pointer-events: none;
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    pointer-events: auto;
+    margin-left: auto;
+  }
+
+  .balance-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 30px;
+    background: linear-gradient(135deg, rgba(143, 123, 255, 0.25), rgba(255, 106, 213, 0.2));
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: clamp(14px, 3vw, 20px);
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 18px rgba(143, 123, 255, 0.35);
+    white-space: nowrap;
   }
 
   .logo {
@@ -425,6 +452,33 @@
   }
 
   .footer-spacer { flex: 1; }
+
+  .goal-track {
+    flex: 1;
+    height: 12px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--glass-border);
+    overflow: hidden;
+  }
+
+  .goal-fill {
+    height: 100%;
+    width: 0;
+    border-radius: 8px;
+    background: linear-gradient(90deg, var(--cyan), var(--magenta));
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.6);
+    transition: width 0.4s ease;
+  }
+
+  .goal-label {
+    min-width: 70px;
+    text-align: right;
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 14px;
+    color: var(--gold);
+  }
 
   /* ---------- Shop ---------- */
   #shop-grid {
@@ -815,6 +869,9 @@
     #ach-list { grid-template-columns: 1fr; }
     .hud-balance { font-size: 38px; }
     .topbar { padding: 0 10px; }
+    .balance-chip { padding: 6px 10px; font-size: 14px; }
+    .online-badge { padding: 6px 10px; font-size: 11px; }
+    .logo { font-size: 17px; }
   }
 </style>
 </head>
@@ -832,9 +889,12 @@
   <!-- Top bar: logo + live online -->
   <div class="topbar">
     <div class="logo" id="game-logo">[CRYSTAL.NET]</div>
-    <div class="online-badge" id="online-indicator">
-      <span class="dot"></span>
-      <span>В СЕТИ: <span id="online-count">–</span></span>
+    <div class="topbar-right">
+      <div class="balance-chip" id="balance-chip">0 💎</div>
+      <div class="online-badge" id="online-indicator">
+        <span class="dot"></span>
+        <span>В СЕТИ: <span id="online-count">–</span></span>
+      </div>
     </div>
   </div>
 
@@ -855,6 +915,13 @@
       <div class="clickable-ui hud">
         <div class="hud-balance" id="hud-balance">0 💎</div>
         <div class="hud-cps" id="hud-cps">💠 0 / сек</div>
+        <div style="margin-top:18px">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:700">ЦЕЛЬ ПЕРЕРОЖДЕНИЯ</div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="goal-track"><div class="goal-fill" id="goal-fill" style="width:0%"></div></div>
+            <div class="goal-label" id="goal-label">+0 ✨</div>
+          </div>
+        </div>
       </div>
       <div class="clickable-ui hud-hint">
         <div class="hud-hint">Кликни по кристаллу в центре экрана ✨</div>
@@ -930,6 +997,12 @@
           <div class="skin-grid" id="skin-grid"></div>
           <button class="reset-btn" id="reset-btn">🗑 Сбросить весь прогресс</button>
         </div>
+      </div>
+      <div style="height:18px"></div>
+      <div class="panel">
+        <div class="page-title">✨ Перерождение</div>
+        <div class="page-sub">Главная цель прогрессии: жертвуй прогрессом ради вечного множителя.</div>
+        <div id="prestige-box"></div>
       </div>
       <div style="height:18px"></div>
       <div class="panel">
@@ -1045,12 +1118,15 @@
       ownedSkins: ['default'],
       activeSkin: 'default',
       achievements: freshAchievements(),
-      chatHistory: []
+      chatHistory: [],
+      prestigeShards: 0,
+      prestigeCount: 0
     };
 
     var derived = {
       clickPower: 1,
       incomeMultiplier: 1,
+      prestigeMultiplier: 1,
       cps: 0
     };
 
@@ -1134,12 +1210,23 @@
       });
       var skin = SKINS[gameState.activeSkin] || SKINS.default;
       derived.incomeMultiplier = skin.mult;
-      derived.clickPower = clickBase;
-      derived.cps = cpsBase * derived.incomeMultiplier;
+      derived.prestigeMultiplier = getPrestigeMultiplier();
+      derived.clickPower = clickBase * skin.mult * derived.prestigeMultiplier;
+      derived.cps = cpsBase * skin.mult * derived.prestigeMultiplier;
+    }
+
+    /* Сколько осколков принесёт перерождение прямо сейчас */
+    function getPrestigeGain() {
+      return Math.floor(Math.sqrt(gameState.totalEarned) * 0.1);
+    }
+
+    /* Постоянный множитель от накопленных осколков */
+    function getPrestigeMultiplier() {
+      return 1 + gameState.prestigeShards * 0.05;
     }
 
     function registerClick() {
-      var gain = Math.round(derived.clickPower * derived.incomeMultiplier);
+      var gain = Math.round(derived.clickPower);
       gameState.balance += gain;
       gameState.totalEarned += gain;
       gameState.totalClicks += 1;
@@ -1625,7 +1712,23 @@
       }
       renderLeaderboard();
       renderOnlineList();
+      renderProfileDemo();
       document.getElementById('chat-online').textContent = '🟢 ' + onlineCount + ' в сети';
+    }
+
+    /* В демо-режиме объясняем, что онлайн симулируется */
+    function renderProfileDemo() {
+      var box = document.getElementById('profile-box');
+      if (!box) {
+        return;
+      }
+      box.innerHTML =
+        '<div style="padding:12px 14px;border-radius:12px;background:rgba(255,210,0,0.08);border:1px solid rgba(255,210,0,0.25)">' +
+          '<div style="font-weight:800;font-size:14px;margin-bottom:4px">🧪 Демо-режим</div>' +
+          '<div style="font-size:13px;color:var(--muted)">Онлайн, чат и лидерборд сейчас симулируются ботами. ' +
+          'Чтобы подключить <b>реальный</b> онлайн между игроками — заполните <code>config.js</code> ключами Firebase ' +
+          '(инструкция в README).</div>' +
+        '</div>';
     }
 
     function renderOnlineList() {
@@ -1797,6 +1900,7 @@
         renderSkins();
         renderStats();
         renderAchievements();
+        renderPrestige();
       }
     }
 
@@ -1869,7 +1973,7 @@
       document.getElementById('stat-clicks').textContent = formatNumber(gameState.totalClicks);
       document.getElementById('stat-earned').textContent = formatBalance(gameState.totalEarned);
       document.getElementById('stat-time').textContent = formatTime(gameState.playTime);
-      document.getElementById('stat-mult').textContent = 'x' + derived.incomeMultiplier;
+      document.getElementById('stat-mult').textContent = 'x' + (derived.incomeMultiplier * derived.prestigeMultiplier).toFixed(2);
       document.getElementById('stat-bal').textContent = formatBalance(gameState.balance);
     }
 
@@ -1951,11 +2055,37 @@
        ---------------------------------------------------------------- */
     var lastShopRender = 0;
 
+    function updateGoal() {
+      var fill = document.getElementById('goal-fill');
+      var label = document.getElementById('goal-label');
+      if (!fill || !label) {
+        return;
+      }
+      var gain = getPrestigeGain();
+      var shards = gameState.prestigeShards;
+      // Порог следующего осколка: 100 * (g+1)^2
+      var curThreshold = 100 * gain * gain;
+      var nextThreshold = 100 * (gain + 1) * (gain + 1);
+      var pct = 0;
+      if (nextThreshold > curThreshold) {
+        pct = Math.min(1, Math.max(0, (gameState.totalEarned - curThreshold) / (nextThreshold - curThreshold)));
+      }
+      fill.style.width = Math.round(pct * 100) + '%';
+      label.textContent = '+' + formatNumber(gain) + ' ✨';
+    }
+
     function refreshUI() {
-      document.getElementById('hud-balance').textContent = formatBalance(gameState.balance);
+      var balText = formatBalance(gameState.balance);
+      var chip = document.getElementById('balance-chip');
+      if (chip) {
+        chip.textContent = balText;
+      }
+      document.getElementById('hud-balance').textContent = balText;
       document.getElementById('hud-cps').textContent = '💠 ' + formatNumber(derived.cps) + ' / сек';
+      updateGoal();
       if (activePage === 'page-lab') {
         renderStats();
+        renderPrestige();
       }
       if (activePage === 'page-net') {
         renderLeaderboard();
@@ -1984,7 +2114,10 @@
         ownedSkins: gameState.ownedSkins,
         activeSkin: gameState.activeSkin,
         achievements: gameState.achievements,
-        chatHistory: gameState.chatHistory
+        chatHistory: gameState.chatHistory,
+        prestigeShards: gameState.prestigeShards,
+        prestigeCount: gameState.prestigeCount,
+        lastSeen: Date.now()
       };
       try {
         localStorage.setItem(SAVE_KEY, JSON.stringify(data));
@@ -2054,7 +2187,27 @@
         gameState.chatHistory = data.chatHistory.filter(function (m) { return typeof m === 'string'; }).slice(-50);
       }
 
+      gameState.prestigeShards = typeof data.prestigeShards === 'number' ? data.prestigeShards : 0;
+      gameState.prestigeCount = typeof data.prestigeCount === 'number' ? data.prestigeCount : 0;
+
       recomputeDerived();
+
+      // Офлайн-доход: пока игрока не было, ферма продолжала работать (50% CPS)
+      if (typeof data.lastSeen === 'number') {
+        var awayMs = Math.max(0, Date.now() - data.lastSeen);
+        if (awayMs > 60000) {
+          var awaySeconds = awayMs / 1000;
+          var offlineGain = derived.cps * awaySeconds * 0.5;
+          offlineGain = Math.max(offlineGain, awaySeconds * 0.1);
+          if (offlineGain > 0) {
+            gameState.balance += offlineGain;
+            gameState.totalEarned += offlineGain;
+            setTimeout(function () {
+              showToast('😴', 'Офлайн-доход', 'Пока вас не было, добыто ' + formatNumber(offlineGain) + ' 💎');
+            }, 800);
+          }
+        }
+      }
     }
 
     function resetProgress() {
@@ -2072,7 +2225,9 @@
         ownedSkins: ['default'],
         activeSkin: 'default',
         achievements: freshAchievements(),
-        chatHistory: []
+        chatHistory: [],
+        prestigeShards: 0,
+        prestigeCount: 0
       };
       recomputeDerived();
       applySkin();
@@ -2082,7 +2237,67 @@
       renderStats();
       renderAchievements();
       renderNetwork();
+      renderPrestige();
       showToast('🗑', 'Прогресс сброшен', 'Всё началось заново');
+    }
+
+    /* ----------------------------------------------------------------
+       21b. ПЕРЕРОЖДЕНИЕ (ПРЕСТИЖ)
+       ---------------------------------------------------------------- */
+    function performPrestige() {
+      var gain = getPrestigeGain();
+      if (gain <= 0) {
+        showToast('💠', 'Пока рано', 'Накопите больше кристаллов, чтобы получить осколки');
+        return;
+      }
+      var mult = getPrestigeMultiplier();
+      var confirmed = confirm(
+        'Переродиться?\n\n' +
+        'Вы потеряете: баланс, уровни апгрейдов и статистику кликов.\n' +
+        'Вы получите: +' + gain + ' осколков (постоянный множитель дохода x' + (1 + (gameState.prestigeShards + gain) * 0.05).toFixed(2) + ').\n\n' +
+        'Скины и достижения сохранятся.'
+      );
+      if (!confirmed) {
+        return;
+      }
+      gameState.prestigeShards += gain;
+      gameState.prestigeCount += 1;
+      gameState.balance = 0;
+      gameState.totalEarned = 0;
+      gameState.totalClicks = 0;
+      gameState.playTime = 0;
+      gameState.upgrades = freshUpgrades();
+      recomputeDerived();
+      refreshUI();
+      renderShop();
+      renderSkins();
+      renderStats();
+      renderAchievements();
+      renderNetwork();
+      renderPrestige();
+      showToast('✨', 'Перерождение!', '+' + gain + ' осколков · всего x' + getPrestigeMultiplier().toFixed(2));
+    }
+
+    function renderPrestige() {
+      var box = document.getElementById('prestige-box');
+      if (!box) {
+        return;
+      }
+      var gain = getPrestigeGain();
+      var nextMult = 1 + (gameState.prestigeShards + gain) * 0.05;
+      box.innerHTML =
+        '<div class="stat-row"><span class="k">Перерождений</span><span class="v">' + gameState.prestigeCount + '</span></div>' +
+        '<div class="stat-row"><span class="k">Осколков накоплено</span><span class="v">' + formatNumber(gameState.prestigeShards) + '</span></div>' +
+        '<div class="stat-row"><span class="k">Постоянный множитель</span><span class="v">x' + getPrestigeMultiplier().toFixed(2) + '</span></div>' +
+        '<div class="stat-row"><span class="k">Осколков при перерождении</span><span class="v">+' + formatNumber(gain) + '</span></div>' +
+        '<div class="stat-row"><span class="k">Множитель после</span><span class="v">x' + nextMult.toFixed(2) + '</span></div>' +
+        '<div style="font-size:12px;color:var(--muted);margin:8px 0 12px">Перерождение сбрасывает баланс и апгрейды, но даёт постоянный множитель дохода. Так игра не заканчивается — каждый цикл делает вас сильнее.</div>' +
+        '<button class="buy-btn" id="prestige-btn" style="width:100%">✨ Переродиться (+' + formatNumber(gain) + ' осколков)</button>';
+      var btn = document.getElementById('prestige-btn');
+      btn.addEventListener('click', performPrestige);
+      if (gain <= 0) {
+        btn.style.opacity = '0.5';
+      }
     }
 
     /* ----------------------------------------------------------------
