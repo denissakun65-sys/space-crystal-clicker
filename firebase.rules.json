@@ -1,0 +1,33 @@
+/* ================================================================
+   [CRYSTAL.NET] — Правила безопасности Realtime Database
+   ----------------------------------------------------------------
+   Установите их в Firebase Console:
+   Build -> Realtime Database -> Rules.
+   Эти правила разрешают аутентифицированным игрокам читать данные
+   и писать ТОЛЬКО в свои узлы (online/<uid> и players/<uid>),
+   а чат можно создавать только со своим uid.
+   ================================================================ */
+
+{
+  "rules": {
+    "online": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['name','lastSeen'])"
+      }
+    },
+    "messages": {
+      ".read": "auth != null",
+      "$messageId": {
+        ".write": "auth != null && newData.child('uid').val() === auth.uid"
+      }
+    },
+    "players": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    }
+  }
+}

@@ -1,0 +1,2427 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0718">
+<title>[CRYSTAL.NET] — 3D Кликер</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  :root {
+    --bg: #0a0718;
+    --glass: rgba(255, 255, 255, 0.07);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --neon: #8f7bff;
+    --cyan: #00f0ff;
+    --magenta: #ff007f;
+    --neon-3: #38f0ff;
+    --text: #f4f2ff;
+    --muted: #a8a3c8;
+    --gold: #ffd84d;
+    --good: #3dff9c;
+    --bad: #ff5a5a;
+  }
+
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    font-family: "Segoe UI", system-ui, -apple-system, "Roboto", Arial, sans-serif;
+    background: radial-gradient(circle at 50% 30%, #1a1233 0%, var(--bg) 70%);
+    color: var(--text);
+    overflow: hidden;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  /* ---------- 3D canvas ---------- */
+  #scene-container {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: auto;
+    cursor: pointer;
+  }
+
+  #fx-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  /* ---------- Toast ---------- */
+  #toast-container {
+    position: fixed;
+    top: 76px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    width: min(94vw, 420px);
+    pointer-events: none;
+  }
+
+  .toast {
+    background: var(--glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+    animation: toastIn 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.2), toastOut 0.5s ease 2.5s forwards;
+    max-width: 100%;
+  }
+
+  .toast .t-icon { font-size: 28px; line-height: 1; }
+  .toast .t-title { font-weight: 800; font-size: 15px; }
+  .toast .t-desc { font-size: 13px; color: var(--muted); }
+
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateY(-20px) scale(0.8); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  @keyframes toastOut {
+    to { opacity: 0; transform: translateY(-16px) scale(0.9); }
+  }
+
+  /* ---------- Floating damage text ---------- */
+  .dmg-float {
+    position: fixed;
+    transform: translate(-50%, -50%);
+    font-weight: 900;
+    font-size: 26px;
+    color: #fff;
+    text-shadow: 0 0 12px var(--neon), 0 0 26px var(--neon), 0 2px 4px rgba(0, 0, 0, 0.6);
+    pointer-events: none;
+    white-space: nowrap;
+    animation: floatUp 1.1s ease-out forwards;
+    will-change: transform, opacity;
+  }
+
+  @keyframes floatUp {
+    0% { opacity: 1; transform: translate(-50%, -50%) scale(0.6) translateY(0); }
+    100% { opacity: 0; transform: translate(-50%, -160%) scale(1.35) translateY(-80px); }
+  }
+
+  /* ---------- Header (logo + online indicator) ---------- */
+  .topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    z-index: 90;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 18px;
+    pointer-events: none;
+  }
+
+  .logo {
+    font-family: 'Orbitron', 'Courier New', monospace;
+    font-weight: 900;
+    font-size: clamp(20px, 4vw, 30px);
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, var(--cyan), #7cfcff, var(--magenta), #ff6ad5, var(--cyan));
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    text-shadow: none;
+    filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.7)) drop-shadow(0 0 20px rgba(255, 0, 127, 0.5));
+    animation: logoPulse 2.6s ease-in-out infinite, logoShimmer 5s linear infinite, logoWobble 4s ease-in-out infinite;
+    transform-origin: left center;
+    position: relative;
+    display: inline-block;
+    pointer-events: auto;
+    cursor: pointer;
+  }
+
+  .logo .logo-bracket {
+    -webkit-text-fill-color: transparent;
+  }
+
+  @keyframes logoShimmer {
+    0% { background-position: 0% 0; }
+    100% { background-position: 300% 0; }
+  }
+
+  @keyframes logoPulse {
+    0%, 100% { filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.5)) drop-shadow(0 0 14px rgba(255, 0, 127, 0.35)); }
+    50% { filter: drop-shadow(0 0 18px rgba(0, 240, 255, 0.95)) drop-shadow(0 0 34px rgba(255, 0, 127, 0.7)); }
+  }
+
+  @keyframes logoWobble {
+    0%, 100% { transform: rotate(-1.2deg) translateY(0); }
+    50% { transform: rotate(1.2deg) translateY(-3px); }
+  }
+
+  .spark {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff, var(--cyan), transparent);
+    pointer-events: none;
+    animation: sparkFly 0.8s ease-out forwards;
+    box-shadow: 0 0 8px var(--cyan);
+  }
+
+  @keyframes sparkFly {
+    0% { opacity: 1; transform: translate(0, 0) scale(1); }
+    100% { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(0.2); }
+  }
+
+  .online-badge {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 30px;
+    background: var(--glass);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    font-family: 'Orbitron', monospace;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--good);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  .online-badge .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--good);
+    box-shadow: 0 0 10px var(--good);
+    animation: blinkDot 1.6s ease-in-out infinite;
+  }
+
+  @keyframes blinkDot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* ---------- Activity ticker ---------- */
+  #activity-ticker {
+    position: fixed;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%) translateY(120%);
+    z-index: 85;
+    max-width: 640px;
+    width: max-content;
+    padding: 10px 18px;
+    border-radius: 14px;
+    background: var(--glass);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    font-size: 13px;
+    color: var(--text);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    transition: transform 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+    white-space: nowrap;
+    max-width: 92vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;
+  }
+
+  #activity-ticker.showing {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ---------- Navigation ---------- */
+  nav.sidebar {
+    position: fixed;
+    top: 50%;
+    left: 16px;
+    transform: translateY(-50%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 10px;
+    border-radius: 22px;
+    background: var(--glass);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  }
+
+  .nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 700;
+    padding: 12px 16px;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: background 0.25s, color 0.25s, transform 0.2s, box-shadow 0.25s;
+    font-family: inherit;
+  }
+
+  .nav-btn .nav-icon { font-size: 20px; }
+
+  .nav-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+    transform: translateX(3px);
+  }
+
+  .nav-btn.active {
+    background: linear-gradient(135deg, rgba(143, 123, 255, 0.35), rgba(255, 106, 213, 0.35));
+    color: #fff;
+    box-shadow: 0 0 20px rgba(143, 123, 255, 0.45);
+  }
+
+  /* ---------- Pages (fade + blur transitions) ---------- */
+  .page {
+    position: fixed;
+    inset: 0;
+    overflow-y: auto;
+    z-index: 40;
+    opacity: 0;
+    transform: translateY(18px);
+    filter: blur(14px);
+    visibility: hidden;
+    display: none;
+    transition: opacity 0.5s ease, transform 0.5s ease, filter 0.5s ease;
+  }
+
+  .page.visible {
+    display: block;
+    visibility: visible;
+  }
+
+  .page.active {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+
+  .page-scroll {
+    min-height: 100%;
+    padding: 84px 40px 40px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* На десктопе боковая панель слева не должна перекрывать контент страниц
+     (Рынок, Сеть, Лаборатория). Главный экран с кристаллом оставляем по центру. */
+  @media (min-width: 821px) {
+    .page:not(#page-crystal) .page-scroll {
+      padding-left: 215px;
+    }
+  }
+
+  .page#page-crystal {
+    pointer-events: none;
+  }
+
+  .page#page-crystal .clickable-ui {
+    pointer-events: auto;
+  }
+
+  .page-title {
+    font-size: 26px;
+    font-weight: 900;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .page-sub {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 22px;
+  }
+
+  .panel {
+    background: var(--glass);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 10px 34px rgba(0, 0, 0, 0.4);
+  }
+
+  /* ---------- Crystal page HUD ---------- */
+  .hud {
+    text-align: center;
+    padding: 18px 24px;
+    max-width: 520px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .hud-balance {
+    font-size: clamp(40px, 9vw, 72px);
+    font-weight: 900;
+    line-height: 1.05;
+    background: linear-gradient(90deg, #fff, var(--neon-3), var(--neon-2), #fff);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: shimmer 4s linear infinite;
+    filter: drop-shadow(0 0 18px rgba(56, 240, 255, 0.35));
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 0% 0; }
+    100% { background-position: 300% 0; }
+  }
+
+  .hud-cps {
+    font-size: 16px;
+    color: var(--neon-3);
+    font-weight: 700;
+    margin-top: 4px;
+    letter-spacing: 1px;
+  }
+
+  .hud-hint {
+    margin-top: 16px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .footer-spacer { flex: 1; }
+
+  /* ---------- Shop ---------- */
+  #shop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+  }
+
+  .upgrade-card {
+    background: var(--glass);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: 18px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: transform 0.2s, box-shadow 0.2s, opacity 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .upgrade-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+  }
+
+  .upgrade-card.locked { opacity: 0.4; }
+
+  .upgrade-card .u-top { display: flex; align-items: center; gap: 12px; }
+
+  .upgrade-card .u-icon {
+    font-size: 34px;
+    width: 54px;
+    height: 54px;
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+  }
+
+  .upgrade-card .u-name { font-weight: 800; font-size: 16px; }
+  .upgrade-card .u-desc { color: var(--muted); font-size: 13px; }
+  .upgrade-card .u-level { color: var(--neon-3); font-size: 13px; font-weight: 700; }
+  .upgrade-card .u-cost { font-weight: 800; font-size: 17px; color: var(--gold); }
+
+  .upgrade-card .buy-btn {
+    margin-top: auto;
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    font-weight: 800;
+    font-size: 15px;
+    font-family: inherit;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--neon), var(--neon-2));
+    color: #fff;
+    transition: transform 0.15s, filter 0.2s;
+  }
+
+  .upgrade-card .buy-btn:hover:not(:disabled) { transform: scale(1.03); filter: brightness(1.1); }
+  .upgrade-card .buy-btn:active:not(:disabled) { transform: scale(0.97); }
+  .upgrade-card .buy-btn:disabled { background: #3a3550; cursor: not-allowed; color: var(--muted); }
+
+  /* ---------- Network page (chat + players + leaderboard) ---------- */
+  .net-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 18px;
+  }
+
+  .chat-panel {
+    display: flex;
+    flex-direction: column;
+    height: min(62vh, 560px);
+  }
+
+  .panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .panel-head .chat-title { font-weight: 900; font-size: 18px; }
+  .panel-head .chat-live {
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    color: var(--good);
+  }
+
+  .chat-log {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-right: 4px;
+  }
+
+  .chat-log::-webkit-scrollbar { width: 6px; }
+  .chat-log::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 6px; }
+
+  .chat-msg {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 8px 12px;
+    animation: msgIn 0.3s ease;
+  }
+
+  .chat-msg.you {
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.12), rgba(255, 0, 127, 0.12));
+    border-color: rgba(0, 240, 255, 0.3);
+    align-self: flex-end;
+  }
+
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .chat-msg .m-nick {
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--cyan);
+  }
+
+  .chat-msg.you .m-nick { color: var(--magenta); }
+  .chat-msg .m-text { font-size: 13px; margin-top: 2px; word-break: break-word; }
+
+  .chat-input-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  #chat-input {
+    flex: 1;
+    padding: 11px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+  }
+
+  #chat-input::placeholder { color: var(--muted); }
+  #chat-input:focus { border-color: var(--cyan); box-shadow: 0 0 12px rgba(0, 240, 255, 0.3); }
+
+  #chat-send {
+    border: none;
+    border-radius: 12px;
+    padding: 0 18px;
+    font-size: 18px;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--cyan), var(--magenta));
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.15s, filter 0.2s;
+  }
+
+  #chat-send:hover { transform: scale(1.05); filter: brightness(1.1); }
+  #chat-send:active { transform: scale(0.95); }
+
+  .plist {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .plist-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .plist-row .p-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--good);
+    box-shadow: 0 0 8px var(--good);
+  }
+
+  .plist-row .p-name { font-weight: 700; font-size: 13px; flex: 1; }
+  .plist-row .p-bal { font-size: 13px; color: var(--gold); font-weight: 700; }
+
+  .leaderboard-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border-left: 3px solid transparent;
+  }
+
+  .leaderboard-row.you {
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.12), rgba(255, 0, 127, 0.12));
+    border-left-color: var(--cyan);
+  }
+
+  .leaderboard-row .r-rank { width: 28px; font-weight: 900; color: var(--muted); font-size: 13px; }
+  .leaderboard-row:nth-child(1) .r-rank { color: var(--gold); }
+  .leaderboard-row:nth-child(2) .r-rank { color: #c0c0c0; }
+  .leaderboard-row:nth-child(3) .r-rank { color: #cd7f32; }
+  .leaderboard-row .r-name { font-weight: 700; font-size: 13px; flex: 1; }
+  .leaderboard-row .r-bal { font-size: 13px; color: var(--gold); font-weight: 700; }
+
+  /* ---------- Lab ---------- */
+  .lab-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .stat-row:last-child { border-bottom: none; }
+  .stat-row .k { color: var(--muted); font-size: 14px; }
+  .stat-row .v { font-weight: 800; font-size: 16px; color: var(--text); }
+
+  .skin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+    margin-top: 6px;
+  }
+
+  .skin-card {
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    padding: 14px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.04);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+  }
+
+  .skin-card:hover { transform: translateY(-3px); }
+  .skin-card.equipped { border-color: var(--good); box-shadow: 0 0 16px rgba(61, 255, 156, 0.35); }
+  .skin-card.locked { opacity: 0.55; }
+
+  .skin-card .swatch {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    margin: 0 auto 8px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 18px currentColor;
+  }
+
+  .skin-card .s-name { font-weight: 800; font-size: 14px; }
+  .skin-card .s-mult { font-size: 12px; color: var(--gold); font-weight: 700; margin-top: 3px; }
+  .skin-card .s-price { font-size: 13px; color: var(--good); font-weight: 700; margin-top: 3px; }
+
+  .toggle-slider {
+    position: absolute;
+    inset: 0;
+    border-radius: 28px;
+    background: #3a3550;
+    cursor: pointer;
+    transition: background 0.25s;
+  }
+
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    left: 3px;
+    top: 3px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform 0.25s;
+  }
+
+  #demo-bots-toggle:checked + .toggle-slider {
+    background: linear-gradient(135deg, var(--cyan), var(--magenta));
+  }
+
+  #demo-bots-toggle:checked + .toggle-slider::before {
+    transform: translateX(24px);
+  }
+
+  .reset-btn {
+    border: 1px solid var(--bad);
+    color: var(--bad);
+    background: rgba(255, 90, 90, 0.08);
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-weight: 800;
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background 0.2s;
+  }
+
+  .reset-btn:hover { background: rgba(255, 90, 90, 0.18); }
+
+  #ach-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+  }
+
+  .ach-card {
+    background: var(--glass);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .ach-card.done {
+    border-color: rgba(61, 255, 156, 0.4);
+    box-shadow: 0 0 18px rgba(61, 255, 156, 0.18);
+  }
+
+  .ach-card .a-icon {
+    font-size: 30px;
+    width: 52px;
+    height: 52px;
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    flex-shrink: 0;
+  }
+
+  .ach-card .a-body .a-name { font-weight: 800; font-size: 15px; }
+  .ach-card .a-body .a-desc { color: var(--muted); font-size: 13px; margin: 2px 0; }
+  .ach-card .a-body .a-reward { font-size: 13px; color: var(--gold); font-weight: 700; }
+  .ach-card .a-status { margin-left: auto; font-size: 12px; font-weight: 800; color: var(--muted); white-space: nowrap; }
+  .ach-card.done .a-status { color: var(--good); }
+
+  /* ---------- Scrollbars ---------- */
+  .page::-webkit-scrollbar { width: 8px; }
+  .page::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 8px; }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 820px) {
+    nav.sidebar {
+      top: auto;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      transform: none;
+      flex-direction: row;
+      justify-content: space-around;
+      border-radius: 20px 20px 0 0;
+      border-bottom: none;
+      padding: 8px 6px;
+    }
+
+    .nav-btn { flex-direction: column; gap: 2px; font-size: 10px; padding: 8px 6px; }
+    .nav-btn .nav-icon { font-size: 22px; }
+    .nav-btn:hover { transform: translateY(-2px); }
+
+    .page-scroll { padding: 80px 16px 110px; }
+    .lab-grid { grid-template-columns: 1fr; }
+    .net-grid { grid-template-columns: 1fr; }
+    #activity-ticker { bottom: 96px; }
+  }
+
+  @media (max-width: 480px) {
+    .page-title { font-size: 22px; }
+    #shop-grid { grid-template-columns: 1fr; }
+    #ach-list { grid-template-columns: 1fr; }
+    .hud-balance { font-size: 38px; }
+    .topbar { padding: 0 10px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- 3D scene -->
+  <div id="scene-container"></div>
+
+  <!-- FX layer -->
+  <div id="fx-layer"></div>
+
+  <!-- Toast -->
+  <div id="toast-container"></div>
+
+  <!-- Top bar: logo + live online -->
+  <div class="topbar">
+    <div class="logo" id="game-logo">[CRYSTAL.NET]</div>
+    <div class="online-badge" id="online-indicator">
+      <span class="dot"></span>
+      <span>В СЕТИ: <span id="online-count">–</span></span>
+    </div>
+  </div>
+
+  <!-- Activity ticker -->
+  <div id="activity-ticker"></div>
+
+  <!-- Navigation -->
+  <nav class="sidebar" id="sidebar">
+    <button class="nav-btn active" data-target="page-crystal"><span class="nav-icon">🎮</span><span>Кристалл</span></button>
+    <button class="nav-btn" data-target="page-market"><span class="nav-icon">🛒</span><span>Рынок</span></button>
+    <button class="nav-btn" data-target="page-net"><span class="nav-icon">💬</span><span>Сеть</span></button>
+    <button class="nav-btn" data-target="page-lab"><span class="nav-icon">🛠️</span><span>Лаборатория</span></button>
+  </nav>
+
+  <!-- Page 1: Crystal -->
+  <section id="page-crystal" class="page visible active">
+    <div class="page-scroll">
+      <div class="clickable-ui hud">
+        <div class="hud-balance" id="hud-balance">0 💎</div>
+        <div class="hud-cps" id="hud-cps">💠 0 / сек</div>
+      </div>
+      <div class="clickable-ui hud-hint">
+        <div class="hud-hint">Кликни по кристаллу в центре экрана ✨</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Page 2: Market -->
+  <section id="page-market" class="page">
+    <div class="page-scroll">
+      <div class="panel">
+        <div class="page-title">🛒 Рынок</div>
+        <div class="page-sub">Инвестируй кристаллы в автоматизацию и ускорение производства.</div>
+      </div>
+      <div style="height:20px"></div>
+      <div id="shop-grid"></div>
+    </div>
+  </section>
+
+  <!-- Page 3: Network -->
+  <section id="page-net" class="page">
+    <div class="page-scroll">
+      <div class="panel" style="margin-bottom:16px">
+        <div class="page-title">👤 Профиль</div>
+        <div class="page-sub">Подключение к реальной сети: вход, никнейм и статус.</div>
+        <div id="profile-box"></div>
+        <div id="demo-box" style="display:none;margin-top:10px"></div>
+      </div>
+      <div class="net-grid">
+        <div class="panel chat-panel">
+          <div class="panel-head">
+            <div class="chat-title">💬 Глобальный чат</div>
+            <div class="chat-live" id="chat-online">🟢</div>
+          </div>
+          <div class="chat-log" id="chat-log"></div>
+          <div class="chat-input-row">
+            <input id="chat-input" placeholder="Написать сообщение..." maxlength="120" autocomplete="off">
+            <button id="chat-send" title="Отправить">➤</button>
+          </div>
+        </div>
+        <div>
+          <div class="panel">
+            <div class="page-title" style="font-size:20px">🟢 Онлайн-игроки</div>
+            <div style="height:10px"></div>
+            <div class="plist" id="online-list"></div>
+          </div>
+          <div class="panel" style="margin-top:16px">
+            <div class="page-title" style="font-size:20px">🏆 Таблица лидеров</div>
+            <div style="height:10px"></div>
+            <div id="leaderboard"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Page 4: Laboratory -->
+  <section id="page-lab" class="page">
+    <div class="page-scroll">
+      <div class="lab-grid">
+        <div class="panel">
+          <div class="page-title">📊 Статистика</div>
+          <div class="page-sub">Твои показатели в реальном времени.</div>
+          <div class="stat-row"><span class="k">Всего совершено кликов</span><span class="v" id="stat-clicks">0</span></div>
+          <div class="stat-row"><span class="k">Всего заработано за всё время</span><span class="v" id="stat-earned">0 💎</span></div>
+          <div class="stat-row"><span class="k">Время в игре</span><span class="v" id="stat-time">0 сек</span></div>
+          <div class="stat-row"><span class="k">Текущий множитель дохода</span><span class="v" id="stat-mult">x1</span></div>
+          <div class="stat-row"><span class="k">Баланс (для лидерборда)</span><span class="v" id="stat-bal">0 💎</span></div>
+        </div>
+        <div class="panel">
+          <div class="page-title">🎨 Кастомизация кристалла</div>
+          <div class="page-sub">Изменяй вид и силу своего кристалла за кристаллы.</div>
+          <div class="skin-grid" id="skin-grid"></div>
+          <button class="reset-btn" id="reset-btn">🗑 Сбросить весь прогресс</button>
+        </div>
+      </div>
+      <div style="height:18px"></div>
+      <div class="panel">
+        <div class="page-title">🏆 Достижения</div>
+        <div class="page-sub">Награды за игровые вехи.</div>
+        <div id="ach-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Конфигурация Firebase (заполняется в файле config.js) -->
+  <script src="config.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    'use strict';
+
+    /* ================================================================
+       [CRYSTAL.NET] — Многопользовательский 3D-кликер
+       SPA на чистом JS + Three.js + HTML5 + CSS3
+       ================================================================ */
+
+    /* ----------------------------------------------------------------
+       1. КОНСТАНТЫ И ОПРЕДЕЛЕНИЯ
+       ---------------------------------------------------------------- */
+    var SAVE_KEY = 'crystal-net-save-v1';
+    var PASSIVE_TICK_MS = 100;
+    var SAVE_INTERVAL_MS = 5000;
+
+    var UPGRADE_DEFS = [
+      { id: 'clicker', name: 'Кликер-утилита',            icon: '👆', desc: '+1 к силе клика',      baseCost: 15,      kind: 'click', per: 1 },
+      { id: 'drone',   name: 'Квантовый Дрон',            icon: '🛸', desc: '+2 CPS',               baseCost: 100,     kind: 'cps',   per: 2 },
+      { id: 'drill',   name: 'Планетарный Бур',           icon: '🛠️', desc: '+20 CPS',              baseCost: 1100,    kind: 'cps',   per: 20 },
+      { id: 'factory', name: 'Звездная Фабрика',          icon: '⭐', desc: '+150 CPS',             baseCost: 12000,   kind: 'cps',   per: 150 },
+      { id: 'time',    name: 'Манипулятор Времени',       icon: '⏳', desc: '+1200 CPS',            baseCost: 130000,  kind: 'cps',   per: 1200 },
+      { id: 'galaxy',  name: 'Галактический Конденсатор', icon: '🌌', desc: '+8000 CPS',            baseCost: 1400000, kind: 'cps',   per: 8000 }
+    ];
+
+    var SKINS = {
+      default: { id: 'default', name: 'Базовый кристалл', color: 0x8f7bff, emissive: 0x2a1a66, metalness: 0.9, roughness: 0.15, glow: 0x8f7bff, mult: 1, cost: 0 },
+      emerald: { id: 'emerald', name: 'Изумрудный неон', color: 0x00ff88, emissive: 0x00aa55, metalness: 0.7, roughness: 0.2, glow: 0x00ff88, mult: 1.5, cost: 5000 },
+      ruby:    { id: 'ruby',    name: 'Рубиновый взрыв', color: 0xff2255, emissive: 0xaa0033, metalness: 0.8, roughness: 0.18, glow: 0xff2255, mult: 2, cost: 5000 },
+      gold:    { id: 'gold',    name: 'Золотой слиток',  color: 0xffd700, emissive: 0x885500, metalness: 1.0, roughness: 0.05, glow: 0xffd700, mult: 3, cost: 5000 }
+    };
+
+    var ACHIEVEMENTS = [
+      { id: 'spark',   name: 'Первая искра',        icon: '✨', desc: 'Сделать 10 кликов вручную',             reward: 100,  check: function (s) { return s.totalClicks >= 10; } },
+      { id: 'worker',  name: 'Неутомимый труженик', icon: '💪', desc: 'Сделать 100 кликов вручную',            reward: 500,  check: function (s) { return s.totalClicks >= 100; } },
+      { id: 'tycoon',  name: 'Магнат',              icon: '👑', desc: 'Накопить 1 000 💎 на балансе',          reward: 500,  check: function (s) { return s.balance >= 1000; } },
+      { id: 'auto',    name: 'Автоматизация',       icon: '🤖', desc: 'Купить первого Квантового Дрона',      reward: 200,  check: function (s) { return s.upgrades.drone.level >= 1; } },
+      { id: 'million', name: 'Миллионер',           icon: '💰', desc: 'Накопить 1 000 000 💎 на балансе',      reward: 5000, check: function (s) { return s.balance >= 1000000; } }
+    ];
+
+    // Данные для симуляции сети (никнеймы, сообщения чата, лента активности)
+    var BOT_NAMES = [
+      'Player_993', 'CryptoKing', 'xXx_Neo_xXx', 'NeonRider', 'DiamondFox',
+      'PixelWarlord', 'CrystalHunter', 'ShadowByte', 'HyperNova', 'QuantumLee',
+      'LunaStorm', 'ByteMeister', 'StarForge', 'GigaNova', 'TurboByte',
+      'NightWraith', 'Zer0Cool', 'MegaFlo', 'CyberPunk_2077', 'EchoPrime'
+    ];
+
+    var CHAT_BOT_TEXTS = [
+      'как прокачать кристалл быстрее всех?',
+      'только что купил Квантовый Дрон, мой CPS растет! 🚀',
+      'у кого тут самая большая ферма?',
+      'я на 500к 💎, кто больше? 😎',
+      'кристалл так красиво переливается, не могу оторваться',
+      'кто-нибудь в сети?',
+      'продаю советы по фарму, пишите в личку',
+      'мой баланс уже 2 млн, догоняйте 😏',
+      'новый скин Изумруд просто топ 🔥',
+      'ахаха смотрите сколько у меня дронов',
+      'какой апгрейд покупать первым?',
+      'манипулятор времени окупился за 5 минут 💎💎💎',
+      'спасибо разработчикам, игра огонь!',
+      'только что выбил золотой скин 😍',
+      'ребят, не забудьте зайти в Лабораторию за множителем'
+    ];
+
+    var ACTIVITY_TEXTS = [
+      'только что купил Квантовый Луч!',
+      'скрафтил Изумрудный Скин!',
+      'достиг баланса в 1,000,000 💎!',
+      'потратил 2 млн на Галактический Конденсатор!',
+      'выбил Золотой Скин с невероятным везением!',
+      'поднялся на 3-е место в таблице лидеров!',
+      'купил 50 Планетарных Буров за один раз!',
+      'открыл все достижения Лаборатории!',
+      'только что вошел в игру и уже фармит!',
+      'собрал 100 Квантовых Дронов!'
+    ];
+
+    /* ----------------------------------------------------------------
+       2. СОСТОЯНИЕ ИГРЫ
+       ---------------------------------------------------------------- */
+    function freshUpgrades() {
+      var u = {};
+      UPGRADE_DEFS.forEach(function (def) { u[def.id] = { level: 0 }; });
+      return u;
+    }
+
+    function freshAchievements() {
+      var a = {};
+      ACHIEVEMENTS.forEach(function (ach) { a[ach.id] = { unlocked: false, rewardGiven: false }; });
+      return a;
+    }
+
+    var gameState = {
+      balance: 0,
+      totalEarned: 0,
+      totalClicks: 0,
+      playTime: 0,
+      upgrades: freshUpgrades(),
+      ownedSkins: ['default'],
+      activeSkin: 'default',
+      achievements: freshAchievements(),
+      chatHistory: []
+    };
+
+    var derived = {
+      clickPower: 1,
+      incomeMultiplier: 1,
+      cps: 0
+    };
+
+    var activePage = 'page-crystal';
+    var onHomePage = true;
+
+    /* Мост между ядром игры и модулем реального онлайна (Firebase).
+       Если модуль не подключён или нет конфигурации — игра работает
+       в автономном (демо) режиме с симуляцией ботов. */
+    window.Online = {
+      real: false,
+      signedIn: false,
+      demoBots: false,
+      onSendPlayerChat: null,
+      sendPlayerStats: null
+    };
+
+    var demoActivityRunning = false;
+
+    /* ----------------------------------------------------------------
+       3. УТИЛИТЫ
+       ---------------------------------------------------------------- */
+    function formatNumber(n) {
+      if (!isFinite(n)) {
+        return '∞';
+      }
+      n = Math.floor(n);
+      if (n < 1000) {
+        return String(n);
+      }
+      var suffixes = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp'];
+      var tier = Math.floor(Math.log10(n) / 3);
+      if (tier >= suffixes.length) {
+        tier = suffixes.length - 1;
+      }
+      var scaled = n / Math.pow(10, tier * 3);
+      var formatted = scaled.toFixed(scaled >= 100 ? 0 : scaled >= 10 ? 1 : 2);
+      return formatted + suffixes[tier];
+    }
+
+    function formatBalance(n) {
+      return formatNumber(n) + ' 💎';
+    }
+
+    function formatTime(seconds) {
+      seconds = Math.floor(seconds);
+      var h = Math.floor(seconds / 3600);
+      var m = Math.floor((seconds % 3600) / 60);
+      var s = seconds % 60;
+      if (h > 0) {
+        return h + 'ч ' + m + 'м ' + s + 'с';
+      }
+      if (m > 0) {
+        return m + 'м ' + s + 'с';
+      }
+      return s + ' сек';
+    }
+
+    function getUpgradeCost(def) {
+      var level = gameState.upgrades[def.id].level;
+      return Math.floor(def.baseCost * Math.pow(1.15, level));
+    }
+
+    function randomItem(array) {
+      return array[Math.floor(Math.random() * array.length)];
+    }
+
+    /* ----------------------------------------------------------------
+       4. ДОХОД
+       ---------------------------------------------------------------- */
+    function recomputeDerived() {
+      var clickBase = 1;
+      var cpsBase = 0;
+      UPGRADE_DEFS.forEach(function (def) {
+        var level = gameState.upgrades[def.id].level;
+        if (def.kind === 'click') {
+          clickBase += def.per * level;
+        } else {
+          cpsBase += def.per * level;
+        }
+      });
+      var skin = SKINS[gameState.activeSkin] || SKINS.default;
+      derived.incomeMultiplier = skin.mult;
+      derived.clickPower = clickBase;
+      derived.cps = cpsBase * derived.incomeMultiplier;
+    }
+
+    function registerClick() {
+      var gain = Math.round(derived.clickPower * derived.incomeMultiplier);
+      gameState.balance += gain;
+      gameState.totalEarned += gain;
+      gameState.totalClicks += 1;
+      return gain;
+    }
+
+    /* ----------------------------------------------------------------
+       5. ТОСТ-УВЕДОМЛЕНИЯ
+       ---------------------------------------------------------------- */
+    function showToast(icon, title, desc) {
+      var container = document.getElementById('toast-container');
+      var el = document.createElement('div');
+      el.className = 'toast';
+      el.innerHTML = '<span class="t-icon">' + icon + '</span>' +
+        '<div><div class="t-title"></div><div class="t-desc"></div></div>';
+      el.querySelector('.t-title').textContent = title;
+      el.querySelector('.t-desc').textContent = desc;
+      container.appendChild(el);
+      setTimeout(function () {
+        if (el.parentNode) {
+          el.parentNode.removeChild(el);
+        }
+      }, 3000);
+    }
+
+    /* ----------------------------------------------------------------
+       6. ВЫЛЕТАЮЩИЙ 2D-ТЕКСТ УРОНА
+       ---------------------------------------------------------------- */
+    function spawnDamageText(clientX, clientY, text) {
+      var layer = document.getElementById('fx-layer');
+      var el = document.createElement('div');
+      el.className = 'dmg-float';
+      el.textContent = text;
+      el.style.left = clientX + 'px';
+      el.style.top = clientY + 'px';
+      layer.appendChild(el);
+      el.addEventListener('animationend', function () {
+        if (el.parentNode) {
+          el.parentNode.removeChild(el);
+        }
+      });
+    }
+
+    /* ----------------------------------------------------------------
+       7. THREE.JS — СЦЕНА
+       ---------------------------------------------------------------- */
+    var renderer, scene, camera;
+    var crystalGroup, crystalMesh, crystalMaterial, crystalLight;
+    var particles = [];
+    var clock = new THREE.Clock();
+
+    function initThree() {
+      var container = document.getElementById('scene-container');
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.shadowMap.enabled = true;
+      container.appendChild(renderer.domElement);
+
+      scene = new THREE.Scene();
+      scene.fog = new THREE.Fog(0x0a0718, 14, 26);
+
+      camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
+      camera.position.set(0, 0.4, 6);
+      camera.lookAt(0, 0, 0);
+
+      scene.add(new THREE.AmbientLight(0x44446a, 0.6));
+
+      var keyLight = new THREE.DirectionalLight(0xffffff, 1.1);
+      keyLight.position.set(4, 6, 6);
+      scene.add(keyLight);
+
+      var rimLight = new THREE.DirectionalLight(0x38f0ff, 0.6);
+      rimLight.position.set(-5, -2, -4);
+      scene.add(rimLight);
+
+      crystalLight = new THREE.PointLight(0x8f7bff, 1.6, 10);
+      crystalLight.position.set(0, 0, 0);
+      scene.add(crystalLight);
+
+      createStars();
+      createCrystal();
+    }
+
+    function createStars() {
+      var starGeo = new THREE.BufferGeometry();
+      var count = 600;
+      var positions = new Float32Array(count * 3);
+      for (var i = 0; i < count; i++) {
+        positions[i * 3] = (Math.random() - 0.5) * 60;
+        positions[i * 3 + 1] = (Math.random() - 0.5) * 40;
+        positions[i * 3 + 2] = -Math.random() * 30 - 5;
+      }
+      starGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      var starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.06, transparent: true, opacity: 0.8 });
+      scene.add(new THREE.Points(starGeo, starMat));
+    }
+
+    function createCrystal() {
+      crystalGroup = new THREE.Group();
+      scene.add(crystalGroup);
+
+      var geometry = new THREE.IcosahedronGeometry(1.55, 1);
+      var skin = SKINS[gameState.activeSkin] || SKINS.default;
+
+      crystalMaterial = new THREE.MeshPhysicalMaterial({
+        color: skin.color,
+        emissive: skin.emissive,
+        metalness: skin.metalness,
+        roughness: skin.roughness,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.15,
+        envMapIntensity: 1.2,
+        flatShading: true
+      });
+
+      crystalMesh = new THREE.Mesh(geometry, crystalMaterial);
+      crystalMesh.castShadow = true;
+      crystalMesh.receiveShadow = true;
+      crystalGroup.add(crystalMesh);
+
+      var coreGeo = new THREE.OctahedronGeometry(0.75, 0);
+      var coreMat = new THREE.MeshBasicMaterial({ color: skin.glow, transparent: true, opacity: 0.35 });
+      var core = new THREE.Mesh(coreGeo, coreMat);
+      crystalGroup.add(core);
+      crystalGroup.userData.core = core;
+    }
+
+    function applySkin() {
+      var skin = SKINS[gameState.activeSkin] || SKINS.default;
+      crystalMaterial.color.setHex(skin.color);
+      crystalMaterial.emissive.setHex(skin.emissive);
+      crystalMaterial.metalness = skin.metalness;
+      crystalMaterial.roughness = skin.roughness;
+      crystalLight.color.setHex(skin.glow);
+      crystalLight.intensity = 1.6;
+      if (crystalGroup.userData.core) {
+        crystalGroup.userData.core.material.color.setHex(skin.glow);
+      }
+    }
+
+    /* ----------------------------------------------------------------
+       8. 3D-ЧАСТИЦЫ
+       ---------------------------------------------------------------- */
+    function spawnParticles(point) {
+      var particleCount = 16 + Math.floor(Math.random() * 5);
+      for (var i = 0; i < particleCount; i++) {
+        var size = 0.05 + Math.random() * 0.1;
+        var geo = new THREE.BoxGeometry(size, size, size);
+        var skin = SKINS[gameState.activeSkin] || SKINS.default;
+        var mat = new THREE.MeshStandardMaterial({
+          color: skin.glow,
+          emissive: skin.glow,
+          emissiveIntensity: 0.8,
+          metalness: 0.9,
+          roughness: 0.2
+        });
+        var cube = new THREE.Mesh(geo, mat);
+        cube.position.copy(point);
+        var dir = new THREE.Vector3(
+          (Math.random() - 0.5) * 2,
+          (Math.random() - 0.5) * 2,
+          (Math.random() - 0.5) * 2
+        ).normalize();
+        var speed = 2 + Math.random() * 3;
+        cube.userData.velocity = dir.multiplyScalar(speed);
+        cube.userData.life = 1;
+        scene.add(cube);
+        particles.push(cube);
+      }
+    }
+
+    function updateParticles(dt) {
+      for (var i = particles.length - 1; i >= 0; i--) {
+        var p = particles[i];
+        p.userData.life -= dt * 0.9;
+        p.userData.velocity.y -= dt * 5;
+        p.position.add(p.userData.velocity.clone().multiplyScalar(dt));
+        p.rotation.x += dt * 4;
+        p.rotation.y += dt * 4;
+        p.scale.setScalar(Math.max(0, p.userData.life));
+        if (p.userData.life <= 0) {
+          scene.remove(p);
+          p.geometry.dispose();
+          p.material.dispose();
+          particles.splice(i, 1);
+        }
+      }
+    }
+
+    /* ----------------------------------------------------------------
+       9. КЛИКИ ПО 3D-МОДЕЛИ
+       ---------------------------------------------------------------- */
+    var raycaster = new THREE.Raycaster();
+    var mouseNDC = new THREE.Vector2();
+    var isDown = false;
+
+    function onPointerDown(event) {
+      isDown = true;
+      updateMouse(event);
+      crystalGroup.scale.set(0.92, 0.92, 0.92);
+    }
+
+    function onPointerUp(event) {
+      if (!isDown) {
+        return;
+      }
+      isDown = false;
+      crystalGroup.scale.set(1, 1, 1);
+      updateMouse(event);
+
+      raycaster.setFromCamera(mouseNDC, camera);
+      var intersects = raycaster.intersectObject(crystalMesh);
+      if (intersects.length === 0) {
+        return;
+      }
+
+      var gain = registerClick();
+      var x = (event.clientX !== undefined ? event.clientX : event.changedTouches[0].clientX);
+      var y = (event.clientY !== undefined ? event.clientY : event.changedTouches[0].clientY);
+
+      spawnDamageText(x, y, '+' + formatNumber(gain) + ' 💎');
+      spawnParticles(intersects[0].point.clone());
+
+      refreshUI();
+      checkAchievements();
+    }
+
+    function updateMouse(event) {
+      var rect = renderer.domElement.getBoundingClientRect();
+      var clientX = event.clientX;
+      var clientY = event.clientY;
+      if (event.touches && event.touches.length > 0) {
+        clientX = event.touches[0].clientX;
+        clientY = event.touches[0].clientY;
+      }
+      mouseNDC.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+      mouseNDC.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+    }
+
+    /* ----------------------------------------------------------------
+       10. ИГРОВОЙ ЦИКЛ
+       ---------------------------------------------------------------- */
+    function animate() {
+      requestAnimationFrame(animate);
+      var dt = Math.min(clock.getDelta(), 0.05);
+      var time = clock.elapsedTime;
+
+      crystalGroup.position.y = Math.sin(time * 1.2) * 0.12;
+      crystalGroup.rotation.y += dt * 0.6;
+      crystalGroup.rotation.x = Math.sin(time * 0.5) * 0.08;
+      if (crystalGroup.scale.x < 0.999) {
+        crystalGroup.scale.lerp(new THREE.Vector3(1, 1, 1), dt * 8);
+      }
+      crystalLight.intensity = 1.4 + Math.sin(time * 2.2) * 0.3;
+
+      updateParticles(dt);
+
+      var targetZ = onHomePage ? 6 : 13.5;
+      var targetY = onHomePage ? 0.4 : 1.4;
+      camera.position.z += (targetZ - camera.position.z) * dt * 3;
+      camera.position.y += (targetY - camera.position.y) * dt * 3;
+      var crystalTargetScale = onHomePage ? 1 : 0.55;
+      crystalGroup.scale.lerp(new THREE.Vector3(crystalTargetScale, crystalTargetScale, crystalTargetScale), dt * 4);
+      camera.lookAt(0, 0, 0);
+
+      renderer.render(scene, camera);
+    }
+
+    /* ----------------------------------------------------------------
+       11. ПАССИВНЫЙ ДОХОД (каждые 100 мс)
+       ---------------------------------------------------------------- */
+    function passiveTick() {
+      var tickGain = derived.cps * (PASSIVE_TICK_MS / 1000);
+      gameState.balance += tickGain;
+      gameState.totalEarned += tickGain;
+      gameState.playTime += PASSIVE_TICK_MS / 1000;
+      refreshUI();
+      checkAchievements();
+    }
+
+    /* ----------------------------------------------------------------
+       12. ДОСТИЖЕНИЯ
+       ---------------------------------------------------------------- */
+    function checkAchievements() {
+      var changed = false;
+      ACHIEVEMENTS.forEach(function (ach) {
+        var state = gameState.achievements[ach.id];
+        if (state.unlocked) {
+          return;
+        }
+        if (ach.check(gameState)) {
+          state.unlocked = true;
+          state.rewardGiven = true;
+          gameState.balance += ach.reward;
+          gameState.totalEarned += ach.reward;
+          showToast(ach.icon, 'Достижение: ' + ach.name, 'Награда: ' + formatNumber(ach.reward) + ' 💎');
+          changed = true;
+        }
+      });
+      if (changed) {
+        recomputeDerived();
+        renderAchievements();
+        refreshUI();
+      }
+    }
+
+    /* ----------------------------------------------------------------
+       13. ЛОГОТИП — ИСКРЫ ПРИ НАВЕДЕНИИ
+       ---------------------------------------------------------------- */
+    function bindLogoSparkles() {
+      var logo = document.getElementById('game-logo');
+      var onEnter = function (event) {
+        for (var i = 0; i < 10; i++) {
+          var spark = document.createElement('span');
+          spark.className = 'spark';
+          var angle = Math.random() * Math.PI * 2;
+          var dist = 30 + Math.random() * 40;
+          var sx = Math.cos(angle) * dist;
+          var sy = Math.sin(angle) * dist;
+          spark.style.setProperty('--sx', sx + 'px');
+          spark.style.setProperty('--sy', sy + 'px');
+          spark.style.left = '50%';
+          spark.style.top = '50%';
+          logo.appendChild(spark);
+          spark.addEventListener('animationend', function () {
+            if (spark.parentNode) {
+              spark.parentNode.removeChild(spark);
+            }
+          });
+        }
+      };
+      logo.addEventListener('mouseenter', onEnter);
+      logo.addEventListener('touchstart', onEnter, { passive: true });
+    }
+
+    /* ----------------------------------------------------------------
+       14. СИМУЛЯЦИЯ ОНЛАЙНА (счётчик + лента активности)
+       ---------------------------------------------------------------- */
+    var onlineCount = 0;
+
+    function initOnlineSimulation() {
+      // В реальном режиме онлайн-счётчик ведёт модуль Firebase
+      if (window.Online.real) {
+        return;
+      }
+      onlineCount = 1420 + Math.floor(Math.random() * 431); // от 1420 до 1850
+      updateOnlineCount();
+
+      setInterval(function () {
+        var delta = Math.floor(Math.random() * 13) - 6; // -6 .. +6
+        onlineCount += delta;
+        if (onlineCount < 1400) {
+          onlineCount = 1400;
+        }
+        if (onlineCount > 1900) {
+          onlineCount = 1900;
+        }
+        updateOnlineCount();
+      }, 1000);
+
+      scheduleNextActivity();
+    }
+
+    function updateOnlineCount() {
+      // В реальном режиме счётчик обновляет модуль Firebase
+      if (window.Online.real) {
+        return;
+      }
+      document.getElementById('online-count').textContent = onlineCount;
+    }
+
+    function scheduleNextActivity() {
+      // Фейковая активность ботов отключена в реальном режиме и по умолчанию
+      // в демо-режиме. Включается переключателем в разделе «Сеть».
+      if (window.Online.real || !window.Online.demoBots) {
+        return;
+      }
+      var delay = 5000 + Math.floor(Math.random() * 5001); // 5-10 секунд
+      setTimeout(function () {
+        var name = randomItem(BOT_NAMES);
+        var action = randomItem(ACTIVITY_TEXTS);
+        showActivity(name + ' ' + action);
+        scheduleNextActivity();
+      }, delay);
+    }
+
+    function ensureDemoActivity() {
+      if (window.Online.real || !window.Online.demoBots || demoActivityRunning) {
+        return;
+      }
+      demoActivityRunning = true;
+      scheduleNextActivity();
+      scheduleBotChat();
+    }
+
+    function renderDemoBox() {
+      var box = document.getElementById('demo-box');
+      if (!box) {
+        return;
+      }
+      if (window.Online.real) {
+        box.style.display = 'none';
+        return;
+      }
+      box.style.display = 'block';
+      box.innerHTML =
+        '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0">' +
+          '<div>' +
+            '<div style="font-weight:800;font-size:14px">Демо-активность (боты)</div>' +
+            '<div style="font-size:12px;color:var(--muted)">Фейковые сообщения чата и ленты</div>' +
+          '</div>' +
+          '<label style="position:relative;display:inline-block;width:52px;height:28px;flex-shrink:0">' +
+            '<input type="checkbox" id="demo-bots-toggle" style="opacity:0;width:0;height:0">' +
+            '<span class="toggle-slider"></span>' +
+          '</label>' +
+        '</div>';
+      var cb = document.getElementById('demo-bots-toggle');
+      cb.checked = !!window.Online.demoBots;
+      cb.addEventListener('change', function () {
+        window.Online.demoBots = cb.checked;
+        if (cb.checked) {
+          ensureDemoActivity();
+        }
+      });
+    }
+
+    function showActivity(text) {
+      var ticker = document.getElementById('activity-ticker');
+      ticker.textContent = '⚡ ' + text;
+      ticker.classList.add('showing');
+      setTimeout(function () {
+        ticker.classList.remove('showing');
+      }, 4000);
+    }
+
+    /* ----------------------------------------------------------------
+       15. БОТЫ (игроки сети)
+       ---------------------------------------------------------------- */
+    var botPlayers = [];
+
+    function initBotPlayers() {
+      if (window.Online.real) {
+        return;
+      }
+      var usedNames = {};
+      var count = 14;
+      for (var i = 0; i < count; i++) {
+        var name = randomItem(BOT_NAMES);
+        while (usedNames[name]) {
+          name = name + '_' + Math.floor(Math.random() * 9);
+        }
+        usedNames[name] = true;
+        var balance = Math.floor(Math.pow(10, 4 + Math.random() * 2.4)); // от 10k до ~2.5M
+        botPlayers.push({ name: name, balance: balance });
+      }
+      // Немного вырастают со временем
+      setInterval(function () {
+        botPlayers.forEach(function (p) {
+          p.balance += p.balance * (0.002 + Math.random() * 0.008);
+        });
+      }, 3000);
+    }
+
+    function buildLeaderboard() {
+      var entries = botPlayers.map(function (p) {
+        return { name: p.name, balance: p.balance, isPlayer: false };
+      });
+      entries.push({ name: '[Вы]', balance: gameState.balance, isPlayer: true });
+      entries.sort(function (a, b) { return b.balance - a.balance; });
+      return entries.slice(0, 10);
+    }
+
+    function renderNetwork() {
+      renderDemoBox();
+      // В реальном режиме лидерборд, список и счётчик заполняет модуль Firebase
+      if (window.Online.real) {
+        if (window.Online.renderExternal) {
+          window.Online.renderExternal();
+        }
+        return;
+      }
+      renderLeaderboard();
+      renderOnlineList();
+      document.getElementById('chat-online').textContent = '🟢 ' + onlineCount + ' в сети';
+    }
+
+    function renderOnlineList() {
+      if (window.Online.real) {
+        return;
+      }
+      var container = document.getElementById('online-list');
+      container.innerHTML = '';
+      var entries = buildLeaderboard();
+      entries.forEach(function (entry) {
+        var row = document.createElement('div');
+        row.className = 'plist-row';
+        row.innerHTML =
+          '<span class="p-dot"></span>' +
+          '<span class="p-name"></span>' +
+          '<span class="p-bal"></span>';
+        row.querySelector('.p-name').textContent = entry.name;
+        row.querySelector('.p-bal').textContent = formatBalance(entry.balance);
+        container.appendChild(row);
+      });
+    }
+
+    function renderLeaderboard() {
+      if (window.Online.real) {
+        return;
+      }
+      var container = document.getElementById('leaderboard');
+      container.innerHTML = '';
+      var entries = buildLeaderboard();
+      entries.forEach(function (entry, index) {
+        var row = document.createElement('div');
+        row.className = 'leaderboard-row' + (entry.isPlayer ? ' you' : '');
+        row.innerHTML =
+          '<span class="r-rank">' + (index + 1) + '</span>' +
+          '<span class="r-name"></span>' +
+          '<span class="r-bal"></span>';
+        row.querySelector('.r-name').textContent = entry.name;
+        row.querySelector('.r-bal').textContent = formatBalance(entry.balance);
+        container.appendChild(row);
+      });
+    }
+
+    /* ----------------------------------------------------------------
+       16. ЖИВОЙ ЧАТ
+       ---------------------------------------------------------------- */
+    function addChatMessage(nick, text, isPlayer) {
+      var log = document.getElementById('chat-log');
+      var el = document.createElement('div');
+      el.className = 'chat-msg' + (isPlayer ? ' you' : '');
+      el.innerHTML = '<div class="m-nick"></div><div class="m-text"></div>';
+      el.querySelector('.m-nick').textContent = isPlayer ? '[Вы]' : nick;
+      el.querySelector('.m-text').textContent = text;
+      log.appendChild(el);
+      // Ограничиваем длину лога
+      while (log.children.length > 80) {
+        log.removeChild(log.firstChild);
+      }
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function scheduleBotChat() {
+      // Фейковые сообщения ботов в чате отключены в реальном режиме
+      // и по умолчанию в демо-режиме.
+      if (window.Online.real || !window.Online.demoBots) {
+        return;
+      }
+      var delay = 7000 + Math.floor(Math.random() * 8001); // 7-15 секунд
+      setTimeout(function () {
+        var nick = randomItem(BOT_NAMES);
+        addChatMessage(nick, randomItem(CHAT_BOT_TEXTS), false);
+        scheduleBotChat();
+      }, delay);
+    }
+
+    function sendPlayerMessage(text) {
+      var trimmed = text.trim();
+      if (trimmed.length === 0) {
+        return;
+      }
+      if (window.Online.real && !window.Online.signedIn) {
+        showToast('🔒', 'Войдите в профиль', 'Чтобы общаться в чате, войдите в систему');
+        return;
+      }
+      if (window.Online.real && window.Online.onSendPlayerChat) {
+        // Реальный режим: сообщение отправляется в Firebase и появляется
+        // через подписку onChildAdded (без дубликата).
+        window.Online.onSendPlayerChat(trimmed);
+      } else {
+        // Автономный режим: показываем локально.
+        addChatMessage('[Вы]', trimmed, true);
+      }
+      gameState.chatHistory.push(trimmed);
+      if (gameState.chatHistory.length > 50) {
+        gameState.chatHistory = gameState.chatHistory.slice(-50);
+      }
+    }
+
+    function bindChat() {
+      var input = document.getElementById('chat-input');
+      var sendBtn = document.getElementById('chat-send');
+
+      var doSend = function () {
+        if (input.value.trim().length === 0) {
+          return;
+        }
+        sendPlayerMessage(input.value);
+        input.value = '';
+        input.focus();
+      };
+
+      sendBtn.addEventListener('click', doSend);
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          doSend();
+        }
+      });
+
+      // Восстанавливаем отправленные сообщения из сохранения (только в автономном режиме)
+      if (!window.Online.real) {
+        gameState.chatHistory.forEach(function (msg) {
+          addChatMessage('[Вы]', msg, true);
+        });
+      }
+    }
+
+    /* ----------------------------------------------------------------
+       17. НАВИГАЦИЯ МЕЖДУ СТРАНИЦАМИ
+       ---------------------------------------------------------------- */
+    function showPage(pageId) {
+      var current = document.querySelector('.page.active');
+      var target = document.getElementById(pageId);
+      if (!target || (current && current.id === pageId)) {
+        return;
+      }
+
+      if (current) {
+        current.classList.remove('active');
+        setTimeout(function () {
+          current.classList.remove('visible');
+        }, 500);
+      }
+
+      target.classList.add('visible');
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          target.classList.add('active');
+        });
+      });
+
+      activePage = pageId;
+      onHomePage = (pageId === 'page-crystal');
+
+      document.querySelectorAll('.nav-btn').forEach(function (btn) {
+        if (btn.getAttribute('data-target') === pageId) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      if (pageId === 'page-market') {
+        renderShop();
+      }
+      if (pageId === 'page-net') {
+        renderNetwork();
+      }
+      if (pageId === 'page-lab') {
+        renderSkins();
+        renderStats();
+        renderAchievements();
+      }
+    }
+
+    function bindNavigation() {
+      document.querySelectorAll('.nav-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          showPage(btn.getAttribute('data-target'));
+        });
+      });
+    }
+
+    /* ----------------------------------------------------------------
+       18. МАГАЗИН (РЫНОК)
+       ---------------------------------------------------------------- */
+    function renderShop() {
+      var container = document.getElementById('shop-grid');
+      container.innerHTML = '';
+      UPGRADE_DEFS.forEach(function (def) {
+        var level = gameState.upgrades[def.id].level;
+        var cost = getUpgradeCost(def);
+        var affordable = gameState.balance >= cost;
+        var kindText = def.kind === 'click' ? '💥 +' + def.per + ' к клику' : '💠 +' + def.per + ' CPS';
+
+        var card = document.createElement('div');
+        card.className = 'upgrade-card' + (affordable ? '' : ' locked');
+        card.innerHTML =
+          '<div class="u-top">' +
+            '<div class="u-icon">' + def.icon + '</div>' +
+            '<div>' +
+              '<div class="u-name"></div>' +
+              '<div class="u-level"></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="u-desc"></div>' +
+          '<div class="u-cost"></div>' +
+          '<button class="buy-btn" ' + (affordable ? '' : 'disabled') + '>Купить</button>';
+        card.querySelector('.u-name').textContent = def.name;
+        card.querySelector('.u-level').textContent = 'Уровень ' + level + ' · ' + kindText;
+        card.querySelector('.u-desc').textContent = def.desc;
+        card.querySelector('.u-cost').textContent = 'Цена: ' + formatNumber(cost) + ' 💎';
+        card.querySelector('.buy-btn').addEventListener('click', function () {
+          purchaseUpgrade(def.id);
+        });
+        container.appendChild(card);
+      });
+    }
+
+    function purchaseUpgrade(id) {
+      var def = UPGRADE_DEFS.find(function (d) { return d.id === id; });
+      if (!def) {
+        return;
+      }
+      var cost = getUpgradeCost(def);
+      if (gameState.balance < cost) {
+        return;
+      }
+      gameState.balance -= cost;
+      gameState.upgrades[id].level += 1;
+      recomputeDerived();
+      refreshUI();
+      renderShop();
+      checkAchievements();
+      showToast(def.icon, 'Куплено: ' + def.name, 'Уровень ' + gameState.upgrades[id].level);
+    }
+
+    /* ----------------------------------------------------------------
+       19. ЛАБОРАТОРИЯ — СТАТИСТИКА, СКИНЫ, ДОСТИЖЕНИЯ
+       ---------------------------------------------------------------- */
+    function renderStats() {
+      document.getElementById('stat-clicks').textContent = formatNumber(gameState.totalClicks);
+      document.getElementById('stat-earned').textContent = formatBalance(gameState.totalEarned);
+      document.getElementById('stat-time').textContent = formatTime(gameState.playTime);
+      document.getElementById('stat-mult').textContent = 'x' + derived.incomeMultiplier;
+      document.getElementById('stat-bal').textContent = formatBalance(gameState.balance);
+    }
+
+    function renderSkins() {
+      var container = document.getElementById('skin-grid');
+      container.innerHTML = '';
+      Object.keys(SKINS).forEach(function (id) {
+        var skin = SKINS[id];
+        var owned = gameState.ownedSkins.indexOf(id) !== -1;
+        var equipped = gameState.activeSkin === id;
+        var affordable = gameState.balance >= skin.cost;
+
+        var card = document.createElement('div');
+        card.className = 'skin-card' + (equipped ? ' equipped' : '') + (owned ? '' : ' locked');
+        card.style.color = '#' + new THREE.Color(skin.glow).getHexString();
+        var swatchStyle = 'background: radial-gradient(circle at 35% 35%, #ffffff55, #' +
+          new THREE.Color(skin.color).getHexString() + ');';
+        card.innerHTML =
+          '<div class="swatch" style="' + swatchStyle + '"></div>' +
+          '<div class="s-name"></div>' +
+          '<div class="s-mult">Множитель x' + skin.mult + '</div>' +
+          '<div class="s-price"></div>';
+        card.querySelector('.s-name').textContent = skin.name;
+        card.querySelector('.s-price').textContent = owned
+          ? (equipped ? '✓ Активен' : 'Сменить')
+          : 'Цена: ' + formatNumber(skin.cost) + ' 💎';
+
+        card.addEventListener('click', function () {
+          if (owned) {
+            gameState.activeSkin = id;
+            recomputeDerived();
+            applySkin();
+            renderSkins();
+            refreshUI();
+            showToast('💎', 'Скин активен', skin.name + ' — множитель x' + skin.mult);
+          } else if (affordable) {
+            gameState.balance -= skin.cost;
+            gameState.ownedSkins.push(id);
+            gameState.activeSkin = id;
+            recomputeDerived();
+            applySkin();
+            renderSkins();
+            refreshUI();
+            showToast('🛒', 'Скин куплен', skin.name + ' — множитель x' + skin.mult);
+          } else {
+            showToast('⛔', 'Недостаточно кристаллов', 'Нужно ' + formatNumber(skin.cost) + ' 💎');
+          }
+        });
+
+        container.appendChild(card);
+      });
+    }
+
+    function renderAchievements() {
+      var container = document.getElementById('ach-list');
+      container.innerHTML = '';
+      ACHIEVEMENTS.forEach(function (ach) {
+        var state = gameState.achievements[ach.id];
+        var done = state.unlocked;
+        var card = document.createElement('div');
+        card.className = 'ach-card' + (done ? ' done' : '');
+        card.innerHTML =
+          '<div class="a-icon">' + ach.icon + '</div>' +
+          '<div class="a-body">' +
+            '<div class="a-name"></div>' +
+            '<div class="a-desc"></div>' +
+            '<div class="a-reward"></div>' +
+          '</div>' +
+          '<div class="a-status">' + (done ? 'Выполнено ✓' : 'В процессе') + '</div>';
+        card.querySelector('.a-name').textContent = ach.name;
+        card.querySelector('.a-desc').textContent = ach.desc;
+        card.querySelector('.a-reward').textContent = 'Награда: ' + formatNumber(ach.reward) + ' 💎';
+        container.appendChild(card);
+      });
+    }
+
+    /* ----------------------------------------------------------------
+       20. ОБНОВЛЕНИЕ ИНТЕРФЕЙСА
+       ---------------------------------------------------------------- */
+    var lastShopRender = 0;
+
+    function refreshUI() {
+      document.getElementById('hud-balance').textContent = formatBalance(gameState.balance);
+      document.getElementById('hud-cps').textContent = '💠 ' + formatNumber(derived.cps) + ' / сек';
+      if (activePage === 'page-lab') {
+        renderStats();
+      }
+      if (activePage === 'page-net') {
+        renderLeaderboard();
+        renderOnlineList();
+      }
+    }
+
+    function maybeRefreshShop() {
+      var now = performance.now();
+      if (activePage === 'page-market' && now - lastShopRender > 500) {
+        lastShopRender = now;
+        renderShop();
+      }
+    }
+
+    /* ----------------------------------------------------------------
+       21. СОХРАНЕНИЕ / ЗАГРУЗКА (LocalStorage)
+       ---------------------------------------------------------------- */
+    function saveGame() {
+      var data = {
+        balance: gameState.balance,
+        totalEarned: gameState.totalEarned,
+        totalClicks: gameState.totalClicks,
+        playTime: gameState.playTime,
+        upgrades: gameState.upgrades,
+        ownedSkins: gameState.ownedSkins,
+        activeSkin: gameState.activeSkin,
+        achievements: gameState.achievements,
+        chatHistory: gameState.chatHistory
+      };
+      try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+      } catch (e) {
+        console.warn('Не удалось сохранить прогресс', e);
+      }
+    }
+
+    function loadGame() {
+      var raw = null;
+      try {
+        raw = localStorage.getItem(SAVE_KEY);
+      } catch (e) {
+        raw = null;
+      }
+      if (!raw) {
+        return;
+      }
+      var data = null;
+      try {
+        data = JSON.parse(raw);
+      } catch (e) {
+        data = null;
+      }
+      if (!data) {
+        return;
+      }
+      gameState.balance = typeof data.balance === 'number' ? data.balance : 0;
+      gameState.totalEarned = typeof data.totalEarned === 'number' ? data.totalEarned : 0;
+      gameState.totalClicks = typeof data.totalClicks === 'number' ? data.totalClicks : 0;
+      gameState.playTime = typeof data.playTime === 'number' ? data.playTime : 0;
+
+      if (data.upgrades) {
+        var fresh = freshUpgrades();
+        Object.keys(fresh).forEach(function (id) {
+          if (data.upgrades[id] && typeof data.upgrades[id].level === 'number') {
+            fresh[id].level = data.upgrades[id].level;
+          }
+        });
+        gameState.upgrades = fresh;
+      }
+
+      if (Array.isArray(data.ownedSkins) && data.ownedSkins.length > 0) {
+        var validSkins = data.ownedSkins.filter(function (id) { return SKINS[id]; });
+        if (validSkins.length === 0) {
+          validSkins = ['default'];
+        }
+        if (validSkins.indexOf('default') === -1) {
+          validSkins.push('default');
+        }
+        gameState.ownedSkins = validSkins;
+        gameState.activeSkin = SKINS[data.activeSkin] ? data.activeSkin : 'default';
+      }
+
+      if (data.achievements) {
+        var freshAch = freshAchievements();
+        Object.keys(freshAch).forEach(function (id) {
+          if (data.achievements[id]) {
+            freshAch[id].unlocked = !!data.achievements[id].unlocked;
+            freshAch[id].rewardGiven = !!data.achievements[id].rewardGiven;
+          }
+        });
+        gameState.achievements = freshAch;
+      }
+
+      if (Array.isArray(data.chatHistory)) {
+        gameState.chatHistory = data.chatHistory.filter(function (m) { return typeof m === 'string'; }).slice(-50);
+      }
+
+      recomputeDerived();
+    }
+
+    function resetProgress() {
+      var confirmed = confirm('Точно сбросить весь прогресс? Это действие нельзя отменить!');
+      if (!confirmed) {
+        return;
+      }
+      localStorage.removeItem(SAVE_KEY);
+      gameState = {
+        balance: 0,
+        totalEarned: 0,
+        totalClicks: 0,
+        playTime: 0,
+        upgrades: freshUpgrades(),
+        ownedSkins: ['default'],
+        activeSkin: 'default',
+        achievements: freshAchievements(),
+        chatHistory: []
+      };
+      recomputeDerived();
+      applySkin();
+      refreshUI();
+      renderShop();
+      renderSkins();
+      renderStats();
+      renderAchievements();
+      renderNetwork();
+      showToast('🗑', 'Прогресс сброшен', 'Всё началось заново');
+    }
+
+    /* ----------------------------------------------------------------
+       22. РАЗМЕР ОКНА
+       ---------------------------------------------------------------- */
+    function onResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    /* ----------------------------------------------------------------
+       23. ИНИЦИАЛИЗАЦИЯ
+       ---------------------------------------------------------------- */
+    function init() {
+      loadGame();
+      initThree();
+      applySkin();
+      recomputeDerived();
+
+      bindNavigation();
+      bindLogoSparkles();
+      bindChat();
+
+      initOnlineSimulation();
+      initBotPlayers();
+
+      renderer.domElement.addEventListener('pointerdown', onPointerDown);
+      renderer.domElement.addEventListener('pointerup', onPointerUp);
+      renderer.domElement.addEventListener('touchstart', function (e) {
+        if (e.touches.length > 0) {
+          isDown = true;
+          crystalGroup.scale.set(0.92, 0.92, 0.92);
+        }
+      }, { passive: true });
+      renderer.domElement.addEventListener('touchend', function (e) {
+        onPointerUp(e);
+      }, { passive: true });
+
+      document.getElementById('reset-btn').addEventListener('click', resetProgress);
+      window.addEventListener('resize', onResize);
+
+      setInterval(passiveTick, PASSIVE_TICK_MS);
+      setInterval(maybeRefreshShop, 250);
+      setInterval(saveGame, SAVE_INTERVAL_MS);
+      setInterval(renderNetwork, 1000);
+
+      // Периодическая отправка баланса в реальный лидерборд (Firebase)
+      setInterval(function () {
+        if (window.Online.real && window.Online.sendPlayerStats) {
+          window.Online.sendPlayerStats({ balance: gameState.balance });
+        }
+      }, 3000);
+
+      window.addEventListener('beforeunload', saveGame);
+      document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'hidden') {
+          saveGame();
+        }
+      });
+
+      renderShop();
+      renderSkins();
+      renderStats();
+      renderAchievements();
+      renderNetwork();
+      scheduleBotChat();
+      refreshUI();
+
+      animate();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  </script>
+
+  <!-- Модуль реального онлайна: Firebase Auth + Realtime Database.
+       Если конфигурация пуста — модуль ничего не делает и игра
+       остаётся в автономном (демо) режиме. -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getAuth, onAuthStateChanged, GoogleAuthProvider, GithubAuthProvider, signInWithPopup, signInAnonymously, signOut, updateProfile } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+    import { getDatabase, ref, onValue, set, push, onDisconnect, remove, onChildAdded, query, orderByChild, limitToLast } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+    'use strict';
+
+    /* Проверка, что в config.js заполнены ключи Firebase */
+    var config = (typeof window.CRYSTAL_CONFIG === 'object' && window.CRYSTAL_CONFIG) ? window.CRYSTAL_CONFIG : {};
+    var fb = config.firebase || {};
+    var configured = !!(fb.apiKey && fb.authDomain && fb.databaseURL && fb.projectId && fb.enabled !== false);
+
+    if (!configured) {
+      console.info('[CRYSTAL.NET] Firebase не настроен. Игра работает в офлайн-демо-режиме.');
+    } else {
+      var app = initializeApp(fb);
+      var auth = getAuth(app);
+      var db = getDatabase(app);
+      var provider = config.authProvider || 'google';
+
+      var currentUid = null;
+      var currentNick = '';
+      window.Online.real = true;
+      window.Online.signedIn = false;
+
+      /* ---- Профиль / рендер панели ---- */
+      function renderProfile(user) {
+        var box = document.getElementById('profile-box');
+        if (!box) {
+          return;
+        }
+        if (!user) {
+          window.Online.signedIn = false;
+          var label = provider === 'github' ? 'GitHub' : (provider === 'anonymous' ? 'анонимно' : 'Google');
+          var html = '<div style="color:var(--muted);margin-bottom:14px;font-size:14px">' +
+            'Вы не вошли в систему. Вход открывает живой чат, реальный онлайн-счётчик и глобальный лидерборд.' +
+            '</div>' +
+            '<div style="display:flex;gap:10px;flex-wrap:wrap">' +
+            '<button class="buy-btn" id="signin-btn" style="margin:0;width:auto">Войти через ' + label + '</button>' +
+            (provider !== 'anonymous' ? '<button class="buy-btn" id="anon-btn" style="margin:0;width:auto;background:#3a3550">Войти анонимно</button>' : '') +
+            '</div>';
+          box.innerHTML = html;
+          document.getElementById('signin-btn').addEventListener('click', doOAuthSignIn);
+          var anon = document.getElementById('anon-btn');
+          if (anon) {
+            anon.addEventListener('click', function () {
+              signInAnonymously(auth).catch(function (e) { onAuthError(e); });
+            });
+          }
+          return;
+        }
+
+        window.Online.signedIn = true;
+        var savedNick = '';
+        try { savedNick = localStorage.getItem('crystal-net-nick') || ''; } catch (e) { savedNick = ''; }
+        currentNick = user.displayName || savedNick || ('Player_' + Math.floor(1000 + Math.random() * 9000));
+        window.Online.currentNick = currentNick;
+
+        box.innerHTML =
+          '<div class="stat-row" style="padding:8px 0"><span class="k">Ваш ник</span><span class="v" id="prof-nick"></span></div>' +
+          '<div class="stat-row" style="padding:8px 0"><span class="k">Аккаунт</span><span class="v" id="prof-uid"></span></div>' +
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">' +
+            '<input id="nick-input" placeholder="Сменить ник" maxlength="16" value="" autocomplete="off" style="flex:1;min-width:140px;padding:11px 14px;border-radius:12px;border:1px solid var(--glass-border);background:rgba(255,255,255,0.05);color:var(--text);font-family:inherit;font-size:14px;outline:none">' +
+            '<button class="buy-btn" id="nick-save" style="margin:0;width:auto">Сохранить</button>' +
+            '<button class="reset-btn" id="signout-btn" style="margin:0">Выйти</button>' +
+          '</div>';
+        document.getElementById('prof-nick').textContent = currentNick;
+        document.getElementById('prof-uid').textContent = user.isAnonymous ? 'Анонимный гость' : user.email;
+        document.getElementById('nick-input').value = currentNick;
+        document.getElementById('nick-save').addEventListener('click', saveNick);
+        document.getElementById('nick-input').addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') { e.preventDefault(); saveNick(); }
+        });
+        document.getElementById('signout-btn').addEventListener('click', function () {
+          signOut(auth).catch(function (e) { onAuthError(e); });
+        });
+      }
+
+      function saveNick() {
+        var input = document.getElementById('nick-input');
+        var val = (input.value || '').trim().slice(0, 16);
+        if (!val) {
+          return;
+        }
+        currentNick = val;
+        window.Online.currentNick = val;
+        try { localStorage.setItem('crystal-net-nick', val); } catch (e) { /* ignore */ }
+        if (auth.currentUser) {
+          updateProfile(auth.currentUser, { displayName: val }).catch(function () { /* ignore */ });
+        }
+        refreshPresence();
+        renderProfile(auth.currentUser);
+      }
+
+      function onAuthError(error) {
+        var message = (error && error.message) ? error.message : 'Неизвестная ошибка';
+        var short = message.length > 90 ? message.slice(0, 90) + '…' : message;
+        showToast('⚠️', 'Ошибка входа', short);
+        console.error('[CRYSTAL.NET] Ошибка входа:', error);
+      }
+
+      function doOAuthSignIn() {
+        var p = provider === 'github' ? new GithubAuthProvider() : new GoogleAuthProvider();
+        signInWithPopup(auth, p).catch(function (e) { onAuthError(e); });
+      }
+
+      /* ---- Присутствие и счётчик онлайна ---- */
+      function refreshPresence() {
+        if (!currentUid) {
+          return;
+        }
+        var presenceRef = ref(db, 'online/' + currentUid);
+        set(presenceRef, { name: currentNick, lastSeen: Date.now() });
+        onDisconnect(presenceRef).remove();
+      }
+
+      function initPresence() {
+        setInterval(refreshPresence, 20000);
+        // Подсчёт онлайна: количество записей в узле online/
+        onValue(ref(db, 'online'), function (snap) {
+          var n = snap.numChildren();
+          document.getElementById('online-count').textContent = String(n);
+          var chatLive = document.getElementById('chat-online');
+          if (chatLive) {
+            chatLive.textContent = '🟢 ' + n + ' в сети';
+          }
+        });
+        // Очистка "зависших" записей (критичные отключения)
+        setInterval(function () {
+          var now = Date.now();
+          onValue(ref(db, 'online'), function (snap) {
+            snap.forEach(function (child) {
+              if (child.key !== currentUid) {
+                var last = child.val().lastSeen || 0;
+                if (now - last > 120000) {
+                  remove(ref(db, 'online/' + child.key));
+                }
+              }
+            });
+          }, { onlyOnce: true });
+        }, 60000);
+      }
+
+      /* ---- Реальный чат ---- */
+      function initChat() {
+        var q = query(ref(db, 'messages'), limitToLast(60));
+        onChildAdded(q, function (snap) {
+          var m = snap.val();
+          if (!m || !m.text) {
+            return;
+          }
+          addChatMessage(m.name || 'Гость', m.text, m.uid === currentUid);
+        });
+      }
+
+      window.Online.onSendPlayerChat = function (text) {
+        if (!currentUid) {
+          return;
+        }
+        push(ref(db, 'messages'), { name: currentNick, uid: currentUid, text: text, ts: Date.now() });
+      };
+
+      /* ---- Реальный лидерборд и список онлайна ---- */
+      function renderLeaderboardRows(rows) {
+        var container = document.getElementById('leaderboard');
+        if (!container) {
+          return;
+        }
+        container.innerHTML = '';
+        rows.forEach(function (entry, index) {
+          var isPlayer = entry.uid === currentUid;
+          var row = document.createElement('div');
+          row.className = 'leaderboard-row' + (isPlayer ? ' you' : '');
+          row.innerHTML =
+            '<span class="r-rank">' + (index + 1) + '</span>' +
+            '<span class="r-name"></span>' +
+            '<span class="r-bal"></span>';
+          row.querySelector('.r-name').textContent = entry.name;
+          row.querySelector('.r-bal').textContent = formatBalance(entry.balance);
+          container.appendChild(row);
+        });
+      }
+
+      function renderOnlineList(rows) {
+        var container = document.getElementById('online-list');
+        if (!container) {
+          return;
+        }
+        container.innerHTML = '';
+        rows.forEach(function (entry) {
+          var row = document.createElement('div');
+          row.className = 'plist-row';
+          row.innerHTML =
+            '<span class="p-dot"></span>' +
+            '<span class="p-name"></span>' +
+            '<span class="p-bal"></span>';
+          row.querySelector('.p-name').textContent = entry.name;
+          row.querySelector('.p-bal').textContent = formatBalance(entry.balance);
+          container.appendChild(row);
+        });
+      }
+
+      function initLeaderboard() {
+        var topQuery = query(ref(db, 'players'), orderByChild('balance'), limitToLast(10));
+        onValue(topQuery, function (snap) {
+          var rows = [];
+          snap.forEach(function (child) {
+            var v = child.val();
+            rows.push({ name: v.name || 'Гость', balance: v.balance || 0, uid: child.key });
+          });
+          rows.sort(function (a, b) { return b.balance - a.balance; });
+          renderLeaderboardRows(rows.slice(0, 10));
+        });
+
+        onValue(ref(db, 'online'), function (snap) {
+          var rows = [];
+          snap.forEach(function (child) {
+            var v = child.val();
+            rows.push({ name: v.name || 'Гость', balance: v.balance || 0 });
+          });
+          rows.sort(function (a, b) { return b.balance - a.balance; });
+          renderOnlineList(rows.slice(0, 14));
+        });
+      }
+
+      window.Online.sendPlayerStats = function (stats) {
+        if (!currentUid) {
+          return;
+        }
+        set(ref(db, 'players/' + currentUid), {
+          name: currentNick,
+          balance: Math.floor(stats.balance || 0),
+          updatedAt: Date.now()
+        });
+        set(ref(db, 'online/' + currentUid), { name: currentNick, lastSeen: Date.now(), balance: Math.floor(stats.balance || 0) });
+      };
+
+      window.Online.renderExternal = function () {
+        // Всё уже отображается через подписки onValue; здесь можно доп. действия.
+      };
+
+      /* ---- Подписка на состояние входа ---- */
+      onAuthStateChanged(auth, function (user) {
+        if (user) {
+          currentUid = user.uid;
+          renderProfile(user);
+          refreshPresence();
+          initPresence();
+          initChat();
+          initLeaderboard();
+        } else {
+          currentUid = null;
+          currentNick = '';
+          renderProfile(null);
+        }
+      });
+    }
+  </script>
+</body>
+</html>
