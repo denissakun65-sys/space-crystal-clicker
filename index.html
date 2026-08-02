@@ -480,6 +480,50 @@
     color: var(--gold);
   }
 
+  /* Квесты */
+  .quest-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 12px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .quest-card.done {
+    border-color: rgba(61, 255, 156, 0.45);
+    background: rgba(61, 255, 156, 0.07);
+  }
+
+  .q-top { display: flex; gap: 12px; align-items: flex-start; }
+  .q-icon { font-size: 28px; }
+  .q-body { flex: 1; }
+  .q-name { font-weight: 800; font-size: 15px; }
+  .q-desc { color: var(--muted); font-size: 13px; margin: 2px 0 8px; }
+  .q-track { height: 8px; border-radius: 6px; background: rgba(255,255,255,0.08); overflow: hidden; }
+  .q-fill { height: 100%; background: linear-gradient(90deg, var(--cyan), var(--magenta)); border-radius: 6px; transition: width 0.3s ease; }
+  .q-prog { font-size: 12px; color: var(--muted); margin-top: 4px; font-weight: 700; }
+  .q-reward { font-weight: 900; color: var(--gold); white-space: nowrap; font-size: 14px; }
+  .q-period { font-size: 11px; color: var(--muted); margin-top: 8px; }
+
+  .quests-hud {
+    max-width: 420px;
+    width: 100%;
+    margin: 18px auto 0;
+    pointer-events: auto;
+  }
+
+  .quests-list {
+    display: flex;
+    flex-direction: column;
+    max-height: 34vh;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .quests-list::-webkit-scrollbar { width: 6px; }
+  .quests-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 6px; }
+
   /* ---------- Shop ---------- */
   #shop-grid {
     display: grid;
@@ -957,6 +1001,43 @@
     font-size: 12px;
   }
 
+  .auth-input {
+    padding: 11px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+  }
+
+  .auth-input::placeholder { color: var(--muted); }
+  .auth-input:focus { border-color: var(--cyan); box-shadow: 0 0 12px rgba(0, 240, 255, 0.3); }
+
+  .clg-block {
+    padding: 16px;
+    margin-bottom: 14px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-border);
+  }
+
+  .clg-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .clg-tag {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    color: var(--cyan);
+    background: rgba(0, 240, 255, 0.12);
+    padding: 2px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+  }
+  .clg-date { color: var(--muted); font-size: 13px; }
+  .clg-title { font-weight: 800; font-size: 16px; margin-bottom: 8px; }
+  .clg-list { margin-left: 18px; display: flex; flex-direction: column; gap: 5px; }
+  .clg-list li { font-size: 14px; color: var(--text); }
+
   .reset-btn {
     border: 1px solid var(--bad);
     color: var(--bad);
@@ -1087,6 +1168,7 @@
     <button class="nav-btn" data-target="page-market"><span class="nav-icon">🛒</span><span>Рынок</span></button>
     <button class="nav-btn" data-target="page-net"><span class="nav-icon">💬</span><span>Сеть</span></button>
     <button class="nav-btn" data-target="page-lab"><span class="nav-icon">🛠️</span><span>Лаборатория</span></button>
+    <button class="nav-btn" data-target="page-changelog"><span class="nav-icon">📝</span><span>Версии</span></button>
   </nav>
 
   <!-- Page 1: Crystal -->
@@ -1105,6 +1187,10 @@
       </div>
       <div class="clickable-ui hud-hint">
         <div class="hud-hint">Кликни по кристаллу в центре экрана ✨</div>
+      </div>
+      <div class="clickable-ui quests-hud">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:700">📋 АКТИВНЫЕ ЗАДАНИЯ</div>
+        <div id="quests-box" class="quests-list"></div>
       </div>
     </div>
   </section>
@@ -1189,6 +1275,12 @@
       </div>
       <div style="height:18px"></div>
       <div class="panel">
+        <div class="page-title">📋 Задания</div>
+        <div class="page-sub">Цели на день и на неделю. Награды начисляются автоматически.</div>
+        <div id="quests-box-lab"></div>
+      </div>
+      <div style="height:18px"></div>
+      <div class="panel">
         <div class="page-title">✨ Перерождение</div>
         <div class="page-sub">Главная цель прогрессии: жертвуй прогрессом ради вечного множителя.</div>
         <div id="prestige-box"></div>
@@ -1198,6 +1290,17 @@
         <div class="page-title">🏆 Достижения</div>
         <div class="page-sub">Награды за игровые вехи.</div>
         <div id="ach-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Page 5: Changelog -->
+  <section id="page-changelog" class="page">
+    <div class="page-scroll">
+      <div class="panel">
+        <div class="page-title">📝 Список изменений</div>
+        <div class="page-sub">История версий <b id="version-chip-2"></b></div>
+        <div id="changelog-box"></div>
       </div>
     </div>
   </section>
@@ -1219,7 +1322,7 @@
     var SAVE_KEY = 'crystal-net-save-v1';
     var PASSIVE_TICK_MS = 100;
     var SAVE_INTERVAL_MS = 5000;
-    var GAME_VERSION = '1.2.0';
+    var GAME_VERSION = '1.3.0';
 
     var UPGRADE_DEFS = [
       { id: 'clicker', name: 'Кликер-утилита',            icon: '👆', desc: '+1 к силе клика',      baseCost: 15,      kind: 'click', per: 1 },
@@ -1244,6 +1347,148 @@
       { id: 'auto',    name: 'Автоматизация',       icon: '🤖', desc: 'Купить первого Квантового Дрона',      reward: 200,  check: function (s) { return s.upgrades.drone.level >= 1; } },
       { id: 'million', name: 'Миллионер',           icon: '💰', desc: 'Накопить 1 000 000 💎 на балансе',      reward: 5000, check: function (s) { return s.balance >= 1000000; } }
     ];
+
+    /* Задания (квесты). type задаёт источник прогресса.
+       daily сбрасываются каждый день, weekly — раз в неделю. */
+    var QUESTS = [
+      { id: 'q_click_25',  period: 'daily',  icon: '🖱️', name: 'Кликер на час',     type: 'clicks',   target: 25,      reward: 200,  desc: 'Сделать 25 кликов' },
+      { id: 'q_earn_5k',   period: 'daily',  icon: '💰', name: 'Первый капитал',    type: 'earn',     target: 5000,    reward: 300,  desc: 'Заработать 5 000 💎 за всё время' },
+      { id: 'q_buy_1',     period: 'daily',  icon: '🛒', name: 'Инвестор',          type: 'buy',      target: 1,       reward: 250,  desc: 'Купить любой апгрейд' },
+      { id: 'q_click_1000', period: 'weekly', icon: '🔥', name: 'Неутомимый',        type: 'clicks',   target: 1000,    reward: 2000, desc: 'Сделать 1 000 кликов' },
+      { id: 'q_earn_500k', period: 'weekly', icon: '🏦', name: 'Магнат',             type: 'earn',     target: 500000,  reward: 5000, desc: 'Заработать 500 000 💎 за всё время' },
+      { id: 'q_prestige_1', period: 'weekly', icon: '✨', name: 'Новое начало',      type: 'prestige', target: 1,       reward: 3000, desc: 'Совершить 1 перерождение' }
+    ];
+
+    /* Прогресс конкретного квеста по текущему состоянию игры */
+    function getQuestProgress(q) {
+      if (q.type === 'clicks') {
+        return gameState.totalClicks;
+      }
+      if (q.type === 'earn') {
+        return Math.floor(gameState.totalEarned);
+      }
+      if (q.type === 'buy') {
+        var bought = 0;
+        UPGRADE_DEFS.forEach(function (d) { bought += gameState.upgrades[d.id].level; });
+        return bought;
+      }
+      if (q.type === 'prestige') {
+        return gameState.prestigeCount;
+      }
+      return 0;
+    }
+
+    function getDayKey() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function getWeekKey() {
+      var d = new Date();
+      var day = d.getDay() || 7;
+      d.setDate(d.getDate() - day + 1);
+      return d.toISOString().slice(0, 10);
+    }
+
+    /* Сброс заданий, если начался новый день/неделя */
+    function resetQuestsIfNeeded() {
+      var dayKey = getDayKey();
+      var weekKey = getWeekKey();
+      var changed = false;
+      if (gameState.questsDayKey !== dayKey) {
+        gameState.questsDayKey = dayKey;
+        QUESTS.forEach(function (q) {
+          if (q.period === 'daily') {
+            delete gameState.quests[q.id];
+          }
+        });
+        changed = true;
+      }
+      if (gameState.questsWeekKey !== weekKey) {
+        gameState.questsWeekKey = weekKey;
+        QUESTS.forEach(function (q) {
+          if (q.period === 'weekly') {
+            delete gameState.quests[q.id];
+          }
+        });
+        changed = true;
+      }
+      if (changed) {
+        renderQuests();
+      }
+    }
+
+    /* Проверка заданий: начисляем награду за выполненные */
+    function checkQuests() {
+      resetQuestsIfNeeded();
+      var changed = false;
+      QUESTS.forEach(function (q) {
+        var st = gameState.quests[q.id] || { done: false, claimed: false };
+        if (st.claimed) {
+          return;
+        }
+        var prog = getQuestProgress(q);
+        if (prog >= q.target) {
+          if (!st.done) {
+            st.done = true;
+            st.claimed = true;
+            gameState.balance += q.reward;
+            gameState.totalEarned += q.reward;
+            showToast(q.icon, 'Задание выполнено: ' + q.name, 'Награда: ' + formatNumber(q.reward) + ' 💎');
+            gameState.quests[q.id] = st;
+            changed = true;
+          }
+        } else {
+          st.progress = prog;
+          gameState.quests[q.id] = st;
+        }
+      });
+      if (changed) {
+        renderQuests();
+        refreshUI();
+      }
+    }
+
+    function renderQuests() {
+      var containers = [document.getElementById('quests-box'), document.getElementById('quests-box-lab')];
+      var any = containers.some(function (c) { return !!c; });
+      if (!any) {
+        return;
+      }
+      resetQuestsIfNeeded();
+      containers.forEach(function (box) {
+        if (!box) {
+          return;
+        }
+        box.innerHTML = '';
+        QUESTS.forEach(function (q) {
+          var st = gameState.quests[q.id] || { done: false, claimed: false };
+          var prog = getQuestProgress(q);
+          var pct = Math.min(1, prog / q.target);
+          var done = st.claimed;
+          var periodLabel = q.period === 'daily' ? '🔄 ежедневно' : '📅 еженедельно';
+          var card = document.createElement('div');
+          card.className = 'quest-card' + (done ? ' done' : '');
+          card.innerHTML =
+            '<div class="q-top">' +
+              '<div class="q-icon">' + q.icon + '</div>' +
+              '<div class="q-body">' +
+                '<div class="q-name"></div>' +
+                '<div class="q-desc"></div>' +
+                '<div class="q-track"><div class="q-fill" style="width:' + Math.round(pct * 100) + '%"></div></div>' +
+                '<div class="q-prog"></div>' +
+              '</div>' +
+              '<div class="q-reward">+' + formatNumber(q.reward) + ' 💎</div>' +
+            '</div>' +
+            '<div class="q-period">' + periodLabel + '</div>';
+          card.querySelector('.q-name').textContent = q.name;
+          card.querySelector('.q-desc').textContent = q.desc;
+          card.querySelector('.q-prog').textContent = done
+            ? '✓ Выполнено'
+            : formatNumber(Math.min(prog, q.target)) + ' / ' + formatNumber(q.target);
+          box.appendChild(card);
+        });
+      });
+    }
 
     // Данные для симуляции сети (никнеймы, сообщения чата, лента активности)
     var BOT_NAMES = [
@@ -1310,7 +1555,10 @@
       achievements: freshAchievements(),
       chatHistory: [],
       prestigeShards: 0,
-      prestigeCount: 0
+      prestigeCount: 0,
+      quests: {},
+      questsDayKey: '',
+      questsWeekKey: ''
     };
 
     var derived = {
@@ -1335,6 +1583,7 @@
     };
 
     var demoActivityRunning = false;
+    var currentNick = '';
 
     /* ----------------------------------------------------------------
        3. УТИЛИТЫ
@@ -1644,6 +1893,7 @@
 
       refreshUI();
       checkAchievements();
+      checkQuests();
     }
 
     function updateMouse(event) {
@@ -1760,8 +2010,11 @@
     var onlineCount = 0;
 
     function initOnlineSimulation() {
-      // В реальном режиме онлайн-счётчик ведёт модуль Firebase
-      if (window.Online.real) {
+      // Демо-онлайн больше НЕ запускается автоматически.
+      // Счётчик честно показывает "—" (нет подключения), пока не настроен
+      // Firebase или явно не включены демо-боты переключателем.
+      if (window.Online.real || !window.Online.demoBots) {
+        updateOnlineCount();
         return;
       }
       onlineCount = 1420 + Math.floor(Math.random() * 431); // от 1420 до 1850
@@ -1783,8 +2036,13 @@
     }
 
     function updateOnlineCount() {
-      // В реальном режиме счётчик обновляет модуль Firebase
+      // В реальном режиме счётчик обновляет модуль Firebase.
+      // В демо-режиме без демо-ботов показываем честное "—".
       if (window.Online.real) {
+        return;
+      }
+      if (!window.Online.demoBots) {
+        document.getElementById('online-count').textContent = '—';
         return;
       }
       document.getElementById('online-count').textContent = onlineCount;
@@ -1810,8 +2068,11 @@
         return;
       }
       demoActivityRunning = true;
+      initBotPlayers();
+      initOnlineSimulation();
       scheduleNextActivity();
       scheduleBotChat();
+      renderNetwork();
     }
 
     function renderDemoBox() {
@@ -1900,10 +2161,38 @@
         }
         return;
       }
+      // Демо-режим: без явного включения ботов показываем честное "нет подключения"
+      if (!window.Online.demoBots) {
+        renderOfflineState();
+        document.getElementById('chat-online').textContent = '⚪ нет подключения';
+        updateOnlineCount();
+        return;
+      }
       renderLeaderboard();
       renderOnlineList();
       renderProfileDemo();
-      document.getElementById('chat-online').textContent = '🟢 ' + onlineCount + ' в сети';
+      document.getElementById('chat-online').textContent = '🟢 ' + onlineCount + ' в сети (демо)';
+    }
+
+    /* Честное состояние "нет подключения" в демо-режиме */
+    function renderOfflineState() {
+      var lb = document.getElementById('leaderboard');
+      var ol = document.getElementById('online-list');
+      var msg = '<div style="padding:16px;text-align:center;color:var(--muted);font-size:13px">' +
+        'Нет подключения к серверу.<br>' +
+        'Заполните <code>config.js</code> ключами Firebase, чтобы включить реальный онлайн.<br>' +
+        '<span style="opacity:0.7">(демо-боты можно включить переключателем выше)</span>' +
+        '</div>';
+      if (lb) {
+        lb.innerHTML = msg;
+      }
+      if (ol) {
+        ol.innerHTML = msg;
+      }
+      var profile = document.getElementById('profile-box');
+      if (profile) {
+        renderProfileDemo();
+      }
     }
 
     /* Панель сообщества: версия, обратная связь, ссылки на репозиторий */
@@ -1932,19 +2221,191 @@
         '</div>';
     }
 
+    /* Страница "Список изменений" (встроенный changelog) */
+    function renderChangelog() {
+      var v2 = document.getElementById('version-chip-2');
+      if (v2) {
+        v2.textContent = GAME_VERSION;
+      }
+      var box = document.getElementById('changelog-box');
+      if (!box) {
+        return;
+      }
+      var versions = [
+        { tag: '1.3.0', date: '2026-08-03', title: 'Регистрация, квесты и честный онлайн',
+          items: [
+            'Убран фейковый онлайн по умолчанию — счётчик честно показывает «—» при отсутствии подключения.',
+            'Добавлена отдельная страница «Версии» (встроенный список изменений).',
+            'Добавлена регистрация и вход (локальный аккаунт без Firebase + Firebase OAuth при подключении).',
+            'Добавлена система заданий (квесты): ежедневные и еженедельные с автоматическими наградами.',
+            'Цель прогрессии теперь видна через квесты и индикатор перерождения.'
+          ] },
+        { tag: '1.2.0', date: '2026-08-03', title: 'Мета-прогрессия и взаимодействие игроков',
+          items: [
+            'Добавлен глобальный индикатор баланса 💎 на всех страницах.',
+            'Добавлена система перерождения (престиж) ✨ — вечный множитель дохода.',
+            'Добавлен офлайн-доход 😴 (50% CPS во время отсутствия).',
+            'Добавлены реакции на сообщения 👍❤️🔥🎉💎 в чате.',
+            'Добавлены личные сообщения (/w) и подарки кристаллов (/gift).',
+            'Добавлены профили игроков (клик по нику).',
+            'Добавлена панель сообщества и маркировка демо-режима.'
+          ] },
+        { tag: '1.1.0', date: '2026-08-02', title: 'Реальный онлайн (Firebase)',
+          items: [
+            'Подключён Firebase: авторизация, база данных, правила безопасности.',
+            'Вход через Google / GitHub OAuth и анонимный режим.',
+            'Реальный счётчик онлайна 🟢 (присутствие через onDisconnect).',
+            'Живой глобальный чат и глобальный лидерборд.',
+            'Автоматический fallback в демо-режим при отсутствии конфигурации.'
+          ] },
+        { tag: '1.0.0', date: '2026-08-01', title: 'Первый выпуск',
+          items: [
+            '3D-кристалл на Three.js с неоном и частицами.',
+            'Многостраничный SPA: Кристалл / Рынок / Сеть / Лаборатория.',
+            'Рынок с 6 авто-кликерами и экспоненциальными ценами.',
+            'Лаборатория: статистика, скины, достижения.',
+            'Пассивный доход, автосохранение, адаптивность.'
+          ] }
+      ];
+      var html = '';
+      versions.forEach(function (v) {
+        html += '<div class="clg-block">' +
+          '<div class="clg-head"><span class="clg-tag">v' + v.tag + '</span><span class="clg-date">' + v.date + '</span></div>' +
+          '<div class="clg-title">' + v.title + '</div>' +
+          '<ul class="clg-list">';
+        v.items.forEach(function (it) {
+          html += '<li>' + it + '</li>';
+        });
+        html += '</ul></div>';
+      });
+      box.innerHTML = html;
+    }
+
     /* В демо-режиме объясняем, что онлайн симулируется */
     function renderProfileDemo() {
       var box = document.getElementById('profile-box');
       if (!box) {
         return;
       }
+      var account = getLocalAccount();
+      if (account) {
+        // Локальный аккаунт существует — показываем профиль
+        box.innerHTML =
+          '<div class="stat-row" style="padding:8px 0"><span class="k">Игрок</span><span class="v" id="la-nick"></span></div>' +
+          '<div class="stat-row" style="padding:8px 0"><span class="k">Баланс</span><span class="v">' + formatBalance(gameState.balance) + '</span></div>' +
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">' +
+            '<button class="reset-btn" id="la-logout" style="margin:0">Выйти</button>' +
+            '<button class="buy-btn" id="la-save" style="margin:0;width:auto">Сохранить в облако (скоро)</button>' +
+          '</div>' +
+          '<div style="margin-top:12px;font-size:12px;color:var(--muted)">Аккаунт хранится локально на этом устройстве. ' +
+          'Для настоящего мультиплеера заполните <code>config.js</code> ключами Firebase.</div>';
+        document.getElementById('la-nick').textContent = account.username + ' (регистрация)';
+        document.getElementById('la-logout').addEventListener('click', logoutLocal);
+        return;
+      }
+      // Нет аккаунта — показываем регистрацию / вход
       box.innerHTML =
-        '<div style="padding:12px 14px;border-radius:12px;background:rgba(255,210,0,0.08);border:1px solid rgba(255,210,0,0.25)">' +
+        '<div style="padding:12px 14px;border-radius:12px;background:rgba(255,210,0,0.08);border:1px solid rgba(255,210,0,0.25);margin-bottom:14px">' +
           '<div style="font-weight:800;font-size:14px;margin-bottom:4px">🧪 Демо-режим</div>' +
-          '<div style="font-size:13px;color:var(--muted)">Онлайн, чат и лидерборд сейчас симулируются ботами. ' +
-          'Чтобы подключить <b>реальный</b> онлайн между игроками — заполните <code>config.js</code> ключами Firebase ' +
-          '(инструкция в README).</div>' +
-        '</div>';
+          '<div style="font-size:13px;color:var(--muted)">Онлайн-чат и лидерборд симулируются ботами. ' +
+          'Для реального онлайна заполните <code>config.js</code> ключами Firebase (README).</div>' +
+        '</div>' +
+        '<div style="font-weight:800;font-size:15px;margin-bottom:10px">🔐 Аккаунт</div>' +
+        '<div style="display:flex;flex-direction:column;gap:8px">' +
+          '<input id="auth-user" placeholder="Никнейм" maxlength="16" autocomplete="username" class="auth-input">' +
+          '<input id="auth-pass" type="password" placeholder="Пароль" maxlength="32" autocomplete="new-password" class="auth-input">' +
+          '<div style="display:flex;gap:8px">' +
+            '<button class="buy-btn" id="auth-reg" style="margin:0;flex:1">Зарегистрироваться</button>' +
+            '<button class="reset-btn" id="auth-login" style="margin:0;flex:1">Войти</button>' +
+          '</div>' +
+        '</div>' +
+        '<div style="margin-top:10px;font-size:12px;color:var(--muted)">Регистрация сохраняет ваш ник и открывает команды чата.</div>';
+      document.getElementById('auth-reg').addEventListener('click', function () {
+        var u = document.getElementById('auth-user').value.trim();
+        var p = document.getElementById('auth-pass').value;
+        if (!u || !p) {
+          showToast('⚠️', 'Заполните поля', 'Нужен никнейм и пароль');
+          return;
+        }
+        registerLocal(u, p);
+      });
+      document.getElementById('auth-login').addEventListener('click', function () {
+        var u = document.getElementById('auth-user').value.trim();
+        var p = document.getElementById('auth-pass').value;
+        if (!u || !p) {
+          showToast('⚠️', 'Заполните поля', 'Нужен никнейм и пароль');
+          return;
+        }
+        loginLocal(u, p);
+      });
+    }
+
+    /* ---------- Локальная регистрация / вход (без Firebase) ---------- */
+    function getAccountsStore() {
+      try {
+        var raw = localStorage.getItem('crystal-net-accounts');
+        return raw ? JSON.parse(raw) : {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function saveAccountsStore(store) {
+      try {
+        localStorage.setItem('crystal-net-accounts', JSON.stringify(store));
+      } catch (e) { /* ignore */ }
+    }
+
+    function getLocalAccount() {
+      try {
+        return JSON.parse(localStorage.getItem('crystal-net-session') || 'null');
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function registerLocal(username, password) {
+      var store = getAccountsStore();
+      if (store[username]) {
+        showToast('⛔', 'Ник занят', 'Игрок «' + username + '» уже зарегистрирован');
+        return;
+      }
+      store[username] = { pass: password, created: Date.now() };
+      saveAccountsStore(store);
+      setSession({ username: username, created: Date.now() });
+      showToast('🎉', 'Регистрация успешна', 'Добро пожаловать, ' + username + '!');
+      window.Online.signedIn = true;
+      currentNick = username;
+      renderNetwork();
+    }
+
+    function loginLocal(username, password) {
+      var store = getAccountsStore();
+      if (!store[username] || store[username].pass !== password) {
+        showToast('⛔', 'Неверные данные', 'Нет такого игрока или пароль не подходит');
+        return;
+      }
+      setSession({ username: username, created: store[username].created });
+      showToast('👋', 'С возвращением', username + '!');
+      window.Online.signedIn = true;
+      currentNick = username;
+      renderNetwork();
+    }
+
+    function setSession(account) {
+      try {
+        localStorage.setItem('crystal-net-session', JSON.stringify(account));
+      } catch (e) { /* ignore */ }
+    }
+
+    function logoutLocal() {
+      try {
+        localStorage.removeItem('crystal-net-session');
+      } catch (e) { /* ignore */ }
+      window.Online.signedIn = false;
+      currentNick = '';
+      renderNetwork();
+      showToast('👋', 'Вы вышли', 'Сессия завершена');
     }
 
     function renderOnlineList() {
@@ -2165,7 +2626,8 @@
         window.Online.onSendPlayerChat(trimmed);
       } else {
         // Автономный режим: показываем локально.
-        addChatMessage('[Вы]', trimmed, true);
+        var myName = getLocalAccount() ? getLocalAccount().username : '[Вы]';
+        addChatMessage(myName, trimmed, true);
       }
       gameState.chatHistory.push(trimmed);
       if (gameState.chatHistory.length > 50) {
@@ -2369,6 +2831,10 @@
         renderStats();
         renderAchievements();
         renderPrestige();
+        renderQuests();
+      }
+      if (pageId === 'page-changelog') {
+        renderChangelog();
       }
     }
 
@@ -2585,6 +3051,9 @@
         chatHistory: gameState.chatHistory,
         prestigeShards: gameState.prestigeShards,
         prestigeCount: gameState.prestigeCount,
+        quests: gameState.quests,
+        questsDayKey: gameState.questsDayKey,
+        questsWeekKey: gameState.questsWeekKey,
         lastSeen: Date.now()
       };
       try {
@@ -2657,8 +3126,12 @@
 
       gameState.prestigeShards = typeof data.prestigeShards === 'number' ? data.prestigeShards : 0;
       gameState.prestigeCount = typeof data.prestigeCount === 'number' ? data.prestigeCount : 0;
+      gameState.quests = (data.quests && typeof data.quests === 'object') ? data.quests : {};
+      gameState.questsDayKey = data.questsDayKey || '';
+      gameState.questsWeekKey = data.questsWeekKey || '';
 
       recomputeDerived();
+      resetQuestsIfNeeded();
 
       // Офлайн-доход: пока игрока не было, ферма продолжала работать (50% CPS)
       if (typeof data.lastSeen === 'number') {
@@ -2695,7 +3168,10 @@
         achievements: freshAchievements(),
         chatHistory: [],
         prestigeShards: 0,
-        prestigeCount: 0
+        prestigeCount: 0,
+        quests: {},
+        questsDayKey: getDayKey(),
+        questsWeekKey: getWeekKey()
       };
       recomputeDerived();
       applySkin();
@@ -2707,6 +3183,7 @@
       renderNetwork();
       renderPrestige();
       renderCommunity();
+      renderQuests();
       showToast('🗑', 'Прогресс сброшен', 'Всё началось заново');
     }
 
@@ -2744,6 +3221,8 @@
       renderAchievements();
       renderNetwork();
       renderPrestige();
+      renderQuests();
+      checkQuests();
       showToast('✨', 'Перерождение!', '+' + gain + ' осколков · всего x' + getPrestigeMultiplier().toFixed(2));
     }
 
@@ -2792,7 +3271,6 @@
       bindChat();
 
       initOnlineSimulation();
-      initBotPlayers();
 
       renderer.domElement.addEventListener('pointerdown', onPointerDown);
       renderer.domElement.addEventListener('pointerup', onPointerUp);
@@ -2813,6 +3291,7 @@
       setInterval(maybeRefreshShop, 250);
       setInterval(saveGame, SAVE_INTERVAL_MS);
       setInterval(renderNetwork, 1000);
+      setInterval(function () { checkQuests(); }, 3000);
 
       // Периодическая отправка баланса в реальный лидерборд (Firebase)
       setInterval(function () {
@@ -2834,6 +3313,8 @@
       renderAchievements();
       renderNetwork();
       renderCommunity();
+      renderChangelog();
+      renderQuests();
       scheduleBotChat();
       refreshUI();
 
