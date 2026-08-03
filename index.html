@@ -495,6 +495,24 @@ body.tutorial-lock .col-center .panel{opacity:.5}
             </div>
 
             <button class="craft-btn" id="sound-test" style="width:100%">▶ Проверить звук</button>
+
+            <div style="font-weight:800;margin:14px 0 6px">🎛️ Интерфейс</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+              <span style="font-size:13px;color:var(--muted)">Текст в баббле АРГУСА</span>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="opt-text" checked>Вкл</label>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+              <span style="font-size:13px;color:var(--muted)">Частицы при клике</span>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="opt-particles" checked>Вкл</label>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+              <span style="font-size:13px;color:var(--muted)">Комбо-уведомления</span>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="opt-combo" checked>Вкл</label>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0">
+              <span style="font-size:13px;color:var(--muted)">Экранная тряска (криты)</span>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="opt-shake" checked>Вкл</label>
+            </div>
             <div style="margin-top:14px;font-size:11px;color:var(--muted)">Настройки автоматически сохраняются.</div>
           </div>
         </div>
@@ -549,7 +567,7 @@ body.tutorial-lock .col-center .panel{opacity:.5}
 var SAVE_KEY='crystal-net-save-v5';
 var PASSIVE_TICK_MS=100;
 var SAVE_INTERVAL_MS=5000;
-var GAME_VERSION='5.4.0';
+var GAME_VERSION='5.5.0';
 
 var SVG_ICONS={
   gem:'<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20"/><path d="M12 21L8 9"/><path d="M12 21l4-12"/>',
@@ -700,14 +718,17 @@ function addXp(amount){gameState.xp+=amount;var lv=gameState.level;while(gameSta
 function showToast(iconHtml,title,desc){var c=document.getElementById('toast-container');var el=document.createElement('div');el.className='toast';el.innerHTML='<span class="t-icon">'+iconHtml+'</span><div><div class="t-title"></div><div class="t-desc"></div></div>';el.querySelector('.t-title').textContent=title;el.querySelector('.t-desc').textContent=desc;c.appendChild(el);setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},3000);}
 function spawnDamageText(cx,cy,text){var l=document.getElementById('fx-layer');var el=document.createElement('div');el.className='dmg-float';el.textContent=text;el.style.left=cx+'px';el.style.top=cy+'px';l.appendChild(el);el.addEventListener('animationend',function(){if(el.parentNode)el.parentNode.removeChild(el);});}
 function spawnClickRipple(cx,cy){var l=document.getElementById('fx-layer');var el=document.createElement('div');el.className='click-ripple';el.style.left=cx+'px';el.style.top=cy+'px';l.appendChild(el);el.addEventListener('animationend',function(){if(el.parentNode)el.parentNode.removeChild(el);});}
-function shakeScreen(){var b=document.body;if(b._sa)b.style.animation='none';b.style.animation='shake .3s ease';b._sa=true;setTimeout(function(){b.style.animation='';b._sa=false;},320);}
+function shakeScreen(){if(!shakeEnabled)return;var b=document.body;if(b._sa)b.style.animation='none';b.style.animation='shake .3s ease';b._sa=true;setTimeout(function(){b.style.animation='';b._sa=false;},320);}
 
 var audioCtx=null;var soundEnabled=true;
+/* ===== Настройки звука и интерфейса ===== */
+var musicEnabled=true,sfxEnabled=true,voiceEnabled=true,assistantTextEnabled=true,particlesEnabled=true,shakeEnabled=true;
+var musicVolume=0.2,sfxVolume=0.7,voiceVolume=0.8;
 function ensureAudio(){if(!audioCtx){try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){audioCtx=null;}}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();}
-function playTone(freq,dur,type,vol){if(!audioCtx)return;try{var o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type||'sine';o.frequency.setValueAtTime(freq,audioCtx.currentTime);g.gain.setValueAtTime(vol||0.15,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+dur);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+dur);}catch(e){}}
-function robotBlip(){if(!audioCtx||!soundEnabled)return;try{var o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='square';var f=600+Math.random()*200;o.frequency.setValueAtTime(f,audioCtx.currentTime);o.frequency.exponentialRampToValueAtTime(f*1.3,audioCtx.currentTime+0.04);g.gain.setValueAtTime(0.04,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.05);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+0.06);}catch(e){}}
+function playTone(freq,dur,type,vol){if(!audioCtx||!sfxEnabled)return;try{var o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type||'sine';o.frequency.setValueAtTime(freq,audioCtx.currentTime);g.gain.setValueAtTime((vol||0.15)*sfxVolume,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+dur);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+dur);}catch(e){}}
+function robotBlip(){if(!audioCtx||!soundEnabled||!voiceEnabled)return;try{var o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='square';var f=600+Math.random()*200;o.frequency.setValueAtTime(f,audioCtx.currentTime);o.frequency.exponentialRampToValueAtTime(f*1.3,audioCtx.currentTime+0.04);g.gain.setValueAtTime(0.04*voiceVolume,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.05);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+0.06);}catch(e){}}
 var sfxMap={click:'click',crit:'crit',level:'level',buy:'buy',gem:'buy',box:'box',hyper:'hyper'};
-function playSfxFile(name){if(!audioCtx||!soundEnabled)return;try{var a=new Audio('audio/sfx/'+name+'.mp3');a.volume=0.7;a.play().catch(function(){});}catch(e){}}
+function playSfxFile(name){if(!audioCtx||!soundEnabled||!sfxEnabled)return;try{var a=new Audio('audio/sfx/'+name+'.mp3');a.volume=sfxVolume;a.play().catch(function(){});}catch(e){}}
 function playSound(name){if(!audioCtx||!soundEnabled)return;
   /* Если в audio/sfx/ есть готовый файл - играем его, иначе синтез */
   var file=sfxMap[name];
@@ -725,17 +746,29 @@ function playSound(name){if(!audioCtx||!soundEnabled)return;
 /* ==== ИИ-АССИСТЕНТ: аудиофайлы из корня проекта ==== */
 /* ==== ИИ-АССИСТЕНТ: аудиофайлы лежат в audio/assistant/ ==== */
 var ASSISTANT_DIR='audio/assistant/';
+var MERCHANT_DIR='audio/merchant/';
+var BOOT_DIR='audio/boot/';
 var ASSISTANT_PLAYLIST={
-  intro:{file:ASSISTANT_DIR+'intro.mp3',text:'Год 2142. Ресурсы Земли исчерпаны. Единственный источник выживания — Квантовые Кристаллы. Матрица запущена...'},
+  intro:{file:BOOT_DIR+'intro.mp3',text:'Год 2142. Ресурсы Земли исчерпаны. Единственный источник выживания — Квантовые Кристаллы. Матрица запущена...'},
   welcome:{file:ASSISTANT_DIR+'welcome.mp3',text:'Инициализация ядра завершена. Приветствую, оператор! Я АРГУС — твой бортовой ассистент. Наш сектор пуст, а главный реактор на нуле. Давай раскачаем эту кристаллическую глыбу! Кликни по Кристаллу ровно десять раз, чтобы запустить первичный сбор энергии. Погнали!'},
   go_to_shop:{file:ASSISTANT_DIR+'go_to_shop.mp3',text:'Отличная работа, искра пошла! Но кликать вручную — прошлый век, мы тут империю строим. Стабильный пассивный поток энергии — вот ключ к успеху. Открывай вкладку Рынок на центральной панели и найми нашего первого Дрона-майнера. Пора автоматизировать этот бизнес!'},
   tutorial_done:{file:ASSISTANT_DIR+'tutorial_done.mp3',text:'Синхронизация выполнена, дрон выведен на орбиту! Системы работают автономно, а ты официально сертифицирован как космический магнат. Моё обучение завершено, но я остаюсь на связи и буду прикрывать тебя в этом секторе. Покажи галактике, на что способен проект [CRYSTAL.NET]!'},
   anomaly:{file:ASSISTANT_DIR+'anomaly.mp3',text:'Фиксирую мощный пространственный всплеск! Квантовая аномалия прямо по курсу! Лови её, оператор, пока она не дестабилизировалась! Живее!'},
   hyperdrive:{file:ASSISTANT_DIR+'hyperdrive.mp3',text:'Энергосети перегружены, это Гипер-Драйв! Множитель зашкаливает, выжимаем из Кристалла максимум! Кликай на все сто!'},
   rich:{file:ASSISTANT_DIR+'rich.mp3',text:'Невероятно! Мои модули в шоке от количества нулей на твоем балансе. С такими запасами энергии мы скоро сможем выкупить парочку звездных систем. Отличная стратегия, оператор, продолжай в том же духе!'},
-  idle_warning:{file:ASSISTANT_DIR+'idle_warning.mp3',text:'Внимание, оператор! Приём! Ты там впал в анабиоз или просто медитируешь на мои крылья? Наш Кристалл начинает остывать, а пассивный доход сам себя не увеличит. Хватит спать, возвращайся к терминалу, нам нужны ресурсы!'}
+  idle_warning:{file:ASSISTANT_DIR+'idle_warning.mp3',text:'Внимание, оператор! Приём! Ты там впал в анабиоз или просто медитируешь на мои крылья? Наш Кристалл начинает остывать, а пассивный доход сам себя не увеличит. Хватит спать, возвращайся к терминалу, нам нужны ресурсы!'},
+  idle_1:{file:ASSISTANT_DIR+'idle_1.mp3',text:'Оператор, приём! Кристалл просит внимания. Не оставляй его одного!'},
+  idle_2:{file:ASSISTANT_DIR+'idle_2.mp3',text:'Система в режиме ожидания. Кликни по кристаллу, чтобы разбудить генератор!'},
+  idle_3:{file:ASSISTANT_DIR+'idle_3.mp3',text:'Пока ты думаешь, конкуренты добывают. Пора действовать, капитан!'}
 };
-var IDLE_FILES=['idle_warning'];
+/* Озвучка робота-продавца (отдельная папка) */
+var MERCHANT_PHRASES={
+  welcome:{file:MERCHANT_DIR+'welcome.mp3',text:'Добро пожаловать в мой магазин, оператор!'},
+  successBuy:{file:MERCHANT_DIR+'success.mp3',text:'Отличная сделка! Доход растёт!'},
+  noFunds:{file:MERCHANT_DIR+'nofunds.mp3',text:'Хм, твои карманы пусты. Возвращайся с кристаллами!'},
+  idle:{file:MERCHANT_DIR+'idle.mp3',text:'Заходи, странник, товары ждут хозяина!'}
+};
+var IDLE_FILES=['idle_warning','idle_1','idle_2','idle_3'];
 var assistantAudio=null; /* активный элемент Audio */
 var assistantBubbleTimer=null;
 function assistantAlert(text){
@@ -744,7 +777,38 @@ function assistantAlert(text){
 }
 /* Эмбиент-музыка из корня проекта */
 var ambientAudio=null;
-function startAmbient(){if(ambientAudio)return;ambientAudio=new Audio('audio/assistant/space_ambient.mp3');ambientAudio.loop=true;ambientAudio.volume=0.2;if(soundEnabled){ambientAudio.play().catch(function(){/* файл может отсутствовать */});}}
+function startAmbient(){if(ambientAudio)return;ambientAudio=new Audio('audio/music/space_ambient.mp3');ambientAudio.loop=true;ambientAudio.volume=musicVolume;if(soundEnabled&&musicEnabled){ambientAudio.play().catch(function(){/* файл может отсутствовать */});}}
+function stopAmbient(){if(ambientAudio){try{ambientAudio.pause();}catch(e){}}}
+
+/* ===== Настройки: сохранение/загрузка/применение ===== */
+function saveSettings(){try{localStorage.setItem('crystal-net-settings',JSON.stringify({musicEnabled:musicEnabled,sfxEnabled:sfxEnabled,voiceEnabled:voiceEnabled,assistantTextEnabled:assistantTextEnabled,particlesEnabled:particlesEnabled,musicVolume:musicVolume,sfxVolume:sfxVolume,voiceVolume:voiceVolume}));}catch(e){}}
+function loadSettings(){try{var s=JSON.parse(localStorage.getItem('crystal-net-settings')||'null');if(!s)return;musicEnabled=s.musicEnabled!==false;sfxEnabled=s.sfxEnabled!==false;voiceEnabled=s.voiceEnabled!==false;assistantTextEnabled=s.assistantTextEnabled!==false;particlesEnabled=s.particlesEnabled!==false;musicVolume=typeof s.musicVolume==='number'?s.musicVolume:0.2;sfxVolume=typeof s.sfxVolume==='number'?s.sfxVolume:0.7;voiceVolume=typeof s.voiceVolume==='number'?s.voiceVolume:0.8;}catch(e){}}
+function bindSettings(){
+  var el=function(id){return document.getElementById(id);};
+  var vM=el('vol-music'),vS=el('vol-sfx'),vV=el('vol-voice');
+  var mM=el('mute-music'),mS=el('mute-sfx'),mV=el('mute-voice');
+  var tT=el('opt-text'),tP=el('opt-particles');
+  var tC=el('opt-combo'),tSh=el('opt-shake');
+  /* Применяем сохранённые значения к элементам */
+  vM.value=Math.round(musicVolume*100);el('vol-music-val').textContent=vM.value+'%';
+  vS.value=Math.round(sfxVolume*100);el('vol-sfx-val').textContent=vS.value+'%';
+  vV.value=Math.round(voiceVolume*100);el('vol-voice-val').textContent=vV.value+'%';
+  mM.checked=musicEnabled;mS.checked=sfxEnabled;mV.checked=voiceEnabled;
+  tT.checked=assistantTextEnabled;tP.checked=particlesEnabled;tC.checked=true;tSh.checked=shakeEnabled;
+  /* Слайдеры громкости */
+  vM.addEventListener('input',function(){musicVolume=vM.value/100;el('vol-music-val').textContent=vM.value+'%';if(ambientAudio)ambientAudio.volume=musicVolume;saveSettings();});
+  vS.addEventListener('input',function(){sfxVolume=vS.value/100;el('vol-sfx-val').textContent=vS.value+'%';saveSettings();});
+  vV.addEventListener('input',function(){voiceVolume=vV.value/100;el('vol-voice-val').textContent=vV.value+'%';saveSettings();});
+  /* Чекбоксы вкл/выкл */
+  mM.addEventListener('change',function(){musicEnabled=mM.checked;if(!musicEnabled)stopAmbient();else if(ambientAudio)startAmbient();saveSettings();});
+  mS.addEventListener('change',function(){sfxEnabled=mS.checked;saveSettings();});
+  mV.addEventListener('change',function(){voiceEnabled=mV.checked;saveSettings();});
+  tT.addEventListener('change',function(){assistantTextEnabled=tT.checked;saveSettings();});
+  tP.addEventListener('change',function(){particlesEnabled=tP.checked;saveSettings();});
+  tSh.addEventListener('change',function(){shakeEnabled=tSh.checked;saveSettings();});
+  /* Проверка звука */
+  el('sound-test').addEventListener('click',function(){ensureAudio();playTone(523,0.15,'sine',sfxVolume);setTimeout(function(){playTone(659,0.15,'sine',sfxVolume);},150);setTimeout(function(){playTone(784,0.2,'sine',sfxVolume);},300);});
+}
 
 /* ==== ЗАСТАВКА, КАТСЦЕНА И ТУТОРИАЛ ==== */
 var tutorialCompleted=false;
@@ -797,9 +861,9 @@ function playAssistantFile(key){
   if(!entry)return;
   if(assistantAudio){try{assistantAudio.pause();assistantAudio.currentTime=0;}catch(e){}}
   assistantAudio=new Audio(entry.file);
-  assistantAudio.volume=0.8;
+  assistantAudio.volume=voiceVolume;
   assistantAudio.playbackRate=1.25;
-  if(soundEnabled){assistantAudio.play().catch(function(){});}
+  if(soundEnabled&&voiceEnabled){assistantAudio.play().catch(function(){});}
 }
 /* Полный вызов реплики: баббл + текст + звук */
 function assistantSpeak(key){
@@ -807,9 +871,10 @@ function assistantSpeak(key){
   if(!entry)return;
   if(assistantAudio){try{assistantAudio.pause();assistantAudio.currentTime=0;}catch(e){}}
   assistantAudio=new Audio(entry.file);
-  assistantAudio.volume=0.8;
+  assistantAudio.volume=voiceVolume;
   assistantAudio.playbackRate=1.25;
-  if(soundEnabled){assistantAudio.play().catch(function(){});}
+  if(soundEnabled&&voiceEnabled){assistantAudio.play().catch(function(){});}
+  if(!assistantTextEnabled)return;
   var bubble=document.getElementById('ad-bubble');
   if(bubble){
     bubble.classList.add('visible');
@@ -1010,7 +1075,7 @@ function onPointerUp(e){
   refreshUI();checkAchievements();
 }
 
-function spawnParticles(point){var count=15+Math.floor(Math.random()*5);var skin=SKINS[gameState.activeSkin]||SKINS.default;for(var i=0;i<count;i++){var size=0.05+Math.random()*0.1;var cube=new THREE.Mesh(new THREE.BoxGeometry(size,size,size),new THREE.MeshStandardMaterial({color:skin.glow,emissive:skin.glow,emissiveIntensity:0.8,metalness:0.9,roughness:0.2}));cube.position.copy(point);var dir=new THREE.Vector3((Math.random()-0.5)*2,(Math.random()-0.5)*2,(Math.random()-0.5)*2).normalize();cube.userData.velocity=dir.multiplyScalar(2+Math.random()*3);cube.userData.life=1;scene.add(cube);particles.push(cube);}}
+function spawnParticles(point){if(!particlesEnabled)return;var count=15+Math.floor(Math.random()*5);var skin=SKINS[gameState.activeSkin]||SKINS.default;for(var i=0;i<count;i++){var size=0.05+Math.random()*0.1;var cube=new THREE.Mesh(new THREE.BoxGeometry(size,size,size),new THREE.MeshStandardMaterial({color:skin.glow,emissive:skin.glow,emissiveIntensity:0.8,metalness:0.9,roughness:0.2}));cube.position.copy(point);var dir=new THREE.Vector3((Math.random()-0.5)*2,(Math.random()-0.5)*2,(Math.random()-0.5)*2).normalize();cube.userData.velocity=dir.multiplyScalar(2+Math.random()*3);cube.userData.life=1;scene.add(cube);particles.push(cube);}}
 function updateParticles(dt){for(var i=particles.length-1;i>=0;i--){var p=particles[i];p.userData.life-=dt*0.9;p.userData.velocity.y-=dt*5;p.position.add(p.userData.velocity.clone().multiplyScalar(dt));p.rotation.x+=dt*4;p.rotation.y+=dt*4;p.scale.setScalar(Math.max(0,p.userData.life));if(p.userData.life<=0){scene.remove(p);p.geometry.dispose();p.material.dispose();particles.splice(i,1);}}}
 
 /* Кинематика: lerp скорости и яркости в зависимости от активной вкладки */
@@ -1064,7 +1129,8 @@ function initMerchantScene(){
   var container=document.getElementById('merchant-scene');
   mRenderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
   mRenderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
-  mRenderer.setSize(container.clientWidth,container.clientHeight);
+  var w=container.clientWidth||300,h=container.clientHeight||230;
+  mRenderer.setSize(w,h);
   container.appendChild(mRenderer.domElement);
   mScene=new THREE.Scene();
   mScene.fog=new THREE.Fog(0x16102e,10,20);
@@ -1134,7 +1200,27 @@ function animateMerchant(){
 function vendorSpeak(text,emotion){var b=document.getElementById('vendor-bubble');var t=document.getElementById('vendor-bubble-text');if(emotion)drawMerchantFace(emotion);if(b&&t){b.classList.add('visible');t.textContent='';var i=0;clearInterval(b._t);b._t=setInterval(function(){i++;t.textContent=text.slice(0,i);robotBlip();if(i>=text.length){clearInterval(b._t);setTimeout(function(){b.classList.remove('visible');},1500);}},55);}}
 var merchantIdleTimer=null;
 function resetMerchantIdle(){if(merchantIdleTimer)clearTimeout(merchantIdleTimer);merchantIdleTimer=setTimeout(function(){if(activeView==='market')speak('idle');},30000);}
-function speak(type){var lines=merchantPhrases[type];if(!lines||lines.length===0)return;var line=randomItem(lines);if(type==='successBuy'){drawMerchantFace('buy');merchantAnim.approve=1;merchantAnim.poor=0;setTimeout(function(){merchantAnim.approve=0;drawMerchantFace('idle');},1600);}else if(type==='noFunds'){drawMerchantFace('poor');merchantAnim.poor=1;merchantAnim.approve=0;setTimeout(function(){merchantAnim.poor=0;drawMerchantFace('idle');},1500);}else if(type==='welcome'){drawMerchantFace('hover');setTimeout(function(){drawMerchantFace('idle');},2200);}vendorSpeak(line,type==='successBuy'?'buy':(type==='noFunds'?'poor':null));resetMerchantIdle();}
+var merchantAudio=null;
+function playMerchantVoice(type){
+  var entry=MERCHANT_PHRASES[type];
+  if(!entry)return;
+  if(merchantAudio){try{merchantAudio.pause();merchantAudio.currentTime=0;}catch(e){}}
+  merchantAudio=new Audio(entry.file);
+  merchantAudio.volume=0.8;
+  merchantAudio.playbackRate=1.1;
+  if(soundEnabled&&voiceEnabled){merchantAudio.play().catch(function(){});}
+}
+function speak(type){
+  var lines=merchantPhrases[type];
+  if(!lines||lines.length===0)return;
+  var line=randomItem(lines);
+  if(type==='successBuy'){drawMerchantFace('buy');merchantAnim.approve=1;merchantAnim.poor=0;setTimeout(function(){merchantAnim.approve=0;drawMerchantFace('idle');},1600);}
+  else if(type==='noFunds'){drawMerchantFace('poor');merchantAnim.poor=1;merchantAnim.approve=0;setTimeout(function(){merchantAnim.poor=0;drawMerchantFace('idle');},1500);}
+  else if(type==='welcome'){drawMerchantFace('hover');setTimeout(function(){drawMerchantFace('idle');},2200);}
+  vendorSpeak(line,type==='successBuy'?'buy':(type==='noFunds'?'poor':null));
+  playMerchantVoice(type);
+  resetMerchantIdle();
+}
 
 /* ============================================================
    РЫНОК: правые под-колонки
@@ -1214,7 +1300,11 @@ function setView(view){
   if(view==='locations')renderLocations();
   if(view==='journal')renderJournal();
 }
-function openMarket(){guardedSetView('market');}
+function openMarket(){
+  /* Колонка становится видимой — пересчитываем размер сцены робота */
+  setTimeout(resizeMerchantScene,50);
+  guardedSetView('market');
+}
 function closeMarket(){
   document.body.classList.remove('market-open');
   activeView='crystal';
@@ -1458,13 +1548,18 @@ function refreshUI(){
 }
 
 /* ==== RESIZE ==== */
+function resizeMerchantScene(){
+  var m=document.getElementById('merchant-scene');
+  if(!m||!mRenderer)return;
+  var w=m.clientWidth||300,h=m.clientHeight||230;
+  mRenderer.setSize(w,h);
+  mCamera.aspect=w/h;mCamera.updateProjectionMatrix();
+}
 function onResize(){
   var c=document.getElementById('scene-container');
   renderer.setSize(c.clientWidth,c.clientHeight);
   camera.aspect=c.clientWidth/c.clientHeight;camera.updateProjectionMatrix();
-  var m=document.getElementById('merchant-scene');
-  mRenderer.setSize(m.clientWidth,m.clientHeight);
-  mCamera.aspect=m.clientWidth/m.clientHeight;mCamera.updateProjectionMatrix();
+  resizeMerchantScene();
 }
 
 /* ==== INIT ==== */
@@ -1474,6 +1569,7 @@ function passiveTick(){var gain=derived.cps*(PASSIVE_TICK_MS/1000);gameState.bal
 
 function init(){
   loadGame();
+  loadSettings();
   initCrystalScene();
   initMerchantScene();
   applySkin();
@@ -1495,6 +1591,7 @@ function init(){
   document.getElementById('market-open-btn').addEventListener('click',openMarket);
   document.getElementById('market-close').addEventListener('click',closeMarket);
   document.getElementById('reveal-close').addEventListener('click',function(){document.getElementById('box-reveal').classList.remove('show');});
+  bindSettings();
 
   var sc=document.getElementById('scene-container');
   sc.addEventListener('pointerdown',onPointerDown);
