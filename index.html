@@ -150,19 +150,23 @@ nav.sidebar{position:fixed;top:50%;left:16px;transform:translateY(-50%);z-index:
    чтобы там беспрепятственно отображался 3D-продавец. */
 .shop-ui-container{
   position:absolute;
-  top:0;left:0;width:100%;height:100%;
+  top:0;
+  left:200px; /* отступ от бокового меню навигации */
+  width:calc(100% - 200px);
+  height:100%;
   z-index:10;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:80px 40px 40px 40px;
+  padding:40px 60px; /* аккуратные отступы от краёв и 3D-модели */
   pointer-events:none; /* чтобы можно было кликать сквозь пустой центр */
 }
 .shop-column{
   display:flex;
   flex-direction:column;
-  gap:15px;
-  width:320px; /* фиксированная ширина колонок */
+  gap:12px;
+  width:280px; /* компактная фиксированная ширина колонок */
+  max-width:300px;
   pointer-events:auto; /* возвращаем кликабельность карточкам */
 }
 .shop-column.left{align-items:flex-start}
@@ -189,17 +193,17 @@ nav.sidebar{position:fixed;top:50%;left:16px;transform:translateY(-50%);z-index:
   pointer-events:none;
 }
 .merchant-bubble.visible{opacity:1}
-.upgrade-card{background:var(--glass);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1px solid var(--gb);border-radius:16px;padding:13px 14px;display:flex;flex-direction:column;gap:8px;transition:transform .2s,box-shadow .2s,opacity .25s;position:relative;overflow:hidden}
+.upgrade-card{background:var(--glass);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1px solid var(--gb);border-radius:14px;padding:11px 12px;display:flex;flex-direction:column;gap:7px;width:100%;max-width:280px;transition:transform .2s,box-shadow .2s,opacity .25s;position:relative;overflow:hidden}
 .upgrade-card:hover{transform:translateY(-4px);box-shadow:0 14px 34px rgba(0,0,0,.45)}
 .upgrade-card.locked{opacity:.4}
-.upgrade-card .u-top{display:flex;align-items:center;gap:12px}
-.upgrade-card .u-icon{width:46px;height:46px;display:grid;place-items:center;background:rgba(255,255,255,.06);border-radius:12px}
-.upgrade-card .u-icon .svg-ic{color:var(--cyan);width:28px;height:28px}
-.upgrade-card .u-name{font-weight:800;font-size:14px}
-.upgrade-card .u-desc{color:var(--muted);font-size:12px}
-.upgrade-card .u-level{color:var(--cyan);font-size:12px;font-weight:700}
-.upgrade-card .u-cost{font-weight:800;font-size:15px;color:var(--gold)}
-.upgrade-card .buy-btn{margin-top:auto;border:none;border-radius:11px;padding:10px;font-weight:800;font-size:14px;font-family:inherit;cursor:pointer;background:linear-gradient(135deg,var(--neon),var(--magenta));color:#fff;transition:transform .15s,filter .2s}
+.upgrade-card .u-top{display:flex;align-items:center;gap:10px}
+.upgrade-card .u-icon{width:40px;height:40px;display:grid;place-items:center;background:rgba(255,255,255,.06);border-radius:10px;flex-shrink:0}
+.upgrade-card .u-icon .svg-ic{color:var(--cyan);width:24px;height:24px}
+.upgrade-card .u-name{font-weight:800;font-size:13px}
+.upgrade-card .u-desc{color:var(--muted);font-size:11px}
+.upgrade-card .u-level{color:var(--cyan);font-size:11px;font-weight:700}
+.upgrade-card .u-cost{font-weight:800;font-size:14px;color:var(--gold)}
+.upgrade-card .buy-btn{margin-top:auto;border:none;border-radius:10px;padding:9px;font-weight:800;font-size:13px;font-family:inherit;cursor:pointer;background:linear-gradient(135deg,var(--neon),var(--magenta));color:#fff;transition:transform .15s,filter .2s}
 .upgrade-card .buy-btn:hover:not(:disabled){transform:scale(1.03);filter:brightness(1.1)}
 .upgrade-card .buy-btn:disabled{background:#3a3550;cursor:not-allowed;color:var(--muted)}
 
@@ -266,10 +270,11 @@ nav.sidebar{position:fixed;top:50%;left:16px;transform:translateY(-50%);z-index:
 #chat-send{border:none;border-radius:10px;padding:0 14px;background:linear-gradient(135deg,var(--cyan),var(--magenta));color:#fff;cursor:pointer}
 
 /* Контракты-виджет на главной */
-.quest-drawer{position:fixed;right:18px;bottom:18px;z-index:70;display:flex;flex-direction:column;align-items:flex-end;gap:10px;pointer-events:auto}
-.quest-toggle{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--gb);background:var(--glass);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);color:var(--text);border-radius:30px;padding:10px 16px;font-family:inherit;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 8px 26px rgba(0,0,0,.45)}
+/* Панель контрактов (Задания): закреплена по центру правой стороны экрана */
+.quest-drawer{position:absolute;right:40px;top:50%;transform:translateY(-30%);z-index:70;width:360px;max-width:92vw;pointer-events:auto;display:flex;flex-direction:column}
+.quest-toggle{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--gb);background:var(--glass);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);color:var(--text);border-radius:14px 14px 0 0;padding:12px 16px;font-family:inherit;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 8px 26px rgba(0,0,0,.45)}
 .quest-toggle .qt-count{background:linear-gradient(135deg,var(--cyan),var(--magenta));color:#fff;border-radius:20px;padding:1px 9px;font-size:12px}
-.quest-drawer-body{width:min(360px,92vw);max-height:46vh;overflow-y:auto;padding:16px;border-radius:16px;background:rgba(20,15,40,.9);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--gb);box-shadow:0 16px 50px rgba(0,0,0,.6)}
+.quest-drawer-body{height:500px;max-height:70vh;overflow-y:auto;padding:16px;border-radius:0 0 14px 14px;background:rgba(20,15,40,.9);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--gb);border-top:none;box-shadow:0 16px 50px rgba(0,0,0,.6)}
 .quest-drawer-body.collapsed{display:none}
 
 /* Достижения */
@@ -308,6 +313,8 @@ code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:5px;font-siz
   .merchant-bubble{top:60px}
   #page-market .page-scroll{padding-top:26vh}
   .resource-grid{grid-template-columns:repeat(3,1fr)}
+  .quest-drawer{right:12px;width:min(340px,92vw);transform:translateY(-20%)}
+  .quest-drawer-body{height:400px;max-height:60vh}
 }
 @media(max-width:480px){
   .page-title{font-size:22px}
@@ -547,7 +554,7 @@ code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:5px;font-siz
 var SAVE_KEY='crystal-net-save-v4';
 var PASSIVE_TICK_MS=100;
 var SAVE_INTERVAL_MS=5000;
-var GAME_VERSION='4.1.0';
+var GAME_VERSION='4.1.1';
 
 var SVG_ICONS={
   gem:'<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20"/><path d="M12 21L8 9"/><path d="M12 21l4-12"/>',
@@ -847,19 +854,33 @@ function spawnAnomaly(){
   var a=document.getElementById('anomaly');
   if(!a)return;
   if(activePage!=='page-crystal'){scheduleAnomaly();return;}
-  var x=60+Math.random()*(window.innerWidth-120);
-  var y=100+Math.random()*(window.innerHeight-180);
+  /* Безопасная зона спавна: строго в свободном пространстве вокруг 3D-кристалла.
+     X: центральные 600px, сдвинуты от левого меню (навигация ~200px).
+     Y: центральная область, не заходящая на комбо-панель (низ) и топбар. */
+  var safeXmin=300;
+  var safeXmax=window.innerWidth-300;
+  var safeYmin=160;
+  var safeYmax=window.innerHeight-260;
+  if(safeXmax<=safeXmin)safeXmax=safeXmin+200;
+  if(safeYmax<=safeYmin)safeYmax=safeYmin+200;
+  var x=safeXmin+Math.random()*(safeXmax-safeXmin);
+  var y=safeYmin+Math.random()*(safeYmax-safeYmin);
   a.style.left=x+'px';a.style.top=y+'px';
   a.classList.add('active');
   var collected=false;
   a.onclick=function(){if(collected)return;collected=true;a.classList.remove('active');activateHyperdrive();scheduleAnomaly();};
-  /* Движение аномалии 5 секунд, потом исчезает */
+  /* Движение аномалии 5 секунд в пределах безопасной зоны, потом исчезает */
   var t0=Date.now();
   var mv=setInterval(function(){
     if(collected){clearInterval(mv);return;}
     var el=Date.now()-t0;
-    a.style.left=(x+Math.sin(el/200)*40)+'px';
-    a.style.top=(y+Math.cos(el/150)*30)+'px';
+    var nx=x+Math.sin(el/200)*40;
+    var ny=y+Math.cos(el/150)*30;
+    if(nx<safeXmin)nx=safeXmin;
+    if(nx>safeXmax)nx=safeXmax;
+    if(ny<safeYmin)ny=safeYmin;
+    if(ny>safeYmax)ny=safeYmax;
+    a.style.left=nx+'px';a.style.top=ny+'px';
     if(el>=5000){clearInterval(mv);if(!collected){a.classList.remove('active');scheduleAnomaly();}}
   },50);
 }
