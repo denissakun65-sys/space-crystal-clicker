@@ -173,8 +173,10 @@ body.market-open .col-right{display:block}
 
 /* Рестарт */
 .dark-matter{font-size:26px;font-weight:900;color:#a04dff;text-shadow:0 0 20px rgba(160,77,255,.8);text-align:center;margin:10px 0}
-.dm-shop-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border:1px solid rgba(160,77,255,.3);border-radius:12px;margin-bottom:8px;background:rgba(160,77,255,.06)}
-.dm-shop-item .dm-info{font-size:12px;flex:1}
+.dm-shop-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border:1px solid rgba(160,77,255,.3);border-radius:12px;margin-bottom:8px;background:rgba(160,77,255,.06);flex-wrap:wrap}
+.dm-shop-item .dm-info{font-size:12px;flex:1;min-width:130px;display:flex;flex-direction:column;gap:2px}
+.dm-shop-item .dm-desc{color:var(--muted);white-space:nowrap}
+.dm-btn:disabled{opacity:.5;cursor:not-allowed;background:rgba(160,77,255,.2)}
 .dm-btn{border:none;border-radius:10px;padding:8px 12px;font-weight:800;font-family:inherit;cursor:pointer;background:linear-gradient(135deg,#a04dff,#ff007f);color:#fff}
 
 /* ==== ПРАВАЯ КОЛОНКА (Рынок) ==== */
@@ -444,8 +446,8 @@ body.tutorial-lock .col-center .panel{opacity:.5}
           </div>
           <div class="panel" style="margin-top:10px">
             <div class="panel-title">Магазин Тёмной Материи</div>
-            <div class="dm-shop-item"><div>⚡</div><div class="dm-info"><b>Усиление клика</b><br>+25% к силе клика · ур. <span id="dm-click-lvl">0</span></div><button class="dm-btn" id="dm-click-btn">Купить (1 ТМ)</button></div>
-            <div class="dm-shop-item"><div>💠</div><div class="dm-info"><b>Усиление пассива</b><br>+25% к CPS · ур. <span id="dm-cps-lvl">0</span></div><button class="dm-btn" id="dm-cps-btn">Купить (1 ТМ)</button></div>
+            <div class="dm-shop-item"><div>⚡</div><div class="dm-info"><b>Усиление клика</b><span class="dm-desc">+25% к силе клика · ур. <span id="dm-click-lvl">0</span></span></div><button class="dm-btn" id="dm-click-btn">Купить · 1 ТМ</button></div>
+            <div class="dm-shop-item"><div>💠</div><div class="dm-info"><b>Усиление пассива</b><span class="dm-desc">+25% к CPS · ур. <span id="dm-cps-lvl">0</span></span></div><button class="dm-btn" id="dm-cps-btn">Купить · 1 ТМ</button></div>
           </div>
         </div>
 
@@ -488,11 +490,18 @@ body.tutorial-lock .col-center .panel{opacity:.5}
               <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="mute-sfx" checked>Вкл</label>
             </div>
 
-            <div style="font-weight:800;margin:6px 0">🤖 Озвучка АРГУСА</div>
+            <div style="font-weight:800;margin:6px 0">🗣️ Голос АРГУСА (ассистент)</div>
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
               <input type="range" id="vol-voice" min="0" max="100" value="80" style="flex:1">
               <span class="vol-val" id="vol-voice-val">80%</span>
               <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="mute-voice" checked>Вкл</label>
+            </div>
+
+            <div style="font-weight:800;margin:6px 0">🤖 Голос продавца</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+              <input type="range" id="vol-merchant" min="0" max="100" value="80" style="flex:1">
+              <span class="vol-val" id="vol-merchant-val">80%</span>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="mute-merchant" checked>Вкл</label>
             </div>
 
             <button class="craft-btn" id="sound-test" style="width:100%">▶ Проверить звук</button>
@@ -581,7 +590,7 @@ body.tutorial-lock .col-center .panel{opacity:.5}
 var SAVE_KEY='crystal-net-save-v5';
 var PASSIVE_TICK_MS=100;
 var SAVE_INTERVAL_MS=5000;
-var GAME_VERSION='5.6.0';
+var GAME_VERSION='5.6.1';
 
 var SVG_ICONS={
   gem:'<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20"/><path d="M12 21L8 9"/><path d="M12 21l4-12"/>',
@@ -736,8 +745,8 @@ function shakeScreen(){if(!shakeEnabled)return;var b=document.body;if(b._sa)b.st
 
 var audioCtx=null;var soundEnabled=true;
 /* ===== Настройки звука и интерфейса ===== */
-var musicEnabled=true,sfxEnabled=true,voiceEnabled=true,assistantTextEnabled=true,particlesEnabled=true,shakeEnabled=true;
-var musicVolume=0.2,sfxVolume=0.7,voiceVolume=0.8;
+var musicEnabled=true,sfxEnabled=true,voiceEnabled=true,merchantVoiceEnabled=true,assistantTextEnabled=true,particlesEnabled=true,shakeEnabled=true;
+var musicVolume=0.2,sfxVolume=0.7,voiceVolume=0.8,merchantVolume=0.8;
 function ensureAudio(){if(!audioCtx){try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){audioCtx=null;}}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();}
 function playTone(freq,dur,type,vol){if(!audioCtx||!sfxEnabled)return;try{var o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type||'sine';o.frequency.setValueAtTime(freq,audioCtx.currentTime);g.gain.setValueAtTime((vol||0.15)*sfxVolume,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+dur);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+dur);}catch(e){}}
 function robotBlip(){if(!audioCtx||!soundEnabled||!voiceEnabled)return;try{var o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='square';var f=600+Math.random()*200;o.frequency.setValueAtTime(f,audioCtx.currentTime);o.frequency.exponentialRampToValueAtTime(f*1.3,audioCtx.currentTime+0.04);g.gain.setValueAtTime(0.04*voiceVolume,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.05);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+0.06);}catch(e){}}
@@ -795,28 +804,31 @@ function startAmbient(){if(ambientAudio)return;ambientAudio=new Audio('audio/mus
 function stopAmbient(){if(ambientAudio){try{ambientAudio.pause();}catch(e){}}}
 
 /* ===== Настройки: сохранение/загрузка/применение ===== */
-function saveSettings(){try{localStorage.setItem('crystal-net-settings',JSON.stringify({musicEnabled:musicEnabled,sfxEnabled:sfxEnabled,voiceEnabled:voiceEnabled,assistantTextEnabled:assistantTextEnabled,particlesEnabled:particlesEnabled,musicVolume:musicVolume,sfxVolume:sfxVolume,voiceVolume:voiceVolume}));}catch(e){}}
-function loadSettings(){try{var s=JSON.parse(localStorage.getItem('crystal-net-settings')||'null');if(!s)return;musicEnabled=s.musicEnabled!==false;sfxEnabled=s.sfxEnabled!==false;voiceEnabled=s.voiceEnabled!==false;assistantTextEnabled=s.assistantTextEnabled!==false;particlesEnabled=s.particlesEnabled!==false;musicVolume=typeof s.musicVolume==='number'?s.musicVolume:0.2;sfxVolume=typeof s.sfxVolume==='number'?s.sfxVolume:0.7;voiceVolume=typeof s.voiceVolume==='number'?s.voiceVolume:0.8;}catch(e){}}
+function saveSettings(){try{localStorage.setItem('crystal-net-settings',JSON.stringify({musicEnabled:musicEnabled,sfxEnabled:sfxEnabled,voiceEnabled:voiceEnabled,merchantVoiceEnabled:merchantVoiceEnabled,assistantTextEnabled:assistantTextEnabled,particlesEnabled:particlesEnabled,musicVolume:musicVolume,sfxVolume:sfxVolume,voiceVolume:voiceVolume,merchantVolume:merchantVolume}));}catch(e){}}
+function loadSettings(){try{var s=JSON.parse(localStorage.getItem('crystal-net-settings')||'null');if(!s)return;musicEnabled=s.musicEnabled!==false;sfxEnabled=s.sfxEnabled!==false;voiceEnabled=s.voiceEnabled!==false;merchantVoiceEnabled=s.merchantVoiceEnabled!==false;assistantTextEnabled=s.assistantTextEnabled!==false;particlesEnabled=s.particlesEnabled!==false;musicVolume=typeof s.musicVolume==='number'?s.musicVolume:0.2;sfxVolume=typeof s.sfxVolume==='number'?s.sfxVolume:0.7;voiceVolume=typeof s.voiceVolume==='number'?s.voiceVolume:0.8;merchantVolume=typeof s.merchantVolume==='number'?s.merchantVolume:0.8;}catch(e){}}
 function bindSettings(){
   var el=function(id){return document.getElementById(id);};
-  var vM=el('vol-music'),vS=el('vol-sfx'),vV=el('vol-voice');
-  var mM=el('mute-music'),mS=el('mute-sfx'),mV=el('mute-voice');
+  var vM=el('vol-music'),vS=el('vol-sfx'),vV=el('vol-voice'),vMer=el('vol-merchant');
+  var mM=el('mute-music'),mS=el('mute-sfx'),mV=el('mute-voice'),mMer=el('mute-merchant');
   var tT=el('opt-text'),tP=el('opt-particles');
   var tC=el('opt-combo'),tSh=el('opt-shake');
   /* Применяем сохранённые значения к элементам */
   vM.value=Math.round(musicVolume*100);el('vol-music-val').textContent=vM.value+'%';
   vS.value=Math.round(sfxVolume*100);el('vol-sfx-val').textContent=vS.value+'%';
   vV.value=Math.round(voiceVolume*100);el('vol-voice-val').textContent=vV.value+'%';
-  mM.checked=musicEnabled;mS.checked=sfxEnabled;mV.checked=voiceEnabled;
+  vMer.value=Math.round(merchantVolume*100);el('vol-merchant-val').textContent=vMer.value+'%';
+  mM.checked=musicEnabled;mS.checked=sfxEnabled;mV.checked=voiceEnabled;mMer.checked=merchantVoiceEnabled;
   tT.checked=assistantTextEnabled;tP.checked=particlesEnabled;tC.checked=true;tSh.checked=shakeEnabled;
   /* Слайдеры громкости */
   vM.addEventListener('input',function(){musicVolume=vM.value/100;el('vol-music-val').textContent=vM.value+'%';if(ambientAudio)ambientAudio.volume=musicVolume;saveSettings();});
   vS.addEventListener('input',function(){sfxVolume=vS.value/100;el('vol-sfx-val').textContent=vS.value+'%';saveSettings();});
   vV.addEventListener('input',function(){voiceVolume=vV.value/100;el('vol-voice-val').textContent=vV.value+'%';saveSettings();});
+  vMer.addEventListener('input',function(){merchantVolume=vMer.value/100;el('vol-merchant-val').textContent=vMer.value+'%';if(merchantAudio)merchantAudio.volume=merchantVolume;saveSettings();});
   /* Чекбоксы вкл/выкл */
   mM.addEventListener('change',function(){musicEnabled=mM.checked;if(!musicEnabled)stopAmbient();else if(ambientAudio)startAmbient();saveSettings();});
   mS.addEventListener('change',function(){sfxEnabled=mS.checked;saveSettings();});
   mV.addEventListener('change',function(){voiceEnabled=mV.checked;saveSettings();});
+  mMer.addEventListener('change',function(){merchantVoiceEnabled=mMer.checked;saveSettings();});
   tT.addEventListener('change',function(){assistantTextEnabled=tT.checked;saveSettings();});
   tP.addEventListener('change',function(){particlesEnabled=tP.checked;saveSettings();});
   tSh.addEventListener('change',function(){shakeEnabled=tSh.checked;saveSettings();});
@@ -1270,9 +1282,9 @@ function playMerchantVoice(type){
   if(!entry)return null;
   if(merchantAudio){try{merchantAudio.pause();merchantAudio.currentTime=0;}catch(e){}}
   merchantAudio=new Audio(entry.file);
-  merchantAudio.volume=0.8;
+  merchantAudio.volume=merchantVolume;
   merchantAudio.playbackRate=1.1;
-  if(soundEnabled&&voiceEnabled){merchantAudio.play().catch(function(){});}
+  if(soundEnabled&&merchantVoiceEnabled){merchantAudio.play().catch(function(){});}
   return merchantAudio;
 }
 function speak(type){
@@ -1430,6 +1442,7 @@ function rollRarity(){var r=Math.random();for(var i=0;i<RARITY_CHANCES.length;i+
 function openContainer(){
   if(gameState.balance<5000){showToast(svgIcon('zap',24),'Недостаточно','Нужно 5 000 💎');return;}
   gameState.balance-=5000;gameState.openedContainers++;
+  var bc=document.getElementById('box-count');if(bc)bc.textContent=formatNumber(gameState.openedContainers);
   var icon=document.getElementById('box-icon');
   icon.classList.remove('opening');void icon.offsetWidth;icon.classList.add('opening');
   playSound('box');refreshUI();
@@ -1454,7 +1467,7 @@ function openContainer(){
     };
   },700);
 }
-function renderSkinsCollection(){var box=document.getElementById('skin-collection');if(!box)return;var owned=gameState.ownedSkins.filter(function(id){return SKINS[id];});box.innerHTML='<div style="font-weight:800;font-size:12px;margin-bottom:8px">Коллекция ('+owned.length+'/'+Object.keys(SKINS).length+')</div><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">';Object.keys(SKINS).forEach(function(id){var s=SKINS[id];var has=gameState.ownedSkins.indexOf(id)!==-1;var active=gameState.activeSkin===id;box.innerHTML+='<div style="padding:6px 9px;border-radius:10px;border:1px solid '+(has?RARITY_COLORS[s.rarity]:'var(--gb)')+';opacity:'+(has?1:0.4)+';font-size:10px">'+s.name+'<br><span style="color:'+RARITY_COLORS[s.rarity]+'">'+(active?'✓ ':'')+SKIN_RARITIES[s.rarity]+'</span></div>';});box.innerHTML+='</div>';}
+function renderSkinsCollection(){var box=document.getElementById('skin-collection');var bc=document.getElementById('box-count');if(bc)bc.textContent=formatNumber(gameState.openedContainers);if(!box)return;var owned=gameState.ownedSkins.filter(function(id){return SKINS[id];});box.innerHTML='<div style="font-weight:800;font-size:12px;margin-bottom:8px">Коллекция ('+owned.length+'/'+Object.keys(SKINS).length+')</div><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">';Object.keys(SKINS).forEach(function(id){var s=SKINS[id];var has=gameState.ownedSkins.indexOf(id)!==-1;var active=gameState.activeSkin===id;box.innerHTML+='<div style="padding:6px 9px;border-radius:10px;border:1px solid '+(has?RARITY_COLORS[s.rarity]:'var(--gb)')+';opacity:'+(has?1:0.4)+';font-size:10px">'+s.name+'<br><span style="color:'+RARITY_COLORS[s.rarity]+'">'+(active?'✓ ':'')+SKIN_RARITIES[s.rarity]+'</span></div>';});box.innerHTML+='</div>';}
 
 /* ==== ЛАБОРАТОРИЯ ==== */
 function renderLab(){
@@ -1540,9 +1553,18 @@ function performPrestige(){
   recomputeDerived();refreshOrbitObjects();refreshUI();renderShop();renderLab();renderPrestige();checkAchievements();
   showToast(svgIcon('spark',24),'Перерождение!','+1 Тёмная Материя');
 }
-function buyDMClick(){if(gameState.darkMatter<1){showToast(svgIcon('zap',24),'Нет ТМ','Нужна 1 Тёмная Материя');return;}gameState.darkMatter--;gameState.dmClick++;recomputeDerived();renderPrestige();refreshUI();playSound('buy');}
-function buyDMCps(){if(gameState.darkMatter<1){showToast(svgIcon('zap',24),'Нет ТМ','Нужна 1 Тёмная Материя');return;}gameState.darkMatter--;gameState.dmCps++;recomputeDerived();renderPrestige();refreshUI();playSound('buy');}
-function renderPrestige(){document.getElementById('dm-count').textContent=gameState.darkMatter;document.getElementById('dm-click-lvl').textContent=gameState.dmClick;document.getElementById('dm-cps-lvl').textContent=gameState.dmCps;document.getElementById('prestige-btn').disabled=gameState.balance<10000000;}
+function buyDMClick(){if(gameState.darkMatter<1){showToast(svgIcon('zap',24),'Не хватает Тёмной Материи','Нужна 1 Тёмная Материя — накопи её перерождением');playTone(300,0.2,'sawtooth',sfxVolume);return;}gameState.darkMatter--;gameState.dmClick++;recomputeDerived();renderPrestige();refreshUI();playSound('buy');}
+function buyDMCps(){if(gameState.darkMatter<1){showToast(svgIcon('zap',24),'Не хватает Тёмной Материи','Нужна 1 Тёмная Материя — накопи её перерождением');playTone(300,0.2,'sawtooth',sfxVolume);return;}gameState.darkMatter--;gameState.dmCps++;recomputeDerived();renderPrestige();refreshUI();playSound('buy');}
+function renderPrestige(){
+  document.getElementById('dm-count').textContent=gameState.darkMatter;
+  document.getElementById('dm-click-lvl').textContent=gameState.dmClick;
+  document.getElementById('dm-cps-lvl').textContent=gameState.dmCps;
+  document.getElementById('prestige-btn').disabled=gameState.balance<10000000;
+  var d1=document.getElementById('dm-click-btn'),d2=document.getElementById('dm-cps-btn');
+  var poor=gameState.darkMatter<1;
+  if(d1){d1.textContent=poor?'Купить · 1 ТМ (не хватает)':'Купить · 1 ТМ';d1.style.opacity=poor?'0.6':'1';}
+  if(d2){d2.textContent=poor?'Купить · 1 ТМ (не хватает)':'Купить · 1 ТМ';d2.style.opacity=poor?'0.6':'1';}
+}
 
 /* ==== ДОСТИЖЕНИЯ ==== */
 function renderAchievements(){var box=document.getElementById('ach-list');if(!box)return;box.innerHTML='';ACHIEVEMENTS.forEach(function(ac){var st=gameState.achievements[ac.id];var div=document.createElement('div');div.className='ach-card'+(st.unlocked?' done':'');div.innerHTML='<div class="a-icon">'+svgIcon(ac.icon,20)+'</div><div class="a-body"><div class="a-name"></div><div class="a-desc"></div></div><div class="a-status">'+(st.unlocked?'✓':'')+'</div>';div.querySelector('.a-name').textContent=ac.name;div.querySelector('.a-desc').textContent=ac.desc;box.appendChild(div);});}
@@ -1560,7 +1582,8 @@ function renderJournal(){
     {icon:'🛒',title:'Рынок (авто-майнеры)',items:['6 авто-кликеров увеличивают силу клика или CPS.','Цена растёт экспоненциально: Цена = База × 1.15^уровень.','Каждый купленный дрон/бур/фабрика летает спутником вокруг кристалла.']},
     {icon:'📦',title:'Контейнеры',items:['Лутбоксы за 5 000 💎.','Выпадает скин для кристалла (от Обычного до Секретного 1%).','Скины меняют цвет/материал 3D-модели и множитель дохода.']},
     {icon:'🛠️',title:'Лаборатория (крафт)',items:['При кликах (5% шанс) выпадают Сплав, Микросхемы, Энерго-ядра.','Собирай Супер-Дронов — они дают +50 CPS каждый.']},
-    {icon:'🪐',title:'Локации',items:['Открывай планеты за Энергию — каждая даёт множитель дохода.','Энергия начисляется при открытии новых локаций.']},
+    {icon:'⚡',title:'Энергия',items:['Энергия — особая валюта для открытия новых локаций.','Как добыть: за открой планеты начисляется Энергия.','Марс +50 · Венера +150 · Юпитер +400 · Нептун +1000 · Чёрная Дыра +2500.','Энергия тратится на открытие следующей планеты, а её множитель растёт.']},
+    {icon:'🪐',title:'Локации',items:['6 планет: от Земли до Чёрной Дыры.','Открывай планеты за Энергию — каждая даёт постоянный множитель дохода.','Цена растёт: Марс 100⚡, Венера 1 000⚡, Юпитер 10 000⚡, Нептун 100 000⚡, Чёрная Дыра 1 000 000⚡.','Доход x1 → x1.5 → x2.5 → x4 → x6.5 → x10.']},
     {icon:'🔄',title:'Рестарт (престиж)',items:['При 10 000 000 💎 можно переродиться за 1 Тёмную Материю.','Тёмная Материя покупает вечные множители клика/CPS.']},
     {icon:'🌀',title:'Аномалии и Гипер-Драйв',items:['Раз в 2-3 минуты появляется бирюзовая аномалия.','Кликни по ней — Гипер-Драйв даст x5 к доходу на 15 секунд.']},
     {icon:'🤖',title:'ИИ-помощник АРГУС',items:['АРГУС обучает новичков, предупреждает об аномалиях.','При бездействии подбадривает озвучкой из папки audio/.']}

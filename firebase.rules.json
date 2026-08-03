@@ -1,44 +1,24 @@
 {
   "rules": {
     "online": {
-      "$uid": {
-        ".read": "auth != null",
-        ".write": "auth != null && auth.uid === $uid",
-        ".validate": "newData.hasChildren(['name','lastSeen'])"
-      }
+      ".read": true,
+      ".write": true
     },
     "messages": {
-      ".read": "auth != null",
-      "$messageId": {
-        ".write": "auth != null && newData.child('uid').val() === auth.uid",
-        "reacts": {
-          "$uid": {
-            ".write": "auth != null && auth.uid === $uid"
-          }
-        }
-      }
+      ".read": true,
+      ".write": true
     },
     "players": {
-      ".read": "auth != null",
-      "$uid": {
-        ".write": "auth != null && auth.uid === $uid"
-      }
+      ".read": true,
+      ".write": true
     },
     "whispers": {
-      "$recipientUid": {
-        ".read": "auth != null && auth.uid === $recipientUid",
-        "$messageId": {
-          ".write": "auth != null"
-        }
-      }
+      ".read": true,
+      ".write": true
     },
     "gifts": {
-      "$recipientUid": {
-        ".read": "auth != null && auth.uid === $recipientUid",
-        "$giftId": {
-          ".write": "auth != null"
-        }
-      }
+      ".read": true,
+      ".write": true
     }
   }
 }
