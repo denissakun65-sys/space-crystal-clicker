@@ -4,7 +4,21 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 проект придерживается [Semantic Versioning](https://semver.org/lang/ru/).
 
-Текущая версия: **1.5.0** · Онлайн: https://denissakun65-sys.github.io/space-crystal-clicker/
+Текущая версия: **1.6.0** · Онлайн: https://denissakun65-sys.github.io/space-crystal-clicker/
+
+---
+
+## [1.6.0] — 2026-08-03
+
+### ✨ Добавлено — Затягивающие механики и звук
+- **Комбо-система** — кликайте в темпе, множитель растёт (до x10+), индикатор комбо на экране.
+- **Критические удары** — 12% шанс на x8 с тряской экрана и двойными частицами.
+- **Золотые бонус-кристаллы** — появляются каждые 25–45 сек, клик даёт крупную награду.
+- **Система уровней игрока** — XP за клики, комбо, криты и пассивно; +5% дохода за уровень.
+- **Ежедневный бонус** за вход в игру.
+- **Звуковые эффекты** через Web Audio API (без файлов): клики, криты, покупки, уровень, бонусы.
+- **Новые достижения**: Комбо-мастер, Охотник за бонусами, Опытный магнат.
+- Индикатор уровня и комбо на главном экране.
 
 ---
 
@@ -115,8 +129,10 @@
 - Система заданий (ежедневные/еженедельные квесты).
 - Эмодзи-реакции и медиа в профиле игрока.
 - Реферальные ссылки.
-- Звуковые эффекты.
+- Офлайн-доход с бонусом за премиум-скины.
 
+[1.6.0]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v1.6.0
+[1.5.0]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v1.5.0
 [1.4.0]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v1.4.0
 [1.3.0]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v1.3.0
 [1.2.0]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v1.2.0

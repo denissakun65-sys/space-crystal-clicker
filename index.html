@@ -57,6 +57,14 @@
     100% { background: radial-gradient(circle at 50% 70%, #1f1040 0%, var(--bg) 70%); }
   }
 
+  @keyframes shake {
+    0%, 100% { transform: translate(0, 0); }
+    20% { transform: translate(-6px, 4px); }
+    40% { transform: translate(6px, -4px); }
+    60% { transform: translate(-5px, -3px); }
+    80% { transform: translate(5px, 3px); }
+  }
+
   /* ---------- Login wall ---------- */
   .login-wall {
     position: fixed;
@@ -866,6 +874,149 @@
     flex-direction: column;
   }
 
+  /* ---------- Комбо и уровень ---------- */
+  .combo-zone {
+    position: fixed;
+    left: 18px;
+    bottom: 18px;
+    z-index: 66;
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    pointer-events: auto;
+  }
+
+  .level-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(255,210,0,0.2), rgba(255,0,127,0.15));
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255,210,0,0.4);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4), 0 0 14px rgba(255,210,0,0.3);
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 16px;
+    color: #fff;
+    transition: transform 0.2s;
+  }
+
+  .level-badge .lb-ic .svg-ic { color: var(--gold); animation: icSpin 6s linear infinite; }
+  .level-badge .lb-num { color: var(--gold); }
+
+  .combo-meter {
+    width: min(220px, 40vw);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 12px;
+    border-radius: 14px;
+    background: var(--glass);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+  }
+
+  .combo-label {
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 18px;
+    color: var(--neon-3);
+    text-align: center;
+    text-shadow: 0 0 10px rgba(0,240,255,0.7);
+    transition: transform 0.1s;
+  }
+
+  .combo-label.hot { animation: comboPulse 0.3s ease; }
+  @keyframes comboPulse { 0%{transform:scale(1);} 40%{transform:scale(1.35);} 100%{transform:scale(1);} }
+
+  .combo-track {
+    height: 8px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.08);
+    overflow: hidden;
+  }
+
+  .combo-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--cyan), var(--magenta));
+    border-radius: 6px;
+    transition: width 0.1s linear;
+  }
+
+  .combo-count { font-size: 11px; color: var(--muted); text-align: center; font-weight: 700; }
+
+  /* ---------- Золотой бонус-кристалл ---------- */
+  .golden-gem {
+    position: fixed;
+    width: 70px;
+    height: 70px;
+    z-index: 68;
+    cursor: pointer;
+    pointer-events: auto;
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.3s;
+    transform: scale(0.5) rotate(0deg);
+  }
+
+  .golden-gem.active {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+    animation: gemBounce 1.4s ease-in-out infinite;
+  }
+
+  @keyframes gemBounce {
+    0%, 100% { transform: translateY(0) rotate(-6deg); }
+    50% { transform: translateY(-14px) rotate(6deg); }
+  }
+
+  .gg-inner {
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 35% 30%, #fff8d0, #ffd700 45%, #ff8c00);
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.9), inset 0 0 18px rgba(255,255,255,0.5);
+    animation: gemShine 2s ease-in-out infinite;
+  }
+
+  @keyframes gemShine {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.35); }
+  }
+
+  .golden-gem.pop {
+    animation: gemPop 0.5s ease forwards;
+  }
+
+  @keyframes gemPop {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(1.6); opacity: 0; }
+  }
+
+  /* Всплывающий бонус-текст */
+  .bonus-float {
+    position: fixed;
+    transform: translate(-50%, -50%);
+    font-family: 'Orbitron', monospace;
+    font-weight: 900;
+    font-size: 22px;
+    color: var(--gold);
+    text-shadow: 0 0 14px rgba(255,215,0,0.9);
+    pointer-events: none;
+    animation: bonusFloat 1.4s ease-out forwards;
+    z-index: 69;
+  }
+
+  @keyframes bonusFloat {
+    0% { opacity: 1; transform: translate(-50%,-50%) scale(0.5); }
+    100% { opacity: 0; transform: translate(-50%,-180%) scale(1.3); }
+  }
+
   /* ---------- Shop ---------- */
   #shop-grid {
     display: grid;
@@ -1549,11 +1700,26 @@
         </div>
       </div>
       <div class="clickable-ui hud-hint">
-        <div class="hud-hint">Кликни по кристаллу в центре экрана ✨</div>
+        <div class="hud-hint">Кликни по кристаллу — удерживай комбо и лови бонусы! ⚡</div>
+      </div>
+
+      <!-- Уровень игрока + комбо -->
+      <div class="clickable-ui combo-zone">
+        <div class="level-badge" id="level-badge"><span class="lb-ic" data-ic="spark"></span><span class="lb-num" id="level-num">1</span></div>
+        <div class="combo-meter" id="combo-meter">
+          <div class="combo-label" id="combo-label">x1</div>
+          <div class="combo-track"><div class="combo-fill" id="combo-fill"></div></div>
+          <div class="combo-count" id="combo-count">0 комбо</div>
+        </div>
+      </div>
+
+      <!-- Золотой бонус-кристалл -->
+      <div class="clickable-ui golden-gem" id="golden-gem">
+        <div class="gg-inner" id="golden-gem-inner"></div>
       </div>
     </div>
 
-    <!-- Квесты в выдвижной панели, чтобы не перекрывали кристалл -->
+    <!-- Уровневые эффекты при наведении/кликах -->
     <div class="clickable-ui quest-drawer" id="quest-drawer">
       <button class="quest-toggle" id="quest-toggle">
         <span class="qt-icon" data-ic="doc"></span><span class="qt-text">Задания</span><span class="qt-count" id="quest-count">0</span>
@@ -1634,6 +1800,10 @@
           <div class="stat-row"><span class="k">Всего заработано за всё время</span><span class="v" id="stat-earned">0 💎</span></div>
           <div class="stat-row"><span class="k">Время в игре</span><span class="v" id="stat-time">0 сек</span></div>
           <div class="stat-row"><span class="k">Текущий множитель дохода</span><span class="v" id="stat-mult">x1</span></div>
+          <div class="stat-row"><span class="k">Уровень игрока</span><span class="v" id="stat-level">1</span></div>
+          <div class="stat-row"><span class="k">Опыт</span><span class="v" id="stat-xp">0</span></div>
+          <div class="stat-row"><span class="k">Рекорд комбо</span><span class="v" id="stat-combo">0</span></div>
+          <div class="stat-row"><span class="k">Бонус-кристаллы собрано</span><span class="v" id="stat-bonus">0</span></div>
           <div class="stat-row"><span class="k">Баланс (для лидерборда)</span><span class="v" id="stat-bal">0 💎</span></div>
         </div>
         <div class="panel">
@@ -1693,7 +1863,7 @@
     var SAVE_KEY = 'crystal-net-save-v1';
     var PASSIVE_TICK_MS = 100;
     var SAVE_INTERVAL_MS = 5000;
-    var GAME_VERSION = '1.5.0';
+    var GAME_VERSION = '1.6.0';
 
     /* ---------- Библиотека кастомных SVG-иконок ---------- */
     var SVG_ICONS = {
@@ -1755,7 +1925,10 @@
       { id: 'worker',  name: 'Неутомимый труженик', icon: 'muscle',  desc: 'Сделать 100 кликов вручную',            reward: 500,  check: function (s) { return s.totalClicks >= 100; } },
       { id: 'tycoon',  name: 'Магнат',              icon: 'crown',   desc: 'Накопить 1 000 💎 на балансе',          reward: 500,  check: function (s) { return s.balance >= 1000; } },
       { id: 'auto',    name: 'Автоматизация',       icon: 'robot',   desc: 'Купить первого Квантового Дрона',      reward: 200,  check: function (s) { return s.upgrades.drone.level >= 1; } },
-      { id: 'million', name: 'Миллионер',           icon: 'coin',    desc: 'Накопить 1 000 000 💎 на балансе',      reward: 5000, check: function (s) { return s.balance >= 1000000; } }
+      { id: 'million', name: 'Миллионер',           icon: 'coin',    desc: 'Накопить 1 000 000 💎 на балансе',      reward: 5000, check: function (s) { return s.balance >= 1000000; } },
+      { id: 'combo50', name: 'Комбо-мастер',        icon: 'zap',     desc: 'Достичь 50 комбо подряд',              reward: 1000, check: function (s) { return s.bestCombo >= 50; } },
+      { id: 'gems5',   name: 'Охотник за бонусами', icon: 'gem',     desc: 'Собрать 5 золотых бонус-кристаллов',   reward: 800,  check: function (s) { return s.totalBonuses >= 5; } },
+      { id: 'lvl10',   name: 'Опытный магнат',      icon: 'crown',   desc: 'Достичь 10 уровня',                    reward: 2000, check: function (s) { return s.level >= 10; } }
     ];
 
     /* Задания (квесты). type задаёт источник прогресса.
@@ -1992,15 +2165,29 @@
       prestigeCount: 0,
       quests: {},
       questsDayKey: '',
-      questsWeekKey: ''
+      questsWeekKey: '',
+      level: 1,
+      xp: 0,
+      bestCombo: 0,
+      lastDailyBonus: '',
+      totalBonuses: 0
     };
+
+    /* Прогрессия уровня: XP растёт, чтобы уровень давался всё медленнее */
+    function xpForLevel(lv) {
+      return Math.floor(80 * Math.pow(lv, 1.6));
+    }
 
     var derived = {
       clickPower: 1,
       incomeMultiplier: 1,
       prestigeMultiplier: 1,
+      levelMultiplier: 1,
       cps: 0
     };
+
+    /* Состояние комбо */
+    var comboState = { count: 0, mult: 1, timer: null };
 
     var activePage = 'page-crystal';
     var onHomePage = true;
@@ -2084,8 +2271,9 @@
       var skin = SKINS[gameState.activeSkin] || SKINS.default;
       derived.incomeMultiplier = skin.mult;
       derived.prestigeMultiplier = getPrestigeMultiplier();
-      derived.clickPower = clickBase * skin.mult * derived.prestigeMultiplier;
-      derived.cps = cpsBase * skin.mult * derived.prestigeMultiplier;
+      derived.levelMultiplier = 1 + (gameState.level - 1) * 0.05; // +5% за уровень
+      derived.clickPower = clickBase * skin.mult * derived.prestigeMultiplier * derived.levelMultiplier;
+      derived.cps = cpsBase * skin.mult * derived.prestigeMultiplier * derived.levelMultiplier;
     }
 
     /* Сколько осколков принесёт перерождение прямо сейчас */
@@ -2098,12 +2286,62 @@
       return 1 + gameState.prestigeShards * 0.05;
     }
 
+    /* Текущий множитель комбо */
+    function getComboMultiplier() {
+      return 1 + comboState.count * 0.02; // +2% за клик в комбо
+    }
+
     function registerClick() {
-      var gain = Math.round(derived.clickPower);
+      // Увеличиваем комбо и продлеваем таймер
+      comboState.count += 1;
+      comboState.mult = getComboMultiplier();
+      if (comboState.timer) {
+        clearTimeout(comboState.timer);
+      }
+      comboState.timer = setTimeout(function () {
+        comboState.count = 0;
+        comboState.mult = 1;
+        updateComboUI();
+      }, 1800);
+
+      // Крит: 12% шанс на x8
+      var isCrit = Math.random() < 0.12;
+      var gain = Math.round(derived.clickPower * comboState.mult);
+      if (isCrit) {
+        gain *= 8;
+      }
+
+      // Начисляем кристаллы
       gameState.balance += gain;
       gameState.totalEarned += gain;
       gameState.totalClicks += 1;
-      return gain;
+
+      // Опыт: 1 XP за клик + бонус за комбо и крит
+      var xpGain = 1 + Math.floor(comboState.count / 10);
+      if (isCrit) {
+        xpGain += 5;
+      }
+      addXp(xpGain);
+
+      updateComboUI();
+      return { gain: gain, isCrit: isCrit };
+    }
+
+    /* Добавление опыта и прокачка уровня */
+    function addXp(amount) {
+      gameState.xp += amount;
+      var lvl = gameState.level;
+      while (gameState.xp >= xpForLevel(lvl)) {
+        gameState.xp -= xpForLevel(lvl);
+        lvl += 1;
+      }
+      if (lvl !== gameState.level) {
+        gameState.level = lvl;
+        recomputeDerived();
+        playSound('level');
+        showToast('⬆️', 'Новый уровень!', 'Вы достигли ' + lvl + ' уровня · доход +5%');
+      }
+      updateLevelUI();
     }
 
     /* ----------------------------------------------------------------
@@ -2113,7 +2351,9 @@
       var container = document.getElementById('toast-container');
       var el = document.createElement('div');
       el.className = 'toast';
-      el.innerHTML = '<span class="t-icon">' + icon + '</span>' +
+      // Если icon — имя из SVG-библиотеки, рисуем иконку, иначе — эмодзи/текст
+      var iconHtml = (SVG_ICONS && SVG_ICONS[icon]) ? svgIcon(icon, 28) : icon;
+      el.innerHTML = '<span class="t-icon">' + iconHtml + '</span>' +
         '<div><div class="t-title"></div><div class="t-desc"></div></div>';
       el.querySelector('.t-title').textContent = title;
       el.querySelector('.t-desc').textContent = desc;
@@ -2156,6 +2396,174 @@
           el.parentNode.removeChild(el);
         }
       });
+    }
+
+    /* Тряска экрана при крите / событиях */
+    function shakeScreen(strength) {
+      var body = document.body;
+      if (body._shakeAnim) {
+        body.style.animation = 'none';
+      }
+      body.style.animation = 'shake ' + (0.3) + 's ease';
+      body._shakeAnim = true;
+      setTimeout(function () {
+        body.style.animation = '';
+        body._shakeAnim = false;
+      }, 320);
+    }
+
+    /* ---------- Звук через Web Audio API (без файлов) ---------- */
+    var audioCtx = null;
+
+    function ensureAudio() {
+      if (!audioCtx) {
+        try {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+          audioCtx = null;
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playTone(freq, dur, type, vol, slideTo) {
+      if (!audioCtx) {
+        return;
+      }
+      try {
+        var osc = audioCtx.createOscillator();
+        var gain = audioCtx.createGain();
+        osc.type = type || 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        if (slideTo) {
+          osc.frequency.exponentialRampToValueAtTime(slideTo, audioCtx.currentTime + dur);
+        }
+        gain.gain.setValueAtTime(vol || 0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + dur);
+      } catch (e) { /* ignore audio errors */ }
+    }
+
+    function playSound(name) {
+      if (!audioCtx) {
+        return;
+      }
+      switch (name) {
+        case 'click': playTone(520 + Math.random() * 60, 0.08, 'triangle', 0.12); break;
+        case 'crit': playTone(220, 0.25, 'sawtooth', 0.18, 880); break;
+        case 'level': playTone(440, 0.15, 'sine', 0.2); setTimeout(function(){ playTone(660,0.2,'sine',0.2); },120); break;
+        case 'buy': playTone(700, 0.12, 'square', 0.14, 1100); break;
+        case 'gem': playTone(880, 0.3, 'sine', 0.2, 1760); break;
+        case 'login': playTone(523, 0.12, 'sine', 0.18); setTimeout(function(){ playTone(784,0.15,'sine',0.18);},110); break;
+        case 'toast': playTone(600, 0.1, 'sine', 0.1); break;
+      }
+    }
+
+    /* Обновление комбо-индикатора */
+    function updateComboUI() {
+      var label = document.getElementById('combo-label');
+      var fill = document.getElementById('combo-fill');
+      var count = document.getElementById('combo-count');
+      if (!label || !fill || !count) {
+        return;
+      }
+      var mult = getComboMultiplier();
+      label.textContent = 'x' + mult.toFixed(1);
+      if (comboState.count > 0) {
+        label.classList.add('hot');
+        setTimeout(function () { label.classList.remove('hot'); }, 200);
+      }
+      fill.style.width = Math.min(100, (comboState.count % 20) / 20 * 100) + '%';
+      count.textContent = comboState.count + ' комбо';
+      if (comboState.count > gameState.bestCombo) {
+        gameState.bestCombo = comboState.count;
+      }
+    }
+
+    /* Обновление уровня игрока */
+    function updateLevelUI() {
+      var el = document.getElementById('level-num');
+      if (el) {
+        el.textContent = gameState.level;
+      }
+    }
+
+    /* ---------- Золотой бонус-кристалл ---------- */
+    var goldenGemTimer = null;
+
+    function spawnGoldenGem() {
+      var gem = document.getElementById('golden-gem');
+      if (!gem) {
+        return;
+      }
+      // Случайная позиция в пределах экрана (не перекрывает низ/верх)
+      var pad = 90;
+      var x = pad + Math.random() * (window.innerWidth - pad * 2);
+      var y = 110 + Math.random() * (window.innerHeight - 220);
+      gem.style.left = x + 'px';
+      gem.style.top = y + 'px';
+      gem.classList.add('active');
+      gem.classList.remove('pop');
+
+      var collected = false;
+      var clickHandler = function () {
+        if (collected) {
+          return;
+        }
+        collected = true;
+        var bonus = Math.max(50, Math.floor(derived.cps * 5)) + gameState.level * 25;
+        gameState.balance += bonus;
+        gameState.totalEarned += bonus;
+        gameState.totalBonuses += 1;
+        gem.classList.remove('active');
+        gem.classList.add('pop');
+        spawnDamageText(x, y, '+' + formatNumber(bonus) + ' 💎 БОНУС!');
+        playSound('gem');
+        shakeScreen(6);
+        refreshUI();
+        checkAchievements();
+        checkQuests();
+        setTimeout(function () {
+          gem.classList.remove('pop');
+          scheduleNextGem();
+        }, 500);
+      };
+      gem.onclick = clickHandler;
+
+      // Авто-исчезновение через 6 секунд
+      setTimeout(function () {
+        if (!collected) {
+          gem.classList.remove('active');
+          scheduleNextGem();
+        }
+      }, 6000);
+    }
+
+    function scheduleNextGem() {
+      if (goldenGemTimer) {
+        clearTimeout(goldenGemTimer);
+      }
+      goldenGemTimer = setTimeout(spawnGoldenGem, 25000 + Math.random() * 20000); // 25-45 сек
+    }
+
+    /* ---------- Ежедневный бонус ---------- */
+    function checkDailyBonus() {
+      var today = new Date().toISOString().slice(0, 10);
+      if (gameState.lastDailyBonus === today) {
+        return;
+      }
+      var bonus = 100 + gameState.level * 50;
+      gameState.lastDailyBonus = today;
+      gameState.balance += bonus;
+      gameState.totalEarned += bonus;
+      playSound('login');
+      showToast('🎁', 'Ежедневный бонус!', '+' + formatNumber(bonus) + ' 💎 за вход сегодня');
+      refreshUI();
     }
 
     /* ----------------------------------------------------------------
@@ -2333,13 +2741,25 @@
         return;
       }
 
-      var gain = registerClick();
+      var clickResult = registerClick();
+      var gain = clickResult.gain;
+      var isCrit = clickResult.isCrit;
       var x = (event.clientX !== undefined ? event.clientX : event.changedTouches[0].clientX);
       var y = (event.clientY !== undefined ? event.clientY : event.changedTouches[0].clientY);
 
-      spawnDamageText(x, y, '+' + formatNumber(gain) + ' 💎');
-      spawnClickRipple(x, y);
-      spawnParticles(intersects[0].point.clone());
+      if (isCrit) {
+        spawnDamageText(x, y - 30, 'КРИТ! +' + formatNumber(gain) + ' 💎');
+        spawnClickRipple(x, y);
+        spawnParticles(intersects[0].point.clone());
+        spawnParticles(intersects[0].point.clone());
+        shakeScreen(10);
+        playSound('crit');
+      } else {
+        spawnDamageText(x, y, '+' + formatNumber(gain) + ' 💎');
+        spawnClickRipple(x, y);
+        spawnParticles(intersects[0].point.clone());
+        playSound('click');
+      }
 
       refreshUI();
       checkAchievements();
@@ -2395,6 +2815,10 @@
       gameState.balance += tickGain;
       gameState.totalEarned += tickGain;
       gameState.playTime += PASSIVE_TICK_MS / 1000;
+      // Пассивный опыт: чтобы уровень рос и в простое (редко прокачивается)
+      if (gameState.playTime > 30 && Math.random() < 0.006) {
+        addXp(1);
+      }
       refreshUI();
       checkAchievements();
     }
@@ -2687,6 +3111,16 @@
         return;
       }
       var versions = [
+        { tag: '1.6.0', date: '2026-08-03', title: 'Затягивающие механики и звук',
+          items: [
+            'Комбо-система: кликайте в темпе — множитель растёт (до x10+), обрывается без кликов.',
+            'Критические удары: 12% шанс на x8 с тряской экрана и двойными частицами.',
+            'Золотые бонус-кристаллы: появляются каждые 25-45 сек, клик — крупная награда.',
+            'Система уровней игрока: XP за клики, комбо, криты и пассивно; +5% дохода за уровень.',
+            'Ежедневный бонус за вход.',
+            'Звуковые эффекты через Web Audio API (без файлов): клики, криты, покупки, уровень, бонусы.',
+            'Новые достижения: Комбо-мастер, Охотник за бонусами, Опытный магнат.'
+          ] },
         { tag: '1.5.0', date: '2026-08-03', title: 'Кастомные иконки и анимации',
           items: [
             'Добавлена библиотека из 29 кастомных SVG-иконок вместо эмодзи (навигация, рынок, квесты, достижения, кнопки).',
@@ -3507,6 +3941,7 @@
       refreshUI();
       renderShop();
       checkAchievements();
+      playSound('buy');
       showToast(def.icon, 'Куплено: ' + def.name, 'Уровень ' + gameState.upgrades[id].level);
     }
 
@@ -3517,8 +3952,12 @@
       document.getElementById('stat-clicks').textContent = formatNumber(gameState.totalClicks);
       document.getElementById('stat-earned').textContent = formatBalance(gameState.totalEarned);
       document.getElementById('stat-time').textContent = formatTime(gameState.playTime);
-      document.getElementById('stat-mult').textContent = 'x' + (derived.incomeMultiplier * derived.prestigeMultiplier).toFixed(2);
+      document.getElementById('stat-mult').textContent = 'x' + (derived.incomeMultiplier * derived.prestigeMultiplier * derived.levelMultiplier).toFixed(2);
       document.getElementById('stat-bal').textContent = formatBalance(gameState.balance);
+      document.getElementById('stat-level').textContent = gameState.level;
+      document.getElementById('stat-xp').textContent = gameState.xp + ' / ' + xpForLevel(gameState.level);
+      document.getElementById('stat-combo').textContent = gameState.bestCombo;
+      document.getElementById('stat-bonus').textContent = gameState.totalBonuses;
     }
 
     function renderSkins() {
@@ -3674,6 +4113,11 @@
         quests: gameState.quests,
         questsDayKey: gameState.questsDayKey,
         questsWeekKey: gameState.questsWeekKey,
+        level: gameState.level,
+        xp: gameState.xp,
+        bestCombo: gameState.bestCombo,
+        lastDailyBonus: gameState.lastDailyBonus,
+        totalBonuses: gameState.totalBonuses,
         lastSeen: Date.now()
       };
       try {
@@ -3749,6 +4193,11 @@
       gameState.quests = (data.quests && typeof data.quests === 'object') ? data.quests : {};
       gameState.questsDayKey = data.questsDayKey || '';
       gameState.questsWeekKey = data.questsWeekKey || '';
+      gameState.level = typeof data.level === 'number' ? data.level : 1;
+      gameState.xp = typeof data.xp === 'number' ? data.xp : 0;
+      gameState.bestCombo = typeof data.bestCombo === 'number' ? data.bestCombo : 0;
+      gameState.lastDailyBonus = data.lastDailyBonus || '';
+      gameState.totalBonuses = typeof data.totalBonuses === 'number' ? data.totalBonuses : 0;
 
       recomputeDerived();
       resetQuestsIfNeeded();
@@ -3791,7 +4240,12 @@
         prestigeCount: 0,
         quests: {},
         questsDayKey: getDayKey(),
-        questsWeekKey: getWeekKey()
+        questsWeekKey: getWeekKey(),
+        level: 1,
+        xp: 0,
+        bestCombo: 0,
+        lastDailyBonus: '',
+        totalBonuses: 0
       };
       recomputeDerived();
       applySkin();
@@ -3832,7 +4286,12 @@
         prestigeCount: 0,
         quests: {},
         questsDayKey: getDayKey(),
-        questsWeekKey: getWeekKey()
+        questsWeekKey: getWeekKey(),
+        level: 1,
+        xp: 0,
+        bestCombo: 0,
+        lastDailyBonus: '',
+        totalBonuses: 0
       };
       window.Online.signedIn = false;
       currentNick = '';
@@ -3964,6 +4423,14 @@
       setInterval(renderNetwork, 1000);
       setInterval(function () { checkQuests(); }, 3000);
 
+      // Разблокировка звука по первому взаимодействию
+      document.addEventListener('pointerdown', ensureAudio, { once: true });
+      document.addEventListener('keydown', ensureAudio, { once: true });
+
+      // Ежедневный бонус + запуск золотых кристаллов
+      setTimeout(checkDailyBonus, 600);
+      scheduleNextGem();
+
       // Периодическая отправка баланса в реальный лидерборд (Firebase)
       setInterval(function () {
         if (window.Online.real && window.Online.sendPlayerStats) {
@@ -3987,6 +4454,8 @@
       renderChangelog();
       renderQuests();
       scheduleBotChat();
+      updateLevelUI();
+      updateComboUI();
       refreshUI();
 
       animate();
