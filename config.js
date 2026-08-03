@@ -1,46 +1,28 @@
 /* ================================================================
    [CRYSTAL.NET] — Конфигурация Firebase
    ----------------------------------------------------------------
-   ШАГ 1. Создайте проект в Firebase Console:
-          https://console.firebase.google.com
-
-   ШАГ 2. В разделе Build -> Realtime Database создайте базу данных
-          (пока подойдёт тестовый режим, затем установите правила
-          из файла firebase.rules.json).
-
-   ШАГ 3. В настройках проекта (шестерёнка -> Project settings ->
-          Your apps) добавьте веб-приложение и скопируйте сюда ключи.
-
-   ШАГ 4. Включите провайдер входа (Build -> Authentication ->
-          Sign-in method):
-            - Google  : просто включите "Google".
-            - GitHub  : создайте OAuth App на github.com (Settings ->
-                        Developer settings -> OAuth Apps), укажите в
-                        Authorization callback URL:
-                        https://YOUR_PROJECT_ID.firebaseapp.com/__/auth/handler
-                        и впишите Client ID / Secret в Firebase.
-
-   ШАГ 5. Деплой: Vercel или Cloudflare Pages (см. README.md).
+   Ключи уже заполнены. База данных и вход должны быть включены
+   в Firebase Console (см. README.md и подсказки ниже).
    ================================================================ */
 
 window.CRYSTAL_CONFIG = {
-  /* Ключи из консоли Firebase (Web app). Оставьте пустыми,
-     чтобы игра работала в офлайн-демо-режиме без сети. */
+  /* Ключи из консоли Firebase (Web app). */
   firebase: {
-    apiKey: '',
-    authDomain: '',
-    databaseURL: '',
-    projectId: '',
-    storageBucket: '',
-    messagingSenderId: '',
-    appId: ''
+    apiKey: "AIzaSyCodqKf0kTc1tx22QcYm9lhiF4LkUDR1HM",
+    authDomain: "crystal-net.firebaseapp.com",
+    databaseURL: "https://crystal-net-default-rtdb.firebaseio.com",
+    projectId: "crystal-net",
+    storageBucket: "crystal-net.firebasestorage.app",
+    messagingSenderId: "587925379925",
+    appId: "1:587925379925:web:a61396ee7a94152a046ddc",
+    measurementId: "G-ELXZ3M2TJ2"
   },
 
   /* Провайдер входа: "google" | "github" | "anonymous"
-     "anonymous" работает без настройки OAuth — удобно для теста. */
+     Включите выбранный провайдер в Firebase Console (Authentication). */
   authProvider: 'google',
 
-  /* true  — использовать Firebase (если заполнены ключи)
+  /* true  — использовать Firebase (ключи заполнены)
      false — всегда офлайн-демо-режим */
   enabled: true
 };

@@ -3346,14 +3346,17 @@
     if (!configured) {
       console.info('[CRYSTAL.NET] Firebase не настроен. Игра работает в офлайн-демо-режиме.');
     } else {
-      var app = initializeApp(fb);
-      var auth = getAuth(app);
-      var db = getDatabase(app);
-      var provider = config.authProvider || 'google';
+      // Если база данных или вход ещё не включены в консоли, Firebase может
+      // бросить ошибку. Перехватываем и безопасно остаёмся в офлайн-режиме.
+      try {
+        var app = initializeApp(fb);
+        var auth = getAuth(app);
+        var db = getDatabase(app);
+        var provider = config.authProvider || 'google';
 
-      var currentUid = null;
-      var currentNick = '';
-      window.Online.real = true;
+        var currentUid = null;
+        var currentNick = '';
+        window.Online.real = true;
       window.Online.signedIn = false;
       window.Online.myUid = null;
       window.Online.uidByNick = {};
@@ -3749,6 +3752,11 @@
           renderProfile(null);
         }
       });
+      } catch (err) {
+        // Firebase недоступен (база/вход не включены или ошибка инициализации).
+        window.Online.real = false;
+        console.error('[CRYSTAL.NET] Firebase инициализация не удалась:', err);
+      }
     }
   </script>
 </body>
