@@ -145,11 +145,50 @@ nav.sidebar{position:fixed;top:50%;left:16px;transform:translateY(-50%);z-index:
 
 /* Рынок */
 .shop-head{max-width:640px;margin:0 auto 14px;text-align:center}
-.shop-layout{display:grid;grid-template-columns:250px 1fr 250px;gap:14px;flex:1;align-items:start;max-width:1200px;width:100%;margin:0 auto;padding:0 6px}
-.shop-col{display:flex;flex-direction:column;gap:12px;justify-content:flex-start;pointer-events:auto}
-.shop-stage{pointer-events:none;min-width:200px}
-.vendor-bubble{position:fixed;top:12%;left:50%;max-width:300px;width:max-content;padding:14px 18px;border-radius:18px;background:rgba(255,255,255,.1);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(0,240,255,.4);color:var(--text);font-size:15px;font-weight:700;box-shadow:0 12px 40px rgba(0,0,0,.5),0 0 20px rgba(0,240,255,.3);z-index:80;opacity:0;transform:translate(-50%,12px) scale(.9);pointer-events:none;transition:opacity .3s,transform .3s}
-.vendor-bubble.visible{opacity:1;transform:translate(-50%,0) scale(1)}
+/* Контейнер карточек "Рынка" — накладывается поверх WebGL-канваса.
+   Центр экрана (примерно 40-50% ширины) полностью свободен от HTML,
+   чтобы там беспрепятственно отображался 3D-продавец. */
+.shop-ui-container{
+  position:absolute;
+  top:0;left:0;width:100%;height:100%;
+  z-index:10;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:80px 40px 40px 40px;
+  pointer-events:none; /* чтобы можно было кликать сквозь пустой центр */
+}
+.shop-column{
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+  width:320px; /* фиксированная ширина колонок */
+  pointer-events:auto; /* возвращаем кликабельность карточкам */
+}
+.shop-column.left{align-items:flex-start}
+.shop-column.right{align-items:flex-end}
+/* Баббл продавца: привязан к центру сверху, парит над головой 3D-модели */
+.merchant-bubble{
+  position:absolute;
+  top:150px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:12;
+  background:rgba(255,255,255,.05);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border:1px solid rgba(0,240,255,.3);
+  padding:15px 25px;
+  border-radius:12px;
+  text-align:center;
+  max-width:400px;
+  color:var(--text);
+  font-weight:700;
+  opacity:0;
+  transition:opacity .3s;
+  pointer-events:none;
+}
+.merchant-bubble.visible{opacity:1}
 .upgrade-card{background:var(--glass);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1px solid var(--gb);border-radius:16px;padding:13px 14px;display:flex;flex-direction:column;gap:8px;transition:transform .2s,box-shadow .2s,opacity .25s;position:relative;overflow:hidden}
 .upgrade-card:hover{transform:translateY(-4px);box-shadow:0 14px 34px rgba(0,0,0,.45)}
 .upgrade-card.locked{opacity:.4}
@@ -261,8 +300,12 @@ code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:5px;font-siz
   .nav-btn{flex-direction:column;gap:1px;font-size:9px;padding:6px 4px}
   .nav-btn:hover{transform:translateY(-2px)}
   .page-scroll{padding:80px 14px 110px}
-  .shop-layout{grid-template-columns:1fr}
-  .shop-stage{display:none}
+  /* Мобильные: 3D-продавец в верхней части, карточки уходят вниз в скролл */
+  .shop-ui-container{position:relative;height:auto;padding:0;flex-direction:column;align-items:stretch;gap:12px}
+  .shop-column{width:100%;gap:10px;align-items:stretch}
+  .shop-column.left{align-items:stretch}
+  .shop-column.right{align-items:stretch}
+  .merchant-bubble{top:60px}
   #page-market .page-scroll{padding-top:26vh}
   .resource-grid{grid-template-columns:repeat(3,1fr)}
 }
@@ -274,6 +317,19 @@ code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:5px;font-siz
   .online-badge{padding:6px 10px;font-size:11px}
   .logo{font-size:16px}
 }
+
+/* ===== Таймлайн истории версий (страница "Версии") ===== */
+.clg-timeline{position:relative;padding-left:28px}
+.clg-timeline::before{content:'';position:absolute;left:8px;top:8px;bottom:8px;width:3px;background:linear-gradient(180deg,var(--cyan),var(--magenta));border-radius:3px;box-shadow:0 0 12px rgba(0,240,255,.5)}
+.clg-node{position:relative;margin-bottom:18px}
+.clg-marker{position:absolute;left:-28px;top:14px;width:16px;height:16px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan);border:3px solid var(--bg)}
+.clg-card{background:rgba(255,255,255,.05);border:1px solid var(--gb);border-radius:14px;padding:14px 16px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.clg-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.clg-tag{font-family:'Orbitron',monospace;font-weight:900;color:var(--cyan);background:rgba(0,240,255,.12);padding:2px 10px;border-radius:8px;font-size:14px}
+.clg-date{color:var(--muted);font-size:13px}
+.clg-title{font-weight:800;font-size:16px;margin-bottom:8px}
+.clg-list{margin-left:18px;display:flex;flex-direction:column;gap:5px}
+.clg-list li{font-size:13px;color:var(--text)}
 </style>
 </head>
 <body>
@@ -314,6 +370,7 @@ code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:5px;font-siz
     <button class="nav-btn" data-target="page-containers"><span class="nav-icon" data-ic="box"></span><span>Контейнеры</span></button>
     <button class="nav-btn" data-target="page-lab"><span class="nav-icon" data-ic="lab"></span><span>Лаборатория</span></button>
     <button class="nav-btn" data-target="page-restart"><span class="nav-icon" data-ic="refresh"></span><span>Рестарт</span></button>
+    <button class="nav-btn" data-target="page-changelog"><span class="nav-icon" data-ic="doc"></span><span>Версии</span></button>
   </nav>
 
   <!-- СТРАНИЦА 1: КРИСТАЛЛ -->
@@ -354,17 +411,12 @@ code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:5px;font-siz
 
   <!-- СТРАНИЦА 2: РЫНОК -->
   <section id="page-market" class="page">
-    <div class="vendor-bubble" id="vendor-bubble"><span id="vendor-bubble-text"></span></div>
-    <div class="page-scroll">
-      <div class="panel shop-head">
-        <div class="page-title">3D-Рынок</div>
-        <div class="page-sub">Подойди к кибер-торговцу за прилавком и инвестируй кристаллы.</div>
-      </div>
-      <div class="shop-layout">
-        <div class="shop-col" id="shop-col-left"></div>
-        <div class="shop-stage"></div>
-        <div class="shop-col" id="shop-col-right"></div>
-      </div>
+    <!-- Плоский HTML-баббл над головой робота (строго по центру сверху) -->
+    <div class="merchant-bubble" id="vendor-bubble"><span id="vendor-bubble-text"></span></div>
+    <!-- Контейнер карточек поверх WebGL-канваса, колонки по краям -->
+    <div class="shop-ui-container">
+      <div class="shop-column left" id="shop-col-left"></div>
+      <div class="shop-column right" id="shop-col-right"></div>
     </div>
   </section>
 
@@ -452,6 +504,17 @@ code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:5px;font-siz
     </div>
   </section>
 
+  <!-- СТРАНИЦА 6: ВЕРСИИ (Changelog, timeline) -->
+  <section id="page-changelog" class="page">
+    <div class="page-scroll">
+      <div class="panel" style="max-width:720px;margin:0 auto;width:100%">
+        <div class="page-title">История версий</div>
+        <div class="page-sub">Таймлайн обновлений [CRYSTAL.NET] · текущая версия <b id="version-chip"></b></div>
+        <div id="changelog-box"></div>
+      </div>
+    </div>
+  </section>
+
   <!-- ЧАТ (плавающий виджет) -->
   <button class="chat-widget-btn" id="chat-widget-btn"></button>
   <div class="chat-drawer" id="chat-drawer">
@@ -484,7 +547,7 @@ code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:5px;font-siz
 var SAVE_KEY='crystal-net-save-v4';
 var PASSIVE_TICK_MS=100;
 var SAVE_INTERVAL_MS=5000;
-var GAME_VERSION='4.0.0';
+var GAME_VERSION='4.1.0';
 
 var SVG_ICONS={
   gem:'<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20"/><path d="M12 21L8 9"/><path d="M12 21l4-12"/>',
@@ -506,7 +569,8 @@ var SVG_ICONS={
   trophy:'<circle cx="12" cy="8" r="6"/><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/>',
   music:'<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
   mute:'<path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M23 9l-6 6"/><path d="M17 9l6 6"/>',
-  net:'<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>'
+  net:'<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>',
+  doc:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h6"/>'
 };
 function svgIcon(name,size){var s=size||22;var p=SVG_ICONS[name]||SVG_ICONS.gem;return '<svg class="svg-ic" width="'+s+'" height="'+s+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';}
 
@@ -734,7 +798,12 @@ function createShop(){
   var shopLight=new THREE.PointLight(0x00f0ff,1.2,8);shopLight.position.set(0,3.8,-0.4);shopGroup.add(shopLight);
   var neonL=new THREE.PointLight(0x00f0ff,0.8,7);neonL.position.set(-3.2,2.0,1.2);shopGroup.add(neonL);
   var neonR=new THREE.PointLight(0xff007f,0.8,7);neonR.position.set(3.2,2.0,1.2);shopGroup.add(neonR);
-  /* ПРОДАВЕЦ ЗА ПРИЛАВКОМ (z=-1.4) */
+  /* Яркий направленный свет спереди на лицо-монитор робота */
+  var faceLight=new THREE.DirectionalLight(0xffffff,2.5);
+  faceLight.position.set(0,2,4);
+  shopGroup.add(faceLight);
+  /* ПРОДАВЕЦ ЗА ПРИЛАВКОМ (z=-1.4): голова и шляпа ровно по центру пустого
+     пространства между колонками, лицо смотрит прямо на камеру */
   vendorGroup=new THREE.Group();vendorGroup.position.set(0,0,-1.4);shopGroup.add(vendorGroup);
   vendorBody=new THREE.Mesh(new THREE.CylinderGeometry(0.62,0.9,1.5,16,1,true),metal);vendorBody.position.y=1.2;vendorGroup.add(vendorBody);
   var neck=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.26,0.2,12),dark);neck.position.y=1.95;vendorGroup.add(neck);
@@ -837,7 +906,7 @@ function animate(){
   /* камера */
   var camT=new THREE.Vector3(),lookT=new THREE.Vector3();
   if(activePage==='page-crystal'){camT.set(0,0.4,6);lookT.set(0,0,0);}
-  else if(isMarket){var z=isMobile?9.0:6.6,y=isMobile?2.6:1.7,ly=isMobile?2.2:1.3;camT.set(0,y,z);lookT.set(0,ly,0);}
+  else if(isMarket){var z=isMobile?8.5:6.0,y=isMobile?1.8:1.6,ly=isMobile?1.4:1.4;camT.set(0,y,z);lookT.set(0,ly,0);}
   else{camT.set(0,1.4,13.5);lookT.set(0,0,0);}
   camera.position.x+=(camT.x-camera.position.x)*dt*3;camera.position.y+=(camT.y-camera.position.y)*dt*3;camera.position.z+=(camT.z-camera.position.z)*dt*3;
   cameraLook.lerp(lookT,dt*3);camera.lookAt(cameraLook);
@@ -1052,10 +1121,34 @@ function purchaseUpgrade(id){
 
 /* ---- Реплики продавца ---- */
 var SPEAK_DB={
-  welcome:['Приветствую, оператор!','Мои дроны заждались хозяина!','Добро пожаловать на рынок!'],
-  successBuy:['Отличная сделка!','Эта штука увеличит твой доход!','Ха-ха, выгодно купил!'],
-  noFunds:['Твои карманы пусты!','Сначала заработай кристаллы!','Вернись, когда будут кристаллы!'],
-  idle:['Ты уснул?','Если любуешься моей шляпой — спасибо!','Покупай, пока цены низкие!']
+  welcome:[
+    'Приветствую, оператор!',
+    'Мои дроны заждались хозяина!',
+    'Добро пожаловать на мой рынок!',
+    'Свежие апгрейды только для своих!',
+    'Заходи, странник, здесь выгодно!'
+  ],
+  successBuy:[
+    'Отличная сделка, оператор!',
+    'Эта штука увеличит твой доход!',
+    'Ха-ха, выгодно купил!',
+    'Мудрое вложение в своё будущее!',
+    'С такими апгрейдами ты взлетишь!'
+  ],
+  noFunds:[
+    'Твои карманы пусты!',
+    'Сначала заработай кристаллы!',
+    'Вернись, когда будут кристаллы!',
+    'Эх, пустой кошелёк — грустное зрелище!',
+    'Копи кристаллы и приходи снова!'
+  ],
+  idle:[
+    'Ты уснул, оператор?',
+    'Если любуешься моей шляпой — спасибо!',
+    'Покупай, пока цены низкие!',
+    'Я стою тут и жду твоего заказа!',
+    'Не стесняйся, прилавок к твоим услугам!'
+  ]
 };
 var vendorIdleTimer=null;
 function resetVendorIdleTimer(){if(vendorIdleTimer)clearTimeout(vendorIdleTimer);vendorIdleTimer=setTimeout(function(){if(activePage==='page-market')speak('idle');},30000);}
@@ -1134,6 +1227,7 @@ function showPage(pageId){
   else if(pageId==='page-containers'){renderSkinsCollection();stopMusic();}
   else if(pageId==='page-lab'){renderLab();startZoneMusic('lab');}
   else if(pageId==='page-restart'){renderPrestige();renderChangelog();stopMusic();}
+  else if(pageId==='page-changelog'){renderChangelog();stopMusic();}
   else{stopMusic();}
 }
 function bindNavigation(){document.querySelectorAll('.nav-btn').forEach(function(btn){btn.addEventListener('click',function(){showPage(btn.getAttribute('data-target'));});});}
@@ -1200,7 +1294,28 @@ function checkDailyBonus(){var today=new Date().toISOString().slice(0,10);if(gam
 /* ---- Init ---- */
 function onResize(){camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix();renderer.setSize(window.innerWidth,window.innerHeight);}
 function bindLogoSparkles(){var logo=document.getElementById('game-logo');var onEnter=function(){for(var i=0;i<8;i++){var s=document.createElement('span');s.className='spark';var a=Math.random()*Math.PI*2,d=30+Math.random()*40;s.style.setProperty('--sx',Math.cos(a)*d+'px');s.style.setProperty('--sy',Math.sin(a)*d+'px');s.style.left='50%';s.style.top='50%';logo.appendChild(s);s.addEventListener('animationend',function(){if(s.parentNode)s.parentNode.removeChild(s);});}};logo.addEventListener('mouseenter',onEnter);logo.addEventListener('touchstart',onEnter,{passive:true});}
-function renderChangelog(){var box=document.getElementById('changelog-box');if(!box)return;box.innerHTML='<div class="panel" style="box-shadow:none"><div style="font-weight:800">v4.0.0 — Космическая сборка</div><ul style="margin-left:18px;font-size:14px;color:var(--muted)"><li>5 экранов: Кристалл, Рынок, Контейнеры, Лаборатория, Рестарт</li><li>Квантовые контейнеры со скинами (до Секретного 1%)</li><li>Крафт Супер-Дронов из ресурсов</li><li>Престиж с Тёмной Материей и вечными множителями</li><li>Космическая аномалия и Гипер-Драйв (x5)</li><li>Глобальные контракты</li></ul></div>';}
+function renderChangelog(){
+  var chip=document.getElementById('version-chip');if(chip)chip.textContent=GAME_VERSION;
+  var boxes=document.querySelectorAll('#changelog-box');
+  if(boxes.length===0)return;
+  var versions=[
+    {v:'v4.0.0',date:'2026-08-03',title:'Космическая сборка',items:['5 экранов: Кристалл, Рынок, Контейнеры, Лаборатория, Рестарт, Версии','Квантовые контейнеры со скинами (до Секретного 1%)','Крафт Супер-Дронов из ресурсов','Престиж с Тёмной Материей и вечными множителями','Космическая аномалия и Гипер-Драйв (x5)','Глобальные контракты']},
+    {v:'v1.3.0',date:'2026-08-02',title:'Эволюция',items:['Интегрированы Квантовые Контейнеры (лутбоксы)','Система крафта деталей в Лаборатории','Режим Престижа (Рестарт за Тёмную Материю)','Космические Аномалии']},
+    {v:'v1.2.0',date:'2026-08-01',title:'Орбитальный Рой',items:['Визуализация пассивного дохода — купленные дроны физически летают по 3D-орбитам вокруг главного Кристалла','Спутники-сферы, конусы и торы по уровням апгрейдов']},
+    {v:'v1.1.0',date:'2026-07-31',title:'Обновление Рынка',items:['Добавлен интерактивный 3D-Робот-Продавец','Система ретро-озвучки букв Web Audio API','Динамические эмоции на мониторе']},
+    {v:'v1.0.0',date:'2026-07-30',title:'Релиз',items:['Запуск ядра [CRYSTAL.NET]','Базовая генерация 3D-кристалла','Запуск LocalStorage сохранений']}
+  ];
+  var html='<div class="clg-timeline">';
+  versions.forEach(function(ver){
+    html+='<div class="clg-node"><div class="clg-marker"></div><div class="clg-card"><div class="clg-head"><span class="clg-tag">'+ver.v+'</span><span class="clg-date">'+ver.date+'</span></div><div class="clg-title">'+ver.title+'</div><ul class="clg-list">';
+    ver.items.forEach(function(it){html+='<li>'+it+'</li>';});
+    html+='</ul></div></div>';
+  });
+  html+='</div>';
+  boxes.forEach(function(box){box.innerHTML=html;});
+}
+
+
 function init(){
   loadGame();
   initThree();
