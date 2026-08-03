@@ -868,9 +868,12 @@ function markFirstShopCard(){
   });
 }
 function setupIdleWarning(){
+  /* Обновляем время активности при ЛЮБОМ взаимодействии пользователя */
+  document.addEventListener('pointerdown',function(){lastActivityTime=Date.now();},true);
+  document.addEventListener('keydown',function(){lastActivityTime=Date.now();},true);
   setInterval(function(){
     if(tutorialCompleted&&gameState.totalClicks>0){
-      if(Date.now()-lastActivityTime>40000&&activeView==='crystal'){
+      if(Date.now()-lastActivityTime>40000){
         var key=IDLE_FILES[Math.floor(Math.random()*IDLE_FILES.length)];
         assistantSpeak(key);
         var bubble=document.getElementById('ad-bubble');
