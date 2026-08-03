@@ -62,17 +62,9 @@ body.hyperdrive .col-left,body.hyperdrive .col-top{animation:hyperFlash .5s ease
 /* Сцена кристалла в левой колонке */
 #scene-container{position:absolute;inset:0;z-index:1;cursor:pointer}
 
-/* Меню навигации слева, ширина 180px, контент сдвинут margin-left:190px */
-.nav-menu{position:absolute;top:0;left:0;width:180px;height:100%;z-index:20;padding:12px 10px;display:flex;flex-direction:column;gap:8px;background:rgba(20,15,40,.55);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border-right:1px solid var(--gb)}
-.nav-brand{font-family:'Orbitron',monospace;font-weight:900;font-size:14px;background:linear-gradient(90deg,var(--cyan),var(--magenta));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-align:center;margin-bottom:8px}
-.nav-btn{display:flex;align-items:center;gap:8px;border:none;background:transparent;color:var(--muted);font-size:12px;font-weight:700;padding:10px 10px;border-radius:12px;cursor:pointer;transition:background .25s,color .25s,transform .2s;font-family:inherit;text-align:left}
-.nav-btn:hover{background:rgba(255,255,255,.08);color:var(--text);transform:translateX(3px)}
-.nav-btn.active{background:linear-gradient(135deg,rgba(143,123,255,.35),rgba(255,106,213,.35));color:#fff;box-shadow:0 0 16px rgba(143,123,255,.45)}
-.nav-btn .ni{width:18px;height:18px;flex-shrink:0;display:inline-flex}
-.nav-btn .ni .svg-ic{width:18px;height:18px}
-
-/* Контент левой колонки, сдвинут вправо от меню */
-.col-left-content{margin-left:190px;position:relative;z-index:2;min-height:100%;display:flex;flex-direction:column;pointer-events:none}
+/* Навигация полностью удалена — управление через вкладки центральной колонки.
+   Левая колонка занимает честные 35% и контент центрируется в ней. */
+.col-left-content{position:relative;z-index:2;min-height:100%;display:flex;flex-direction:column;align-items:center;pointer-events:none}
 .col-left-content .clickable{pointer-events:auto}
 
 /* Баланс сверху */
@@ -99,7 +91,9 @@ body.hyperdrive .col-left,body.hyperdrive .col-top{animation:hyperFlash .5s ease
 .assistant-drone{position:absolute;top:14px;right:14px;z-index:24;width:56px;height:56px;pointer-events:none}
 .ad-inner{width:100%;height:100%;border-radius:50%;background:radial-gradient(circle,#fff,var(--cyan) 35%,transparent 75%);box-shadow:0 0 30px rgba(0,240,255,.7);animation:adFloat 2.5s ease-in-out infinite}
 @keyframes adFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.ad-bubble{position:absolute;top:56px;right:0;width:200px;background:rgba(20,15,40,.9);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(0,240,255,.4);border-radius:12px;padding:10px 12px;font-size:12px;color:var(--text);opacity:0;transition:opacity .3s;pointer-events:none}
+.ad-bubble{position:absolute;top:56px;right:0;width:220px;background:rgba(20,15,40,.9);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(0,240,255,.4);border-radius:12px;padding:10px 12px;font-size:12px;color:var(--text);opacity:0;transition:opacity .3s;pointer-events:none}
+.ad-head{font-family:'Orbitron',monospace;font-weight:900;font-size:11px;color:var(--cyan);text-shadow:0 0 10px rgba(0,240,255,.8);margin-bottom:4px;letter-spacing:1px}
+.ad-body{line-height:1.4}
 .ad-bubble.visible{opacity:1}
 .ad-bubble.alert{border-color:var(--bad);background:rgba(60,10,10,.85)}
 
@@ -248,6 +242,19 @@ body.hyperdrive .col-left,body.hyperdrive .col-top{animation:hyperFlash .5s ease
 .tab-btn.locked{opacity:.35;pointer-events:none;cursor:not-allowed}
 body.tutorial-lock .nav-btn:not(.unlocked){opacity:.35;pointer-events:none}
 body.tutorial-lock .tab-btn:not(.unlocked){opacity:.35;pointer-events:none}
+
+/* ===== ЖЁСТКАЯ БЛОКИРОВКА ТУТОРИАЛА ===== */
+/* ШАГ 1: всё, кроме кристалла, закрыто */
+body.tutorial-lock .tabs-bar{pointer-events:none;opacity:.3}
+body.tutorial-lock .col-right{pointer-events:none;opacity:.3}
+body.tutorial-lock .col-center .panel{pointer-events:none;opacity:.3}
+body.tutorial-step-1 #scene-container,body.tutorial-step-2 #scene-container{pointer-events:none}
+/* Разблокированная вкладка (Рынок на шаге 2) */
+body.tutorial-lock .tab-btn.unlocked{pointer-events:auto;opacity:1}
+/* ШАГ 3: вкладки закрыты, на рынке активна только первая кнопка */
+body.tutorial-step-2 .col-right{pointer-events:auto;opacity:1}
+body.tutorial-step-2 .upgrade-card{pointer-events:none;opacity:.3}
+body.tutorial-step-2 .upgrade-card.first{pointer-events:auto;opacity:1}
 body.tutorial-lock .col-center .panel{opacity:.5}
 /* Подсказка шага туториала */
 .tutorial-step-banner{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:400;background:rgba(20,15,40,.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--cyan);border-radius:12px;padding:12px 20px;font-size:13px;font-weight:700;color:var(--text);text-align:center;max-width:520px;box-shadow:0 0 30px rgba(0,240,255,.3);display:none}
@@ -261,10 +268,7 @@ body.tutorial-lock .col-center .panel{opacity:.5}
   .col{position:relative;min-height:auto;overflow-y:visible}
   .col-left{height:60vh;border-right:none;border-bottom:1px solid rgba(0,240,255,.15)}
   .col-center,.col-right{min-height:auto}
-  .nav-menu{position:absolute;top:auto;bottom:0;left:0;right:0;width:100%;height:auto;flex-direction:row;justify-content:space-around;padding:6px 4px;border-right:none;border-top:1px solid var(--gb);border-radius:0}
-  .nav-btn{flex-direction:column;gap:1px;font-size:8px;padding:4px 4px}
-  .nav-brand{display:none}
-  .col-left-content{margin-left:0;padding-bottom:60px}
+  .col-left-content{padding-bottom:60px}
   .combo-box{left:14px}
   .level-badge{left:14px}
   .shop-split{grid-template-columns:1fr}
@@ -315,15 +319,6 @@ body.tutorial-lock .col-center .panel{opacity:.5}
     <!-- КОЛОНКА 1: Кристалл (клик) -->
     <div class="col col-left">
       <div id="scene-container"></div>
-      <nav class="nav-menu">
-        <div class="nav-brand">[CRYSTAL.NET]</div>
-        <button class="nav-btn active" data-target="crystal"><span class="ni" data-ic="gem"></span><span>Кристалл</span></button>
-        <button class="nav-btn" data-target="market"><span class="ni" data-ic="cart"></span><span>Рынок</span></button>
-        <button class="nav-btn" data-target="containers"><span class="ni" data-ic="box"></span><span>Контейнеры</span></button>
-        <button class="nav-btn" data-target="lab"><span class="ni" data-ic="lab"></span><span>Лаборатория</span></button>
-        <button class="nav-btn" data-target="restart"><span class="ni" data-ic="refresh"></span><span>Рестарт</span></button>
-        <button class="nav-btn" data-target="versions"><span class="ni" data-ic="doc"></span><span>Версии</span></button>
-      </nav>
       <div class="col-left-content">
         <div class="balance-hud clickable">
           <div class="hud-balance" id="hud-balance">0 💎</div>
@@ -354,10 +349,11 @@ body.tutorial-lock .col-center .panel{opacity:.5}
         <div class="news-ticker"><span class="news-label">📡 НОВОСТИ ФЕДЕРАЦИИ</span><span class="news-text" id="news-text"></span></div>
         <!-- Вкладки -->
         <div class="tabs-bar">
-          <button class="tab-btn active" data-tab="tab-lab">Лаборатория</button>
-          <button class="tab-btn" data-tab="tab-containers">Контейнеры</button>
-          <button class="tab-btn" data-tab="tab-versions">Версии</button>
-          <button class="tab-btn" data-tab="tab-restart">Рестарт</button>
+          <button class="tab-btn active" data-tab="tab-lab" data-view="lab">Лаборатория</button>
+          <button class="tab-btn" data-tab="tab-containers" data-view="containers">Контейнеры</button>
+          <button class="tab-btn" data-tab="tab-versions" data-view="versions">Версии</button>
+          <button class="tab-btn" data-tab="tab-restart" data-view="restart">Рестарт</button>
+          <button class="tab-btn" data-view="market" style="border-color:rgba(0,240,255,.5)">🛒 Рынок</button>
         </div>
 
         <!-- Вкладка Лаборатория -->
@@ -472,7 +468,7 @@ body.tutorial-lock .col-center .panel{opacity:.5}
 var SAVE_KEY='crystal-net-save-v5';
 var PASSIVE_TICK_MS=100;
 var SAVE_INTERVAL_MS=5000;
-var GAME_VERSION='5.1.0';
+var GAME_VERSION='5.2.0';
 
 var SVG_ICONS={
   gem:'<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20"/><path d="M12 21L8 9"/><path d="M12 21l4-12"/>',
@@ -625,51 +621,27 @@ function playSound(name){if(!audioCtx||!soundEnabled)return;switch(name){
   case 'hyper':[120,240,480,960,1920].forEach(function(f,i){setTimeout(function(){playTone(f,0.2,'sawtooth',0.12);},i*90);});break;
 }}
 
-/* ==== ИИ-АССИСТЕНТ: отдельный аудиотрек из папки audio/assistant/ ==== */
+/* ==== ИИ-АССИСТЕНТ: аудиофайлы из корня проекта ==== */
 var ASSISTANT_PLAYLIST={
-  intro:{file:'audio/assistant/intro.mp3',text:'Год 2142. Ресурсы Земли исчерпаны. Единственный источник выживания — Квантовые Кристаллы. Матрица запущена...'},
-  welcome:{file:'audio/assistant/welcome.mp3',text:'Приветствую, оператор! Я твой бортовой ассистент. Системы запущены, но нам критически не хватает энергии. Кликни по главному Кристаллу десять раз, чтобы активировать генератор!'},
-  go_to_shop:{file:'audio/assistant/go_to_shop.mp3',text:'Отличная работа, ядро стабилизировано! Энергия пошла. Теперь нам нужна автоматизация. Открой вкладку Рынок и найми нашего первого Дрона-майнера'},
-  tutorial_done:{file:'audio/assistant/tutorial_done.mp3',text:'Система полностью автоматизирована! Протоколы обучения завершены. Теперь ты готов к масштабной добыче. Я буду парить рядом и следить за твоим прогрессом. Удачи!'},
-  anomaly:{file:'audio/assistant/anomaly.mp3',text:'Внимание! Обнаружена пространственная аномалия! Срочно кликни по ней, пока она не исчезла!'},
-  hyperdrive:{file:'audio/assistant/hyperdrive.mp3',text:'Реактор перегружен! Гипер-Драйв активирован! Вся добыча ускорена в пять раз!'},
-  rich:{file:'audio/assistant/rich.mp3',text:'Ого! Мои датчики фиксируют колоссальный приток ресурсов! Наша кристальная империя растет!'},
-  idle_1:{file:'audio/assistant/idle_1.mp3',text:'Эй, оператор! Кристалл сам себя не добудет, поднажми!'},
-  idle_2:{file:'audio/assistant/idle_2.mp3',text:'Системы в режиме ожидания. Кристалл скучает по твоим кликам!'},
-  idle_3:{file:'audio/assistant/idle_3.mp3',text:'Датчики фиксируют затишье. Время поднять уровень добычи, капитан!'}
+  intro:{file:'intro.mp3',text:'Год 2142. Ресурсы Земли исчерпаны. Единственный источник выживания — Квантовые Кристаллы. Матрица запущена...'},
+  welcome:{file:'welcome.mp3',text:'Системы запущены! Приветствую, оператор, меня зовут АРГУС, я твой бортовой ассистент. Наш сектор пуст, а реактор на нуле. Давай раскачаем эту глыбу! Кликни по Кристаллу десять раз, чтобы запустить первичный сбор энергии. Погнали!'},
+  go_to_shop:{file:'go_to_shop.mp3',text:'Отлично, искра пошла! Но кликать вручную — это прошлый век, мы тут империю строим. Стабильный поток энергии — ключ к успеху. Открывай вкладку Рынок справа и забирай нашего первого Дрона-майнера. Пора автоматизировать этот бизнес!'},
+  tutorial_done:{file:'tutorial_done.mp3',text:'Протоколы синхронизации завершены, дрон на орбите! Теперь система работает сама, а ты официально сертифицирован как космический магнат. Я остаюсь на связи и буду прикрывать тебя в этом секторе. Покажи им, на что способен [CRYSTAL.NET]!'},
+  anomaly:{file:'anomaly.mp3',text:'Фиксирую мощный пространственный всплеск! Квантовая аномалия прямо по курсу! Лови её, оператор, пока она не дестабилизировалась! Живее!'},
+  hyperdrive:{file:'hyperdrive.mp3',text:'Энергосети перегружены, это Гипер-Драйв! Множитель зашкаливает, выжимаем из Кристалла максимум! Кликай на все сто!'},
+  rich:{file:'rich.mp3',text:'Ого... Мои вычислительные модули в приятном шоке от твоего баланса! С такими запасами мы скоро сможем выкупить парочку небольших планет. Отличная работа!'},
+  idle_warning:{file:'idle_warning.mp3',text:'Эй, оператор! Приём! Ты там в анабиоз впал или просто любуешься моими крыльями? Кристалл остывает, а пассивный доход сам себя не увеличит. Хватит спать, за работу!'}
 };
-var IDLE_FILES=['idle_1','idle_2','idle_3'];
-var assistantAudio=null; /* активный элемент Audio из папки audio/assistant/ */
+var IDLE_FILES=['idle_warning'];
+var assistantAudio=null; /* активный элемент Audio */
 var assistantBubbleTimer=null;
-function assistantSpeak(key){
-  var entry=ASSISTANT_PLAYLIST[key];
-  if(!entry)return;
-  /* Останавливаем предыдущий файл ассистента, чтобы голоса не накладывались */
-  if(assistantAudio){try{assistantAudio.pause();assistantAudio.currentTime=0;}catch(e){}}
-  assistantAudio=new Audio(entry.file);
-  assistantAudio.volume=0.8;
-  if(soundEnabled){assistantAudio.play().catch(function(){/* файл может отсутствовать */});}
-  var bubble=document.getElementById('ad-bubble');
-  if(bubble){
-    bubble.classList.add('visible');
-    bubble.classList.remove('alert');
-    bubble.textContent='';
-    var i=0;
-    if(assistantBubbleTimer)clearInterval(assistantBubbleTimer);
-    assistantBubbleTimer=setInterval(function(){
-      i++;
-      bubble.textContent=entry.text.slice(0,i);
-      if(i>=entry.text.length){clearInterval(assistantBubbleTimer);setTimeout(function(){bubble.classList.remove('visible');},3000);}
-    },25);
-  }
-}
 function assistantAlert(text){
   var bubble=document.getElementById('ad-bubble');
-  if(bubble){bubble.classList.add('visible');bubble.classList.add('alert');bubble.textContent=text;setTimeout(function(){bubble.classList.remove('visible');},3000);}
+  if(bubble){bubble.classList.add('visible');bubble.classList.add('alert');bubble.innerHTML='<div class="ad-head">[ ИИ АРГУС ]</div><div class="ad-body"></div>';bubble.querySelector('.ad-body').textContent=text;setTimeout(function(){bubble.classList.remove('visible');},3000);}
 }
-/* Эмбиент-музыка из audio/space_ambient.mp3 */
+/* Эмбиент-музыка из корня проекта */
 var ambientAudio=null;
-function startAmbient(){if(ambientAudio)return;ambientAudio=new Audio('audio/space_ambient.mp3');ambientAudio.loop=true;ambientAudio.volume=0.2;if(soundEnabled){ambientAudio.play().catch(function(){/* файл может отсутствовать */});}}
+function startAmbient(){if(ambientAudio)return;ambientAudio=new Audio('space_ambient.mp3');ambientAudio.loop=true;ambientAudio.volume=0.2;if(soundEnabled){ambientAudio.play().catch(function(){/* файл может отсутствовать */});}}
 
 /* ==== ЗАСТАВКА, КАТСЦЕНА И ТУТОРИАЛ ==== */
 var tutorialCompleted=false;
@@ -683,7 +655,8 @@ function startBootFlow(){
   startAmbient();
   if(tutorialCompleted){
     /* Опытный игрок: просто входим, туториал не запускаем */
-    applyTutorialLock(false);
+    tutorialLocked=false;
+    applyTutorialLock();
     return;
   }
   startIntroCutscene();
@@ -736,53 +709,74 @@ function assistantSpeak(key){
   if(bubble){
     bubble.classList.add('visible');
     bubble.classList.remove('alert');
-    bubble.textContent='';
+    bubble.innerHTML='<div class="ad-head">[ ИИ АРГУС ]</div><div class="ad-body"></div>';
+    var body=bubble.querySelector('.ad-body');
     var i=0;
     if(assistantBubbleTimer)clearInterval(assistantBubbleTimer);
     assistantBubbleTimer=setInterval(function(){
       i++;
-      bubble.textContent=entry.text.slice(0,i);
-      if(i>=entry.text.length){clearInterval(assistantBubbleTimer);setTimeout(function(){bubble.classList.remove('visible');},3000);}
+      body.textContent=entry.text.slice(0,i);
+      if(i>=entry.text.length){clearInterval(assistantBubbleTimer);setTimeout(function(){bubble.classList.remove('visible');},3500);}
     },25);
   }
 }
 
-/* ==== ЗАСКРИПТОВАННЫЙ ТУТОРИАЛ (3 шага) ==== */
-function applyTutorialLock(lock,unlockView){
-  tutorialLocked=lock;
-  document.body.classList.toggle('tutorial-lock',lock);
-  document.querySelectorAll('.nav-btn').forEach(function(b){
-    var target=b.getAttribute('data-target');
-    b.classList.toggle('unlocked',!lock||target===unlockView||target==='crystal');
-  });
-  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.toggle('unlocked',!lock);});
-}
+/* ==== ЖЁСТКИЙ ТУТОРИАЛ (3 шага, неломаемый) ==== */
 function showTutorialBanner(text){
   var b=document.getElementById('tutorial-banner');
   if(b){b.textContent=text;b.classList.add('show');}
 }
 function hideTutorialBanner(){var b=document.getElementById('tutorial-banner');if(b)b.classList.remove('show');}
+
+/* Применяет блокировки по текущему шагу.
+   step 0 = ШАГ 1 (кликать кристалл), step 1 = ШАГ 2 (открыть Рынок),
+   step 2 = ШАГ 3 (купить первого майнера), step 3 = завершён (свободно). */
+function applyTutorialLock(){
+  document.body.classList.remove('tutorial-step-0','tutorial-step-1','tutorial-step-2');
+  document.body.classList.toggle('tutorial-lock',tutorialLocked);
+  if(!tutorialLocked)return;
+  document.body.classList.add('tutorial-step-'+Math.min(gameState.tutorialStep,2));
+  /* Разблокированные вкладки: на шаге 2 активен только Рынок */
+  document.querySelectorAll('.tab-btn').forEach(function(b){
+    var view=b.getAttribute('data-view');
+    var allow=!tutorialLocked||(gameState.tutorialStep===1&&view==='market');
+    b.classList.toggle('unlocked',allow);
+  });
+  /* На шаге 3 помечаем первый товар как доступный */
+  if(gameState.tutorialStep===2){markFirstShopCard();}
+}
+
 function startTutorial(){
   tutorialCompleted=false;
   gameState.tutorialStep=0;
-  /* ШАГ 1: блокируем всё, активен только кристалл */
-  applyTutorialLock(true,'crystal');
+  tutorialLocked=true;
   setView('crystal');
+  applyTutorialLock();
   showTutorialBanner('Кликни по Кристаллу 10 раз, чтобы активировать генератор');
   setTimeout(function(){assistantSpeak('welcome');},600);
 }
+/* ШАГ 1 -> ШАГ 2: 10 кликов сделано */
 function advanceTutorialToShop(){
   gameState.tutorialStep=1;
-  /* Разблокируем только Рынок */
-  applyTutorialLock(true,'market');
-  showTutorialBanner('Перейди на вкладку Рынок и купи первого Дрона-майнера');
+  tutorialLocked=true;
+  applyTutorialLock();
+  showTutorialBanner('Перейди на вкладку Рынок (🛒) — она теперь активна');
   assistantSpeak('go_to_shop');
 }
-function completeTutorial(){
+/* ШАГ 2 -> ШАГ 3: игрок открыл Рынок */
+function advanceTutorialToBuy(){
   gameState.tutorialStep=2;
+  tutorialLocked=true;
+  setView('market');
+  applyTutorialLock();
+  showTutorialBanner('Купи первого авто-майнера: Кликер-утилиту');
+}
+/* ШАГ 3 -> завершено: первый майнер куплен */
+function completeTutorial(){
+  gameState.tutorialStep=3;
   tutorialCompleted=true;
-  /* Полная разблокировка */
-  applyTutorialLock(false);
+  tutorialLocked=false;
+  applyTutorialLock();
   hideTutorialBanner();
   assistantSpeak('tutorial_done');
   saveGame();
@@ -791,17 +785,35 @@ function completeTutorial(){
 function runTutorial(){
   if(tutorialCompleted)return;
   if(gameState.tutorialStep===0&&gameState.totalClicks>=10){advanceTutorialToShop();return;}
-  if(gameState.tutorialStep===1){var any=0;UPGRADE_DEFS.forEach(function(d){any+=gameState.upgrades[d.id].level;});if(any>0){completeTutorial();}}
 }
 /* Блокировка навигации в рамках туториала */
 function guardedSetView(view){
-  if(tutorialLocked){
-    if(view==='crystal'){setView('crystal');return;}
-    if(gameState.tutorialStep===1&&view==='market'){setView('market');return;}
-    showTutorialBanner('Пока доступно только '+(gameState.tutorialStep===1?'Рынок':'Кристалл'));
+  if(!tutorialLocked){setView(view);return;}
+  if(gameState.tutorialStep===0){showTutorialBanner('Сначала кликни по Кристаллу 10 раз!');return;}
+  if(gameState.tutorialStep===1){
+    if(view==='market'){advanceTutorialToBuy();return;}
+    showTutorialBanner('Сначала открой вкладку Рынок (🛒)');
     return;
   }
+  if(gameState.tutorialStep===2){showTutorialBanner('Купи первого авто-майнера: Кликер-утилиту');return;}
   setView(view);
+}
+
+/* На шаге 3 оставляет кликабельной только первую карточку товара */
+function markFirstShopCard(){
+  var left=document.getElementById('shop-col-left');
+  var right=document.getElementById('shop-col-right');
+  if(!left||!right)return;
+  var cards=left.querySelectorAll('.upgrade-card').length?left.querySelectorAll('.upgrade-card'):[];
+  var all=[];
+  left.querySelectorAll('.upgrade-card').forEach(function(c){all.push(c);});
+  right.querySelectorAll('.upgrade-card').forEach(function(c){all.push(c);});
+  all.forEach(function(card,idx){
+    card.classList.remove('first');
+    card.classList.add('locked');
+    var btn=card.querySelector('.buy-btn');if(btn)btn.disabled=true;
+    if(idx===0){card.classList.add('first');card.classList.remove('locked');var b0=card.querySelector('.buy-btn');if(b0)b0.disabled=false;}
+  });
 }
 function setupIdleWarning(){
   setInterval(function(){
@@ -875,7 +887,22 @@ function dimOrbitObjects(dim){orbitObjects.forEach(function(o){if(dim){o.materia
 var raycaster=new THREE.Raycaster();var mouseNDC=new THREE.Vector2();var isDown=false;
 function updateMouse(e){var r=renderer.domElement.getBoundingClientRect();var cx=e.clientX,cy=e.clientY;if(e.touches&&e.touches.length>0){cx=e.touches[0].clientX;cy=e.touches[0].clientY;}mouseNDC.x=((cx-r.left)/r.width)*2-1;mouseNDC.y=-((cy-r.top)/r.height)*2+1;}
 function onPointerDown(e){isDown=true;updateMouse(e);crystalGroup.scale.set(0.92,0.92,0.92);lastActivityTime=Date.now();}
-function onPointerUp(e){if(!isDown)return;isDown=false;crystalGroup.scale.set(1,1,1);updateMouse(e);raycaster.setFromCamera(mouseNDC,camera);var hits=raycaster.intersectObject(crystalMesh);if(hits.length===0)return;var r=registerClick();var r2=renderer.domElement.getBoundingClientRect();var cx=(e.clientX!==undefined?e.clientX:e.changedTouches[0].clientX);var cy=(e.clientY!==undefined?e.clientY:e.changedTouches[0].clientY);if(r.isCrit){spawnDamageText(cx,cy-30,'КРИТ! +'+formatNumber(r.gain)+' 💎');spawnClickRipple(cx,cy);spawnParticles(hits[0].point.clone());spawnParticles(hits[0].point.clone());shakeScreen();playSound('crit');}else{spawnDamageText(cx,cy,'+'+formatNumber(r.gain)+' 💎');spawnClickRipple(cx,cy);spawnParticles(hits[0].point.clone());playSound('click');}refreshUI();checkAchievements();}
+function onPointerUp(e){
+  if(!isDown)return;
+  isDown=false;
+  crystalGroup.scale.set(1,1,1);
+  updateMouse(e);
+  /* Жёсткая блокировка: кристалл кликается только на ШАГЕ 1 (step 0) и в свободном режиме */
+  if(tutorialLocked&&gameState.tutorialStep!==0)return;
+  raycaster.setFromCamera(mouseNDC,camera);
+  var hits=raycaster.intersectObject(crystalMesh);
+  if(hits.length===0)return;
+  var r=registerClick();
+  var cx=(e.clientX!==undefined?e.clientX:e.changedTouches[0].clientX);
+  var cy=(e.clientY!==undefined?e.clientY:e.changedTouches[0].clientY);
+  if(r.isCrit){spawnDamageText(cx,cy-30,'КРИТ! +'+formatNumber(r.gain)+' 💎');spawnClickRipple(cx,cy);spawnParticles(hits[0].point.clone());spawnParticles(hits[0].point.clone());shakeScreen();playSound('crit');}else{spawnDamageText(cx,cy,'+'+formatNumber(r.gain)+' 💎');spawnClickRipple(cx,cy);spawnParticles(hits[0].point.clone());playSound('click');}
+  refreshUI();checkAchievements();
+}
 
 function spawnParticles(point){var count=15+Math.floor(Math.random()*5);var skin=SKINS[gameState.activeSkin]||SKINS.default;for(var i=0;i<count;i++){var size=0.05+Math.random()*0.1;var cube=new THREE.Mesh(new THREE.BoxGeometry(size,size,size),new THREE.MeshStandardMaterial({color:skin.glow,emissive:skin.glow,emissiveIntensity:0.8,metalness:0.9,roughness:0.2}));cube.position.copy(point);var dir=new THREE.Vector3((Math.random()-0.5)*2,(Math.random()-0.5)*2,(Math.random()-0.5)*2).normalize();cube.userData.velocity=dir.multiplyScalar(2+Math.random()*3);cube.userData.life=1;scene.add(cube);particles.push(cube);}}
 function updateParticles(dt){for(var i=particles.length-1;i>=0;i--){var p=particles[i];p.userData.life-=dt*0.9;p.userData.velocity.y-=dt*5;p.position.add(p.userData.velocity.clone().multiplyScalar(dt));p.rotation.x+=dt*4;p.rotation.y+=dt*4;p.scale.setScalar(Math.max(0,p.userData.life));if(p.userData.life<=0){scene.remove(p);p.geometry.dispose();p.material.dispose();particles.splice(i,1);}}}
@@ -1026,10 +1053,18 @@ function renderShop(){
     card.querySelector('.buy-btn').addEventListener('click',function(){purchaseUpgrade(def.id);});
     card.addEventListener('mouseenter',function(){merchantHover=true;if(merchantAnim.approve<=0&&merchantAnim.poor<=0)drawMerchantFace('hover');});
     card.addEventListener('mouseleave',function(){merchantHover=false;if(merchantAnim.approve<=0&&merchantAnim.poor<=0)drawMerchantFace('idle');});
+    if(idx===0)card.classList.add('first');
     (idx<mid?left:right).appendChild(card);
   });
+  /* Если идёт туториал — применяем блокировку после отрисовки */
+  if(tutorialLocked)applyTutorialLock();
 }
 function purchaseUpgrade(id){
+  /* На ШАГЕ 3 разрешено покупать ТОЛЬКО первый авто-майнер (Кликер-утилиту) */
+  if(tutorialLocked&&gameState.tutorialStep===2&&id!=='clicker'){
+    showTutorialBanner('Купи именно Кликер-утилиту — первого авто-майнера!');
+    return;
+  }
   var def=UPGRADE_DEFS.find(function(d){return d.id===id;});
   if(!def)return;
   var cost=getUpgradeCost(def);
@@ -1038,7 +1073,8 @@ function purchaseUpgrade(id){
   recomputeDerived();refreshUI();renderShop();checkAchievements();
   playSound('buy');refreshOrbitObjects();
   speak('successBuy');
-  runTutorial();
+  if(tutorialLocked&&gameState.tutorialStep===2&&id==='clicker'){completeTutorial();}
+  else{runTutorial();}
   showToast(svgIcon(def.icon,24),'Куплено: '+def.name,'Ур. '+gameState.upgrades[id].level);
 }
 
@@ -1047,7 +1083,15 @@ function switchTab(tabId){
   document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-tab')===tabId);});
   document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.toggle('active',p.id===tabId);});
 }
-function bindTabs(){document.querySelectorAll('.tab-btn').forEach(function(b){b.addEventListener('click',function(){switchTab(b.getAttribute('data-tab'));});});}
+function bindTabs(){document.querySelectorAll('.tab-btn').forEach(function(b){
+  b.addEventListener('click',function(){
+    /* Рынок не имеет панели — это правая колонка; остальные показывают вкладку */
+    var tab=b.getAttribute('data-tab');
+    var view=b.getAttribute('data-view');
+    if(tab)switchTab(tab);
+    if(view)guardedSetView(view);
+  });
+});}
 
 /* ==== НАВИГАЦИЯ (вкладки определяют активный вид для кинематики) ==== */
 function setView(view){
