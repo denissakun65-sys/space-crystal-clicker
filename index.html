@@ -51,7 +51,11 @@ body.hyperdrive .col-left,body.hyperdrive .col-top{animation:hyperFlash .5s ease
 @keyframes rippleExpand{from{width:10px;height:10px;opacity:1;transform:translate(-50%,-50%) scale(.4)}to{width:120px;height:120px;opacity:0;transform:translate(-50%,-50%) scale(1.6)}}
 
 /* ==== 3-КОЛОНОЧНЫЙ КАРКАС ==== */
-#app{position:fixed;inset:0;display:grid;grid-template-columns:35% 30% 35%;gap:0;z-index:5}
+#app{position:fixed;inset:0;display:grid;grid-template-columns:47% 53%;gap:0;z-index:5}
+/* Рынок (правая колонка) скрыт по умолчанию, появляется при открытии Рынка */
+body.market-open #app{grid-template-columns:35% 30% 35%}
+.col-right{display:none}
+body.market-open .col-right{display:block}
 .col{position:relative;overflow-y:auto;overflow-x:hidden;min-height:100%}
 .col::-webkit-scrollbar{width:8px}
 .col::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:8px}
@@ -111,9 +115,20 @@ body.hyperdrive .col-left,body.hyperdrive .col-top{animation:hyperFlash .5s ease
 .news-ticker .news-text{flex:1}
 
 .tabs-bar{display:flex;gap:6px;flex-wrap:wrap}
-.tab-btn{border:1px solid var(--gb);background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--muted);border-radius:10px;padding:8px 12px;font-family:inherit;font-weight:800;font-size:12px;cursor:pointer;transition:all .2s;flex:1;min-width:70px}
+.tab-btn{border:1px solid var(--gb);background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--muted);border-radius:10px;padding:10px 16px;font-family:inherit;font-weight:800;font-size:0.9rem;cursor:pointer;transition:all .2s;white-space:nowrap}
 .tab-btn:hover{color:var(--text)}
 .tab-btn.active{background:linear-gradient(135deg,rgba(143,123,255,.35),rgba(255,106,213,.35));color:#fff}
+/* Вкладки переносятся, если не влезают */
+.tabs-bar{display:flex;gap:8px;flex-wrap:wrap}
+/* ===== Статистика: каждая строка flex, число справа ===== */
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.stat-row:last-child{border-bottom:none}
+.stat-row .k{color:var(--muted);font-size:13px}
+.stat-row .k::after{content:": ";color:var(--muted)}
+.stat-row .v{font-weight:800;font-size:14px;color:var(--cyan);text-shadow:0 0 8px rgba(0,240,255,.4);white-space:nowrap}
+/* ===== Кнопка сброса: единая красная, полная ширина ===== */
+.reset-btn{background:rgba(255,0,0,0.1);border:1px solid #ff0000;color:#ff8888;border-radius:6px;padding:10px 15px;margin-top:15px;width:100%;text-align:center;cursor:pointer;font-weight:800;font-family:inherit;font-size:14px;transition:background .2s}
+.reset-btn:hover{background:rgba(255,0,0,0.25)}
 .tab-panel{display:none}
 .tab-panel.active{display:block}
 .panel{background:var(--glass);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1px solid var(--gb);border-radius:16px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
@@ -164,7 +179,10 @@ body.hyperdrive .col-left,body.hyperdrive .col-top{animation:hyperFlash .5s ease
 
 /* ==== ПРАВАЯ КОЛОНКА (Рынок) ==== */
 .col-right-inner{padding:14px;display:flex;flex-direction:column;gap:12px;min-height:100%}
-.market-header{text-align:center}
+.market-header{text-align:center;position:relative}
+.market-close{position:absolute;top:0;right:0;border:1px solid var(--gb);background:var(--glass);color:var(--muted);border-radius:8px;padding:6px 12px;font-weight:800;font-family:inherit;font-size:12px;cursor:pointer}
+.market-close:hover{color:var(--bad);border-color:var(--bad)}
+#market-open-btn{right:70px}
 .market-title{font-family:'Orbitron',monospace;font-weight:900;font-size:22px;background:linear-gradient(90deg,var(--cyan),var(--magenta));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .market-sub{color:var(--muted);font-size:12px}
 /* Робот по центру правой колонки */
@@ -251,6 +269,8 @@ body.tutorial-lock .col-center .panel{pointer-events:none;opacity:.3}
 body.tutorial-step-1 #scene-container,body.tutorial-step-2 #scene-container{pointer-events:none}
 /* Разблокированная вкладка (Рынок на шаге 2) */
 body.tutorial-lock .tab-btn.unlocked{pointer-events:auto;opacity:1}
+body.tutorial-lock #market-open-btn{opacity:.3;pointer-events:none}
+body.tutorial-lock #market-open-btn.unlocked{opacity:1;pointer-events:auto}
 /* ШАГ 3: вкладки закрыты, на рынке активна только первая кнопка */
 body.tutorial-step-2 .col-right{pointer-events:auto;opacity:1}
 body.tutorial-step-2 .upgrade-card{pointer-events:none;opacity:.3}
@@ -354,8 +374,8 @@ body.tutorial-lock .col-center .panel{opacity:.5}
           <button class="tab-btn" data-tab="tab-versions" data-view="versions">Версии</button>
           <button class="tab-btn" data-tab="tab-restart" data-view="restart">Рестарт</button>
           <button class="tab-btn" data-tab="tab-locations" data-view="locations">🪐 Локации</button>
-          <button class="tab-btn" data-view="market" style="border-color:rgba(0,240,255,.5)">🛒 Рынок</button>
           <button class="tab-btn" data-tab="tab-journal" data-view="journal">📚 Журнал</button>
+          <button class="tab-btn" data-tab="tab-settings" data-view="settings">⚙️ Настройки</button>
         </div>
 
         <!-- Вкладка Лаборатория -->
@@ -386,8 +406,7 @@ body.tutorial-lock .col-center .panel{opacity:.5}
             <div class="stat-row"><span class="k">Бонус-кристаллы</span><span class="v" id="stat-bonus">0</span></div>
             <div class="stat-row"><span class="k">Контейнеры открыто</span><span class="v" id="stat-boxes">0</span></div>
             <div class="stat-row"><span class="k">Перерождений</span><span class="v" id="stat-prestiges">0</span></div>
-            <button class="reset-btn" id="reset-btn">Сбросить прогресс</button>
-            <button class="reset-btn" id="wipe-btn" style="background:rgba(255,90,90,.2)">Полный вайп</button>
+            <button class="reset-btn" id="wipe-btn">Сбросить прогресс (Полный вайп)</button>
             <div style="font-weight:800;margin-top:12px;margin-bottom:6px;font-size:13px">Достижения</div>
             <div id="ach-list"></div>
           </div>
@@ -447,6 +466,38 @@ body.tutorial-lock .col-center .panel{opacity:.5}
             <div id="journal-box"></div>
           </div>
         </div>
+
+        <!-- Вкладка Настройки -->
+        <div class="tab-panel" id="tab-settings">
+          <div class="panel">
+            <div class="panel-title">⚙️ Настройки звука</div>
+            <div class="panel-sub">Раздельная громкость и отключение для музыки, эффектов и озвучки АРГУСА.</div>
+
+            <div style="font-weight:800;margin:6px 0">🎵 Музыка</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+              <input type="range" id="vol-music" min="0" max="100" value="20" style="flex:1">
+              <span class="vol-val" id="vol-music-val">20%</span>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="mute-music" checked>Вкл</label>
+            </div>
+
+            <div style="font-weight:800;margin:6px 0">💥 Эффекты (SFX)</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+              <input type="range" id="vol-sfx" min="0" max="100" value="70" style="flex:1">
+              <span class="vol-val" id="vol-sfx-val">70%</span>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="mute-sfx" checked>Вкл</label>
+            </div>
+
+            <div style="font-weight:800;margin:6px 0">🤖 Озвучка АРГУСА</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+              <input type="range" id="vol-voice" min="0" max="100" value="80" style="flex:1">
+              <span class="vol-val" id="vol-voice-val">80%</span>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" id="mute-voice" checked>Вкл</label>
+            </div>
+
+            <button class="craft-btn" id="sound-test" style="width:100%">▶ Проверить звук</button>
+            <div style="margin-top:14px;font-size:11px;color:var(--muted)">Настройки автоматически сохраняются.</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -454,6 +505,7 @@ body.tutorial-lock .col-center .panel{opacity:.5}
     <div class="col col-right">
       <div class="col-right-inner">
         <div class="market-header">
+          <button class="market-close" id="market-close">✕ Закрыть</button>
           <div class="market-title">ГИПЕРМАРКЕТ</div>
           <div class="market-sub">Кибер-торговец ждёт твоих кристаллов</div>
         </div>
@@ -482,6 +534,7 @@ body.tutorial-lock .col-center .panel{opacity:.5}
   </div>
 
   <!-- Чат -->
+  <button class="chat-widget-btn" id="market-open-btn">🛒</button>
   <button class="chat-widget-btn" id="chat-widget-btn"></button>
   <div class="chat-drawer" id="chat-drawer">
     <div class="cd-head"><span>Глобальный чат</span><span id="chat-online">—</span></div>
@@ -496,7 +549,7 @@ body.tutorial-lock .col-center .panel{opacity:.5}
 var SAVE_KEY='crystal-net-save-v5';
 var PASSIVE_TICK_MS=100;
 var SAVE_INTERVAL_MS=5000;
-var GAME_VERSION='5.3.1';
+var GAME_VERSION='5.4.0';
 
 var SVG_ICONS={
   gem:'<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20"/><path d="M12 21L8 9"/><path d="M12 21l4-12"/>',
@@ -788,12 +841,10 @@ function applyTutorialLock(){
   document.body.classList.toggle('tutorial-lock',tutorialLocked);
   if(!tutorialLocked)return;
   document.body.classList.add('tutorial-step-'+Math.min(gameState.tutorialStep,2));
-  /* Разблокированные вкладки: на шаге 2 активен только Рынок */
-  document.querySelectorAll('.tab-btn').forEach(function(b){
-    var view=b.getAttribute('data-view');
-    var allow=!tutorialLocked||(gameState.tutorialStep===1&&view==='market');
-    b.classList.toggle('unlocked',allow);
-  });
+  /* Разблокированные вкладки: на шаге 2 активна только кнопка Рынок */
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.toggle('unlocked',!tutorialLocked);});
+  var mbtn=document.getElementById('market-open-btn');
+  if(mbtn)mbtn.classList.toggle('unlocked',!tutorialLocked||gameState.tutorialStep===1);
   /* На шаге 3 помечаем первый товар как доступный */
   if(gameState.tutorialStep===2){markFirstShopCard();}
 }
@@ -812,7 +863,7 @@ function advanceTutorialToShop(){
   gameState.tutorialStep=1;
   tutorialLocked=true;
   applyTutorialLock();
-  showTutorialBanner('Перейди на вкладку Рынок (🛒) — она теперь активна');
+  showTutorialBanner('Нажми кнопку 🛒 Рынок в правом нижнем углу — она теперь активна');
   assistantSpeak('go_to_shop');
 }
 /* ШАГ 2 -> ШАГ 3: игрок открыл Рынок */
@@ -844,7 +895,7 @@ function guardedSetView(view){
   if(gameState.tutorialStep===0){showTutorialBanner('Сначала кликни по Кристаллу 10 раз!');return;}
   if(gameState.tutorialStep===1){
     if(view==='market'){advanceTutorialToBuy();return;}
-    showTutorialBanner('Сначала открой вкладку Рынок (🛒)');
+    showTutorialBanner('Сначала нажми кнопку 🛒 Рынок (правый нижний угол)');
     return;
   }
   if(gameState.tutorialStep===2){showTutorialBanner('Купи первого авто-майнера: Кликер-утилиту');return;}
@@ -1151,6 +1202,8 @@ function bindTabs(){document.querySelectorAll('.tab-btn').forEach(function(b){
 /* ==== НАВИГАЦИЯ (вкладки определяют активный вид для кинематики) ==== */
 function setView(view){
   activeView=view;
+  /* Рынок открывает правую колонку; остальные виды её скрывают */
+  document.body.classList.toggle('market-open',view==='market');
   document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-target')===view);});
   setCrystalActive(view==='crystal');
   if(view==='market'){renderShop();resetMerchantIdle();setTimeout(function(){if(activeView==='market')speak('welcome');},600);}
@@ -1160,6 +1213,12 @@ function setView(view){
   if(view==='versions')renderChangelog();
   if(view==='locations')renderLocations();
   if(view==='journal')renderJournal();
+}
+function openMarket(){guardedSetView('market');}
+function closeMarket(){
+  document.body.classList.remove('market-open');
+  activeView='crystal';
+  setCrystalActive(true);
 }
 function bindNav(){document.querySelectorAll('.nav-btn').forEach(function(b){b.addEventListener('click',function(){guardedSetView(b.getAttribute('data-target'));});});}
 
@@ -1426,7 +1485,6 @@ function init(){
   bindLoginWall();
   enforceLoginGate();
   bindChat();
-  document.getElementById('reset-btn').addEventListener('click',resetProgress);
   document.getElementById('wipe-btn').addEventListener('click',wipeEverything);
   document.getElementById('box-open').addEventListener('click',openContainer);
   document.getElementById('craft-super').addEventListener('click',craftSuperDrone);
@@ -1434,6 +1492,8 @@ function init(){
   document.getElementById('dm-click-btn').addEventListener('click',buyDMClick);
   document.getElementById('dm-cps-btn').addEventListener('click',buyDMCps);
   document.getElementById('chat-widget-btn').addEventListener('click',toggleChat);
+  document.getElementById('market-open-btn').addEventListener('click',openMarket);
+  document.getElementById('market-close').addEventListener('click',closeMarket);
   document.getElementById('reveal-close').addEventListener('click',function(){document.getElementById('box-reveal').classList.remove('show');});
 
   var sc=document.getElementById('scene-container');
