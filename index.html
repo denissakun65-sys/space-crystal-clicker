@@ -168,6 +168,13 @@
     border: 1px solid var(--glass-border);
   }
 
+  .login-btn.anonymous {
+    background: rgba(61, 255, 156, 0.12);
+    box-shadow: none;
+    border: 1px solid rgba(61, 255, 156, 0.4);
+    color: var(--good);
+  }
+
   .login-note {
     margin-top: 16px;
     font-size: 12px;
@@ -1367,7 +1374,8 @@
       <div class="login-error" id="login-error"></div>
       <button class="login-btn" id="login-btn">🔐 Войти</button>
       <button class="login-btn register" id="register-btn">📝 Зарегистрироваться</button>
-      <div class="login-note">Аккаунт хранится на этом устройстве. Без входа игра недоступна.</div>
+      <button class="login-btn anonymous" id="anon-btn">🙂 Войти анонимно (без пароля)</button>
+      <div class="login-note">Аккаунт сохраняется в этом браузере и восстанавливается при повторном входе на сайт.</div>
     </div>
   </div>
 
@@ -2722,6 +2730,7 @@
     function bindLoginWall() {
       var loginBtn = document.getElementById('login-btn');
       var regBtn = document.getElementById('register-btn');
+      var anonBtn = document.getElementById('anon-btn');
       var errBox = document.getElementById('login-error');
 
       function clearErr() {
@@ -2785,8 +2794,26 @@
         showToast('🎉', 'Добро пожаловать', u + '!');
       }
 
+      function doAnonymous() {
+        clearErr();
+        var anonName = 'Гость_' + Math.floor(1000 + Math.random() * 9000);
+        var store = getAccountsStore();
+        if (store[anonName]) {
+          anonName = 'Гость_' + Math.floor(1000 + Math.random() * 9000);
+        }
+        store[anonName] = { pass: 'anon_' + Date.now(), created: Date.now(), anonymous: true };
+        saveAccountsStore(store);
+        setSession({ username: anonName, created: Date.now(), anonymous: true });
+        window.Online.signedIn = true;
+        currentNick = anonName;
+        hideLoginWall();
+        renderNetwork();
+        showToast('🙂', 'Анонимный вход', 'Вы вошли как ' + anonName);
+      }
+
       loginBtn.addEventListener('click', doLogin);
       regBtn.addEventListener('click', doRegister);
+      anonBtn.addEventListener('click', doAnonymous);
       document.getElementById('login-pass').addEventListener('keydown', function (e) {
         if (e.key === 'Enter') {
           e.preventDefault();
@@ -2801,9 +2828,16 @@
       });
     }
 
-    /* Показать login-wall, если нет активной сессии */
+    /* Показать login-wall, если нет активной сессии;
+       если сессия есть — сразу прячем экран и восстанавливаем ник. */
     function enforceLoginGate() {
-      if (!getLocalAccount()) {
+      var account = getLocalAccount();
+      if (account) {
+        window.Online.signedIn = true;
+        currentNick = account.username;
+        hideLoginWall();
+        renderNetwork();
+      } else {
         showLoginWall();
       }
     }
@@ -4205,6 +4239,8 @@
           initLeaderboard();
           initWhispers();
           initGifts();
+          // Успешный вход через Firebase прячет экран авторизации
+          hideLoginWall();
         } else {
           currentUid = null;
           currentNick = '';
