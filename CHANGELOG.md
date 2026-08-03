@@ -220,3 +220,14 @@
 [1.2.0]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v1.2.0
 [1.1.0]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v1.1.0
 [1.0.0]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v1.0.0
+
+---
+
+## [3.0.0] — 2026-08-03
+
+### ♻️ Полная перезапись проекта
+- Код полностью переписан с нуля: чистая структура, без дублей и накопленных костылей.
+- Объединены все механики: 3D-кристалл, орбитальные спутники прогресса, 3D-рынок с роботом-продавцом, ретро-голос, квесты, престиж, комбо, криты, онлайн-чат/лидерборд.
+- Новый ключ сохранения (crystal-net-save-v2).
+
+[3.0.0]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v3.0.0
