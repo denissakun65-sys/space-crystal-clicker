@@ -292,6 +292,28 @@
     margin-left: auto;
   }
 
+  .sound-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--glass);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    color: var(--neon-3);
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    transition: transform 0.2s, background 0.2s;
+  }
+
+  .sound-toggle:hover { transform: scale(1.08); }
+
+  .sound-toggle.muted { color: var(--muted); opacity: 0.6; }
+  .sound-toggle .btn-ic { margin: 0; }
+
   .balance-chip {
     display: inline-flex;
     align-items: center;
@@ -1668,6 +1690,7 @@
         <span class="dot"></span>
         <span>В СЕТИ: <span id="online-count">–</span></span>
       </div>
+      <button class="sound-toggle" id="sound-toggle" title="Звук вкл/выкл"><span class="btn-ic" data-ic="music"></span></button>
     </div>
   </div>
 
@@ -1863,7 +1886,7 @@
     var SAVE_KEY = 'crystal-net-save-v1';
     var PASSIVE_TICK_MS = 100;
     var SAVE_INTERVAL_MS = 5000;
-    var GAME_VERSION = '1.6.0';
+    var GAME_VERSION = '1.7.0';
 
     /* ---------- Библиотека кастомных SVG-иконок ---------- */
     var SVG_ICONS = {
@@ -1895,7 +1918,9 @@
       exit: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/>',
       refresh: '<path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/><path d="M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>',
       hammer: '<path d="M15 12l-8.5 8.5a2.12 2.12 0 0 1-3-3L12 9"/><path d="M17.64 15L22 10.64"/><path d="M20.91 11.7a1 1 0 0 0-1.41-1.41l-7.79 7.79a1 1 0 1 0 1.41 1.41z"/>',
-      share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98"/><path d="M15.41 6.51l-6.82 3.98"/>'
+      share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98"/><path d="M15.41 6.51l-6.82 3.98"/>',
+      music: '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+      mute: '<path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M23 9l-6 6"/><path d="M17 9l6 6"/>'
     };
 
     function svgIcon(name, size) {
@@ -1905,12 +1930,12 @@
     }
 
     var UPGRADE_DEFS = [
-      { id: 'clicker', name: 'Кликер-утилита',            icon: 'clicker', desc: '+1 к силе клика',      baseCost: 15,      kind: 'click', per: 1 },
-      { id: 'drone',   name: 'Квантовый Дрон',            icon: 'drone',   desc: '+2 CPS',               baseCost: 100,     kind: 'cps',   per: 2 },
-      { id: 'drill',   name: 'Планетарный Бур',           icon: 'drill',   desc: '+20 CPS',              baseCost: 1100,    kind: 'cps',   per: 20 },
-      { id: 'factory', name: 'Звездная Фабрика',          icon: 'factory', desc: '+150 CPS',             baseCost: 12000,   kind: 'cps',   per: 150 },
-      { id: 'time',    name: 'Манипулятор Времени',       icon: 'clock',   desc: '+1200 CPS',            baseCost: 130000,  kind: 'cps',   per: 1200 },
-      { id: 'galaxy',  name: 'Галактический Конденсатор', icon: 'galaxy',  desc: '+8000 CPS',            baseCost: 1400000, kind: 'cps',   per: 8000 }
+      { id: 'clicker', name: 'Кликер-утилита',            icon: 'clicker', desc: '+1 к силе клика',      baseCost: 40,      kind: 'click', per: 1 },
+      { id: 'drone',   name: 'Квантовый Дрон',            icon: 'drone',   desc: '+2 CPS',               baseCost: 250,     kind: 'cps',   per: 2 },
+      { id: 'drill',   name: 'Планетарный Бур',           icon: 'drill',   desc: '+20 CPS',              baseCost: 2800,    kind: 'cps',   per: 20 },
+      { id: 'factory', name: 'Звездная Фабрика',          icon: 'factory', desc: '+150 CPS',             baseCost: 30000,   kind: 'cps',   per: 150 },
+      { id: 'time',    name: 'Манипулятор Времени',       icon: 'clock',   desc: '+1200 CPS',            baseCost: 320000,  kind: 'cps',   per: 1200 },
+      { id: 'galaxy',  name: 'Галактический Конденсатор', icon: 'galaxy',  desc: '+8000 CPS',            baseCost: 3500000, kind: 'cps',   per: 8000 }
     ];
 
     var SKINS = {
@@ -2175,7 +2200,7 @@
 
     /* Прогрессия уровня: XP растёт, чтобы уровень давался всё медленнее */
     function xpForLevel(lv) {
-      return Math.floor(80 * Math.pow(lv, 1.6));
+      return Math.floor(150 * Math.pow(lv, 1.8));
     }
 
     var derived = {
@@ -2247,7 +2272,7 @@
 
     function getUpgradeCost(def) {
       var level = gameState.upgrades[def.id].level;
-      return Math.floor(def.baseCost * Math.pow(1.15, level));
+      return Math.floor(def.baseCost * Math.pow(1.16, level));
     }
 
     function randomItem(array) {
@@ -2288,10 +2313,14 @@
 
     /* Текущий множитель комбо */
     function getComboMultiplier() {
-      return 1 + comboState.count * 0.02; // +2% за клик в комбо
+      return 1 + comboState.count * 0.01; // +1% за клик в комбо
     }
 
     function registerClick() {
+      // Во время штрафа за автокликер клики не приносят наград
+      if (antiCheatPenalty > 0) {
+        return { gain: 0, isCrit: false };
+      }
       // Увеличиваем комбо и продлеваем таймер
       comboState.count += 1;
       comboState.mult = getComboMultiplier();
@@ -2302,10 +2331,11 @@
         comboState.count = 0;
         comboState.mult = 1;
         updateComboUI();
-      }, 1800);
+      }, 1400);
 
-      // Крит: 12% шанс на x8
-      var isCrit = Math.random() < 0.12;
+      // Крит: базовый 3%, растёт с уровнем игрока (до ~20%)
+      var critChance = Math.min(0.2, 0.03 + gameState.level * 0.008);
+      var isCrit = Math.random() < critChance;
       var gain = Math.round(derived.clickPower * comboState.mult);
       if (isCrit) {
         gain *= 8;
@@ -2415,6 +2445,8 @@
     /* ---------- Звук через Web Audio API (без файлов) ---------- */
     var audioCtx = null;
 
+    var soundEnabled = true;
+
     function ensureAudio() {
       if (!audioCtx) {
         try {
@@ -2425,6 +2457,35 @@
       }
       if (audioCtx && audioCtx.state === 'suspended') {
         audioCtx.resume();
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      var btn = document.getElementById('sound-toggle');
+      if (btn) {
+        btn.classList.toggle('muted', !soundEnabled);
+        btn.innerHTML = svgIcon(soundEnabled ? 'music' : 'mute', 20);
+      }
+      if (!soundEnabled) {
+        stopMusic();
+      }
+      try {
+        localStorage.setItem('crystal-net-sound', soundEnabled ? '1' : '0');
+      } catch (e) { /* ignore */ }
+    }
+
+    function loadSoundPref() {
+      try {
+        var v = localStorage.getItem('crystal-net-sound');
+        soundEnabled = (v === null) ? true : (v === '1');
+      } catch (e) {
+        soundEnabled = true;
+      }
+      var btn = document.getElementById('sound-toggle');
+      if (btn) {
+        btn.classList.toggle('muted', !soundEnabled);
+        btn.innerHTML = svgIcon(soundEnabled ? 'music' : 'mute', 20);
       }
     }
 
@@ -2449,18 +2510,94 @@
       } catch (e) { /* ignore audio errors */ }
     }
 
-    function playSound(name) {
-      if (!audioCtx) {
+    /* ---------- Фоновая музыка (магазин и др.) через Web Audio ---------- */
+    var musicState = { playing: false, timer: null, step: 0, currentZone: '' };
+
+    // Простая синтезаторная арпеджио-петля
+    var MUSIC_ZONES = {
+      market: { bpm: 96, notes: [261.6, 329.6, 392.0, 523.3, 392.0, 329.6, 293.7, 329.6] },
+      lab:    { bpm: 78, notes: [220.0, 277.2, 329.6, 415.3, 329.6, 277.2, 246.9, 277.2] },
+      net:    { bpm: 88, notes: [196.0, 246.9, 293.7, 392.0, 293.7, 246.9, 220.0, 246.9] }
+    };
+
+    function startZoneMusic(zone) {
+      if (!audioCtx || !soundEnabled) {
         return;
       }
+      if (musicState.playing && musicState.currentZone === zone) {
+        return;
+      }
+      stopMusic();
+      var cfg = MUSIC_ZONES[zone];
+      if (!cfg) {
+        return;
+      }
+      musicState.playing = true;
+      musicState.currentZone = zone;
+      musicState.step = 0;
+      var interval = 60000 / cfg.bpm / 2; // восьмые
+      musicState.timer = setInterval(function () {
+        var note = cfg.notes[musicState.step % cfg.notes.length];
+        playTone(note, interval * 0.85, 'triangle', 0.07);
+        // тихая басовая нота каждую половину
+        if (musicState.step % 4 === 0) {
+          playTone(note / 2, interval * 0.9, 'sine', 0.05);
+        }
+        musicState.step++;
+      }, interval);
+    }
+
+    function stopMusic() {
+      if (musicState.timer) {
+        clearInterval(musicState.timer);
+        musicState.timer = null;
+      }
+      musicState.playing = false;
+      musicState.currentZone = '';
+    }
+
+    function playSound(name) {
+      if (!audioCtx || !soundEnabled) {
+        return;
+      }
+      // Мягкое "щелчок-поп" с лёгким разбросом высоты — приятно на слух
+      var base = 380 + Math.random() * 60;
       switch (name) {
-        case 'click': playTone(520 + Math.random() * 60, 0.08, 'triangle', 0.12); break;
-        case 'crit': playTone(220, 0.25, 'sawtooth', 0.18, 880); break;
-        case 'level': playTone(440, 0.15, 'sine', 0.2); setTimeout(function(){ playTone(660,0.2,'sine',0.2); },120); break;
-        case 'buy': playTone(700, 0.12, 'square', 0.14, 1100); break;
-        case 'gem': playTone(880, 0.3, 'sine', 0.2, 1760); break;
-        case 'login': playTone(523, 0.12, 'sine', 0.18); setTimeout(function(){ playTone(784,0.15,'sine',0.18);},110); break;
-        case 'toast': playTone(600, 0.1, 'sine', 0.1); break;
+        case 'click':
+          playTone(base, 0.06, 'sine', 0.1);
+          playTone(base * 1.5, 0.05, 'triangle', 0.04);
+          break;
+        case 'crit':
+          playTone(120, 0.28, 'sawtooth', 0.16, 520);
+          playTone(240, 0.2, 'square', 0.08, 760);
+          playTone(880, 0.25, 'sine', 0.1, 1320);
+          break;
+        case 'level':
+          [523, 659, 784, 1046].forEach(function (f, i) {
+            setTimeout(function () { playTone(f, 0.18, 'sine', 0.16); }, i * 110);
+          });
+          break;
+        case 'buy':
+          playTone(660, 0.1, 'square', 0.1, 880);
+          setTimeout(function () { playTone(880, 0.12, 'square', 0.1, 1100); }, 90);
+          break;
+        case 'gem':
+          [880, 1108, 1318, 1760].forEach(function (f, i) {
+            setTimeout(function () { playTone(f, 0.2, 'sine', 0.14); }, i * 80);
+          });
+          break;
+        case 'login':
+          [392, 523, 659, 784].forEach(function (f, i) {
+            setTimeout(function () { playTone(f, 0.16, 'sine', 0.14); }, i * 100);
+          });
+          break;
+        case 'toast':
+          playTone(600, 0.08, 'sine', 0.08);
+          setTimeout(function () { playTone(800, 0.1, 'sine', 0.08); }, 90);
+          break;
+        case 'deny':
+          playTone(300, 0.15, 'sawtooth', 0.1, 220);
+          break;
       }
     }
 
@@ -2650,6 +2787,48 @@
       var core = new THREE.Mesh(coreGeo, coreMat);
       crystalGroup.add(core);
       crystalGroup.userData.core = core;
+
+      // Орбитальные мини-кристаллы вокруг главного (больше 3D-жизни)
+      var orbitCount = 6;
+      var orbitGroup = new THREE.Group();
+      for (var i = 0; i < orbitCount; i++) {
+        var smallGeo = new THREE.OctahedronGeometry(0.22, 0);
+        var smallMat = new THREE.MeshStandardMaterial({
+          color: skin.glow,
+          emissive: skin.glow,
+          emissiveIntensity: 0.6,
+          metalness: 0.8,
+          roughness: 0.2
+        });
+        var small = new THREE.Mesh(smallGeo, smallMat);
+        var angle = (i / orbitCount) * Math.PI * 2;
+        small.position.set(Math.cos(angle) * 2.6, Math.sin(angle * 2) * 0.5, Math.sin(angle) * 2.6);
+        small.userData.angle = angle;
+        small.userData.radius = 2.4 + (i % 3) * 0.4;
+        orbitGroup.add(small);
+      }
+      crystalGroup.add(orbitGroup);
+      crystalGroup.userData.orbitGroup = orbitGroup;
+    }
+
+    function applySkin() {
+      var skin = SKINS[gameState.activeSkin] || SKINS.default;
+      crystalMaterial.color.setHex(skin.color);
+      crystalMaterial.emissive.setHex(skin.emissive);
+      crystalMaterial.metalness = skin.metalness;
+      crystalMaterial.roughness = skin.roughness;
+      crystalLight.color.setHex(skin.glow);
+      crystalLight.intensity = 1.6;
+      if (crystalGroup.userData.core) {
+        crystalGroup.userData.core.material.color.setHex(skin.glow);
+      }
+      // Обновляем цвет орбитальных кристаллов под скин
+      if (crystalGroup.userData.orbitGroup) {
+        crystalGroup.userData.orbitGroup.children.forEach(function (m) {
+          m.material.color.setHex(skin.glow);
+          m.material.emissive.setHex(skin.glow);
+        });
+      }
     }
 
     function applySkin() {
@@ -2727,6 +2906,41 @@
       crystalGroup.scale.set(0.92, 0.92, 0.92);
     }
 
+    /* ---------- Анти-автокликер ----------
+       Отслеживаем слишком частые клики (быстрее ~6/сек) и подозрительно
+       одинаковые интервалы. При подозрении временно блокируем награду. */
+    var clickTimestamps = [];
+    var antiCheatPenalty = 0;
+
+    function checkAntiCheat() {
+      var now = performance.now();
+      clickTimestamps.push(now);
+      // Держим окно в 2 секунды
+      while (clickTimestamps.length > 0 && now - clickTimestamps[0] > 2000) {
+        clickTimestamps.shift();
+      }
+      // Больше 14 кликов за 2 сек — слишком много
+      var cps = clickTimestamps.length / 2;
+      if (cps > 7) {
+        antiCheatPenalty = 3; // 3 секунды без наград
+        return true;
+      }
+      // Проверка на "механический" ритм: минимальная дисперсия интервалов
+      if (clickTimestamps.length >= 10) {
+        var intervals = [];
+        for (var i = 1; i < clickTimestamps.length; i++) {
+          intervals.push(clickTimestamps[i] - clickTimestamps[i - 1]);
+        }
+        var mean = intervals.reduce(function (a, b) { return a + b; }, 0) / intervals.length;
+        var variance = intervals.reduce(function (a, b) { return a + Math.pow(b - mean, 2); }, 0) / intervals.length;
+        if (mean < 70 && variance < 40) {
+          antiCheatPenalty = 2;
+          return true;
+        }
+      }
+      return false;
+    }
+
     function onPointerUp(event) {
       if (!isDown) {
         return;
@@ -2738,6 +2952,12 @@
       raycaster.setFromCamera(mouseNDC, camera);
       var intersects = raycaster.intersectObject(crystalMesh);
       if (intersects.length === 0) {
+        return;
+      }
+
+      var flagged = checkAntiCheat();
+      if (flagged) {
+        spawnDamageText(event.clientX || 0, event.clientY || 0, '🚫 автокликер заблокирован');
         return;
       }
 
@@ -2793,6 +3013,16 @@
         crystalGroup.scale.lerp(new THREE.Vector3(1, 1, 1), dt * 8);
       }
       crystalLight.intensity = 1.4 + Math.sin(time * 2.2) * 0.3;
+
+      // Вращаем орбитальные мини-кристаллы
+      if (crystalGroup.userData.orbitGroup) {
+        crystalGroup.userData.orbitGroup.rotation.y += dt * 0.8;
+        crystalGroup.userData.orbitGroup.rotation.x = Math.sin(time * 0.6) * 0.2;
+        crystalGroup.userData.orbitGroup.children.forEach(function (m) {
+          m.rotation.x += dt * 2;
+          m.rotation.y += dt * 1.5;
+        });
+      }
 
       updateParticles(dt);
 
@@ -3111,6 +3341,18 @@
         return;
       }
       var versions = [
+        { tag: '1.7.0', date: '2026-08-03', title: 'Баланс, музыка и больше 3D',
+          items: [
+            'Крит переработан: базовый 3%, растёт с уровнем (до ~20%), низкий на старте.',
+            'Цены на апгрейды повышены и рост цены ускорен (x1.16).',
+            'Требуется больше кликов/опыта для прокачки уровня.',
+            'Комбо труднее удержать: короче таймер и меньше бонус за клик.',
+            'Добавлен анти-автокликер: слишком быстрые или механически ровные клики блокируются на время.',
+            'Новые звуки: мягкие «поп»-клики, богатые криты, арпеджио-мелодии.',
+            'Фоновая музыка в магазине, сети и лаборатории (синтезаторная арпеджио-петля).',
+            'Кнопка отключения звука/музыки в верхней панели.',
+            'Орбитальные 3D-мини-кристаллы вращаются вокруг главного.'
+          ] },
         { tag: '1.6.0', date: '2026-08-03', title: 'Затягивающие механики и звук',
           items: [
             'Комбо-система: кликайте в темпе — множитель растёт (до x10+), обрывается без кликов.',
@@ -3857,18 +4099,22 @@
         }
       });
 
+      // Фоновая музыка по разделам (магазин и др.)
       if (pageId === 'page-market') {
         renderShop();
-      }
-      if (pageId === 'page-net') {
+        startZoneMusic('market');
+      } else if (pageId === 'page-net') {
         renderNetwork();
-      }
-      if (pageId === 'page-lab') {
+        startZoneMusic('net');
+      } else if (pageId === 'page-lab') {
         renderSkins();
         renderStats();
         renderAchievements();
         renderPrestige();
         renderQuests();
+        startZoneMusic('lab');
+      } else {
+        stopMusic();
       }
       if (pageId === 'page-changelog') {
         renderChangelog();
@@ -4422,10 +4668,21 @@
       setInterval(saveGame, SAVE_INTERVAL_MS);
       setInterval(renderNetwork, 1000);
       setInterval(function () { checkQuests(); }, 3000);
+      // Счётчик штрафа анти-автокликера
+      setInterval(function () {
+        if (antiCheatPenalty > 0) {
+          antiCheatPenalty -= 1;
+          if (antiCheatPenalty <= 0) {
+            clickTimestamps = [];
+          }
+        }
+      }, 1000);
 
       // Разблокировка звука по первому взаимодействию
       document.addEventListener('pointerdown', ensureAudio, { once: true });
       document.addEventListener('keydown', ensureAudio, { once: true });
+      loadSoundPref();
+      document.getElementById('sound-toggle').addEventListener('click', toggleSound);
 
       // Ежедневный бонус + запуск золотых кристаллов
       setTimeout(checkDailyBonus, 600);
