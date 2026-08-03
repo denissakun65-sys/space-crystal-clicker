@@ -12,13 +12,13 @@
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#0a0718;--glass:rgba(255,255,255,.07);--gb:rgba(255,255,255,.1);--neon:#8f7bff;--cyan:#00f0ff;--magenta:#ff007f;--text:#f4f2ff;--muted:#a8a3c8;--gold:#ffd84d;--good:#3dff9c;--bad:#ff5a5a}
 html,body{height:100%}
-body{font-family:"Segoe UI",system-ui,-apple-system,"Roboto",Arial,sans-serif;background:radial-gradient(circle at 50% 30%,#1a1233 0%,var(--bg) 70%);color:var(--text);overflow:hidden;user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;animation:bgDrift 26s ease-in-out infinite alternate}
+body{font-family:"Segoe UI",system-ui,-apple-system,"Roboto",Arial,sans-serif;background:radial-gradient(circle at 50% 30%,#1a1233 0%,var(--bg) 70%);color:var(--text);overflow:hidden;user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 @keyframes bgDrift{0%{background:radial-gradient(circle at 30% 30%,#1a1233 0%,var(--bg) 70%)}50%{background:radial-gradient(circle at 70% 40%,#241538 0%,var(--bg) 72%)}100%{background:radial-gradient(circle at 50% 70%,#1f1040 0%,var(--bg) 70%)}}
 @keyframes shake{0%,100%{transform:translate(0,0)}20%{transform:translate(-6px,4px)}40%{transform:translate(6px,-4px)}60%{transform:translate(-5px,-3px)}80%{transform:translate(5px,3px)}}
-body.hyperdrive .topbar,body.hyperdrive .balance-chip,body.hyperdrive nav,body.hyperdrive .hud-balance{animation:hyperFlash .5s ease-in-out infinite}
+body.hyperdrive .col-left,body.hyperdrive .col-top{animation:hyperFlash .5s ease-in-out infinite}
 @keyframes hyperFlash{0%,100%{filter:brightness(1)}50%{filter:brightness(1.6) hue-rotate(20deg)}}
 
-/* Вход */
+/* ==== ВХОД ==== */
 .login-wall{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at 50% 30%,#1a1233 0%,var(--bg) 75%);backdrop-filter:blur(6px);transition:opacity .5s,visibility .5s}
 .login-wall.hidden{opacity:0;visibility:hidden;pointer-events:none}
 .login-card{width:min(380px,92vw);background:rgba(20,15,40,.85);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--gb);border-radius:24px;padding:34px 28px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.7),0 0 40px rgba(143,123,255,.25);animation:loginPop .5s cubic-bezier(.2,.9,.3,1.2)}
@@ -26,18 +26,17 @@ body.hyperdrive .topbar,body.hyperdrive .balance-chip,body.hyperdrive nav,body.h
 .login-logo{font-family:'Orbitron','Courier New',monospace;font-weight:900;font-size:30px;letter-spacing:2px;background:linear-gradient(90deg,var(--cyan),var(--magenta));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;filter:drop-shadow(0 0 14px rgba(0,240,255,.6));margin-bottom:8px}
 .login-sub{color:var(--muted);font-size:14px;margin-bottom:24px}
 .login-field{margin-bottom:14px}
-.login-field input{width:100%;padding:13px 16px;border-radius:12px;border:1px solid var(--gb);background:rgba(255,255,255,.06);color:var(--text);font-family:inherit;font-size:15px;outline:none;transition:border-color .2s,box-shadow .2s}
+.login-field input{width:100%;padding:13px 16px;border-radius:12px;border:1px solid var(--gb);background:rgba(255,255,255,.06);color:var(--text);font-family:inherit;font-size:15px;outline:none}
 .login-field input::placeholder{color:var(--muted)}
 .login-field input:focus{border-color:var(--cyan);box-shadow:0 0 14px rgba(0,240,255,.3)}
 .login-error{min-height:20px;color:var(--bad);font-size:13px;margin-bottom:8px;font-weight:700}
-.login-btn{width:100%;border:none;border-radius:12px;padding:13px;font-family:inherit;font-weight:800;font-size:15px;cursor:pointer;background:linear-gradient(135deg,var(--cyan),var(--magenta));color:#fff;margin-bottom:10px;transition:transform .15s,filter .2s;box-shadow:0 8px 24px rgba(255,0,127,.3)}
+.login-btn{width:100%;border:none;border-radius:12px;padding:13px;font-family:inherit;font-weight:800;font-size:15px;cursor:pointer;background:linear-gradient(135deg,var(--cyan),var(--magenta));color:#fff;margin-bottom:10px;transition:transform .15s,filter .2s}
 .login-btn:hover{transform:translateY(-2px);filter:brightness(1.1)}
 .login-btn.register{background:rgba(255,255,255,.08);box-shadow:none;border:1px solid var(--gb)}
 .login-btn.anonymous{background:rgba(61,255,156,.12);box-shadow:none;border:1px solid rgba(61,255,156,.4);color:var(--good)}
 .login-note{margin-top:16px;font-size:12px;color:var(--muted)}
 
-/* Сцена и FX */
-#scene-container{position:fixed;inset:0;z-index:0;pointer-events:auto;cursor:pointer}
+/* ==== FX/тосты ==== */
 #fx-layer{position:fixed;inset:0;z-index:60;pointer-events:none;overflow:hidden}
 #toast-container{position:fixed;top:76px;left:50%;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:10px;align-items:center;width:min(94vw,420px);pointer-events:none}
 .toast{background:var(--glass);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--gb);border-radius:16px;padding:12px 18px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 30px rgba(0,0,0,.45);animation:toastIn .4s cubic-bezier(.2,.9,.3,1.2),toastOut .5s ease 2.5s forwards;max-width:100%}
@@ -46,173 +45,102 @@ body.hyperdrive .topbar,body.hyperdrive .balance-chip,body.hyperdrive nav,body.h
 .toast .t-desc{font-size:13px;color:var(--muted)}
 @keyframes toastIn{from{opacity:0;transform:translateY(-20px) scale(.8)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes toastOut{to{opacity:0;transform:translateY(-16px) scale(.9)}}
-.dmg-float{position:fixed;transform:translate(-50%,-50%);font-weight:900;font-size:26px;color:#fff;text-shadow:0 0 12px var(--neon),0 0 26px var(--neon),0 2px 4px rgba(0,0,0,.6);pointer-events:none;white-space:nowrap;animation:floatUp 1.1s ease-out forwards}
+.dmg-float{position:fixed;transform:translate(-50%,-50%);font-weight:900;font-size:24px;color:#fff;text-shadow:0 0 12px var(--neon),0 0 26px var(--neon),0 2px 4px rgba(0,0,0,.6);pointer-events:none;white-space:nowrap;animation:floatUp 1.1s ease-out forwards}
 @keyframes floatUp{0%{opacity:1;transform:translate(-50%,-50%) scale(.6)}100%{opacity:0;transform:translate(-50%,-160%) scale(1.35)}}
 .click-ripple{position:fixed;border-radius:50%;pointer-events:none;z-index:65;background:radial-gradient(circle,rgba(0,240,255,.6),rgba(255,0,127,.3),transparent 70%);border:2px solid rgba(0,240,255,.5);animation:rippleExpand .7s ease-out forwards}
 @keyframes rippleExpand{from{width:10px;height:10px;opacity:1;transform:translate(-50%,-50%) scale(.4)}to{width:120px;height:120px;opacity:0;transform:translate(-50%,-50%) scale(1.6)}}
 
-/* Верхняя панель */
-.topbar{position:fixed;top:0;left:0;right:0;height:64px;z-index:90;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 18px;pointer-events:none}
-.topbar-right{display:flex;align-items:center;gap:10px;pointer-events:auto;margin-left:auto}
-.balance-chip{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:30px;background:linear-gradient(135deg,rgba(143,123,255,.25),rgba(255,106,213,.2));background-size:200% 200%;backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1px solid var(--gb);font-family:'Orbitron',monospace;font-weight:900;font-size:clamp(14px,3vw,20px);color:#fff;box-shadow:0 6px 20px rgba(0,0,0,.4),0 0 18px rgba(143,123,255,.35);white-space:nowrap;animation:chipGlow 5s ease-in-out infinite}
-@keyframes chipGlow{0%,100%{box-shadow:0 6px 20px rgba(0,0,0,.4),0 0 14px rgba(143,123,255,.3)}50%{box-shadow:0 6px 20px rgba(0,0,0,.4),0 0 26px rgba(255,0,127,.5)}}
-.online-badge{pointer-events:auto;display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:30px;background:var(--glass);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1px solid var(--gb);font-family:'Orbitron',monospace;font-weight:700;font-size:13px;color:var(--good);box-shadow:0 6px 20px rgba(0,0,0,.4)}
-.online-badge .dot{width:9px;height:9px;border-radius:50%;background:var(--good);box-shadow:0 0 10px var(--good);animation:blinkDot 1.6s ease-in-out infinite}
-@keyframes blinkDot{0%,100%{opacity:1}50%{opacity:.3}}
-.sound-toggle{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:var(--glass);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1px solid var(--gb);color:var(--cyan);cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.4);transition:transform .2s}
-.sound-toggle:hover{transform:scale(1.08)}
-.sound-toggle.muted{color:var(--muted);opacity:.6}
-.sound-toggle .btn-ic{margin:0}
-.logo{font-family:'Orbitron','Courier New',monospace;font-weight:900;font-size:clamp(20px,4vw,30px);letter-spacing:2px;background:linear-gradient(90deg,var(--cyan),#7cfcff,var(--magenta),#ff6ad5,var(--cyan));background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;filter:drop-shadow(0 0 10px rgba(0,240,255,.7)) drop-shadow(0 0 20px rgba(255,0,127,.5));animation:logoPulse 2.6s ease-in-out infinite,logoShimmer 5s linear infinite,logoWobble 4s ease-in-out infinite;transform-origin:left center;position:relative;display:inline-block;pointer-events:auto;cursor:pointer}
-@keyframes logoShimmer{0%{background-position:0% 0}100%{background-position:300% 0}}
-@keyframes logoPulse{0%,100%{filter:drop-shadow(0 0 6px rgba(0,240,255,.5)) drop-shadow(0 0 14px rgba(255,0,127,.35))}50%{filter:drop-shadow(0 0 18px rgba(0,240,255,.95)) drop-shadow(0 0 34px rgba(255,0,127,.7))}}
-@keyframes logoWobble{0%,100%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg) translateY(-3px)}}
-.spark{position:absolute;width:6px;height:6px;border-radius:50%;background:radial-gradient(circle,#fff,var(--cyan),transparent);pointer-events:none;animation:sparkFly .8s ease-out forwards;box-shadow:0 0 8px var(--cyan)}
-@keyframes sparkFly{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--sx),var(--sy)) scale(.2)}}
+/* ==== 3-КОЛОНОЧНЫЙ КАРКАС ==== */
+#app{position:fixed;inset:0;display:grid;grid-template-columns:35% 30% 35%;gap:0;z-index:5}
+.col{position:relative;overflow-y:auto;overflow-x:hidden;min-height:100%}
+.col::-webkit-scrollbar{width:8px}
+.col::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:8px}
+.col-left{background:radial-gradient(circle at 50% 40%,#1a1233 0%,var(--bg) 80%);border-right:1px solid rgba(0,240,255,.15)}
+.col-center{border-right:1px solid rgba(255,0,127,.15)}
+.col-right{background:radial-gradient(circle at 50% 40%,#16102e 0%,var(--bg) 85%)}
 
-/* Навигация */
-nav.sidebar{position:fixed;top:50%;left:16px;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:8px;padding:14px 10px;border-radius:22px;background:var(--glass);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1px solid var(--gb);box-shadow:0 12px 40px rgba(0,0,0,.5)}
-.nav-btn{display:flex;align-items:center;gap:10px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:700;padding:11px 14px;border-radius:14px;cursor:pointer;transition:background .25s,color .25s,transform .2s,box-shadow .25s;font-family:inherit}
+/* Сцена кристалла в левой колонке */
+#scene-container{position:absolute;inset:0;z-index:1;cursor:pointer}
+
+/* Меню навигации слева, ширина 180px, контент сдвинут margin-left:190px */
+.nav-menu{position:absolute;top:0;left:0;width:180px;height:100%;z-index:20;padding:12px 10px;display:flex;flex-direction:column;gap:8px;background:rgba(20,15,40,.55);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border-right:1px solid var(--gb)}
+.nav-brand{font-family:'Orbitron',monospace;font-weight:900;font-size:14px;background:linear-gradient(90deg,var(--cyan),var(--magenta));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-align:center;margin-bottom:8px}
+.nav-btn{display:flex;align-items:center;gap:8px;border:none;background:transparent;color:var(--muted);font-size:12px;font-weight:700;padding:10px 10px;border-radius:12px;cursor:pointer;transition:background .25s,color .25s,transform .2s;font-family:inherit;text-align:left}
 .nav-btn:hover{background:rgba(255,255,255,.08);color:var(--text);transform:translateX(3px)}
-.nav-btn.active{background:linear-gradient(135deg,rgba(143,123,255,.35),rgba(255,106,213,.35));color:#fff;box-shadow:0 0 20px rgba(143,123,255,.45)}
+.nav-btn.active{background:linear-gradient(135deg,rgba(143,123,255,.35),rgba(255,106,213,.35));color:#fff;box-shadow:0 0 16px rgba(143,123,255,.45)}
+.nav-btn .ni{width:18px;height:18px;flex-shrink:0;display:inline-flex}
+.nav-btn .ni .svg-ic{width:18px;height:18px}
 
-/* Страницы */
-.page{position:fixed;inset:0;overflow-y:auto;z-index:40;opacity:0;transform:translateY(18px);filter:blur(14px);visibility:hidden;display:none;transition:opacity .5s,transform .5s,filter .5s}
-.page.visible{display:block;visibility:visible}
-.page.active{opacity:1;transform:translateY(0);filter:blur(0)}
-.page-scroll{min-height:100%;padding:84px 40px 40px;display:flex;flex-direction:column}
-@media(min-width:821px){.page:not(#page-crystal) .page-scroll{padding-left:215px}#page-market .page-scroll{padding-left:32px;padding-right:32px}}
-.page#page-crystal{pointer-events:none}
-.page#page-crystal .clickable-ui{pointer-events:auto}
-.page-title{font-size:26px;font-weight:900;margin-bottom:4px;letter-spacing:.5px}
-.page-sub{color:var(--muted);font-size:14px;margin-bottom:22px}
-.panel{background:var(--glass);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1px solid var(--gb);border-radius:20px;padding:20px;box-shadow:0 10px 34px rgba(0,0,0,.4);position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s,border-color .25s}
-.panel:hover{transform:translateY(-3px);border-color:rgba(0,240,255,.25);box-shadow:0 16px 44px rgba(0,0,0,.5)}
-.panel::after{content:'';position:absolute;top:0;left:-120%;width:60%;height:100%;background:linear-gradient(115deg,transparent,rgba(255,255,255,.12),transparent);transform:skewX(-20deg);transition:left .6s;pointer-events:none}
-.panel:hover::after{left:130%}
+/* Контент левой колонки, сдвинут вправо от меню */
+.col-left-content{margin-left:190px;position:relative;z-index:2;min-height:100%;display:flex;flex-direction:column;pointer-events:none}
+.col-left-content .clickable{pointer-events:auto}
 
-/* Иконки */
-.svg-ic{display:inline-block;vertical-align:middle;filter:drop-shadow(0 0 4px currentColor);transition:transform .3s}
-.btn-ic,.title-ic{display:inline-flex;align-items:center;vertical-align:middle;margin-right:8px}
-.btn-ic .svg-ic,.title-ic .svg-ic{animation:icFloat 3s ease-in-out infinite}
-.title-ic{margin-right:10px}
-.title-ic .svg-ic{width:26px;height:26px;color:var(--cyan);filter:drop-shadow(0 0 8px rgba(0,240,255,.6))}
-@keyframes icFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-@keyframes icPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
-.nav-btn.active .nav-icon .svg-ic{color:#fff;animation:icPulse 2.2s ease-in-out infinite}
-
-/* Главный экран */
-.hud{text-align:center;padding:18px 24px;max-width:520px;width:100%;margin:0 auto}
-.hud-balance{font-size:clamp(40px,9vw,72px);font-weight:900;line-height:1.05;background:linear-gradient(90deg,#fff,var(--cyan),var(--magenta),#fff);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:shimmer 4s linear infinite;filter:drop-shadow(0 0 18px rgba(56,240,255,.35));transition:transform .2s}
+/* Баланс сверху */
+.balance-hud{text-align:center;padding:18px 14px}
+.hud-balance{font-size:clamp(28px,3vw,44px);font-weight:900;line-height:1.05;background:linear-gradient(90deg,#fff,var(--cyan),var(--magenta),#fff);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;animation:shimmer 4s linear infinite;filter:drop-shadow(0 0 14px rgba(56,240,255,.35))}
 .hud-balance.pop{animation:shimmer 4s linear infinite,balancePop .3s ease}
 @keyframes balancePop{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
 @keyframes shimmer{0%{background-position:0% 0}100%{background-position:300% 0}}
-.hud-cps{font-size:16px;color:var(--cyan);font-weight:700;margin-top:4px;letter-spacing:1px}
-.hud-hint{margin-top:16px;color:var(--muted);font-size:13px}
-.goal-track{flex:1;height:12px;border-radius:8px;background:rgba(255,255,255,.08);border:1px solid var(--gb);overflow:hidden}
-.goal-fill{height:100%;width:0;border-radius:8px;background:linear-gradient(90deg,var(--cyan),var(--magenta));box-shadow:0 0 12px rgba(0,240,255,.6);transition:width .4s}
-.goal-label{min-width:70px;text-align:right;font-family:'Orbitron',monospace;font-weight:900;font-size:14px;color:var(--gold)}
-.crystal-glow{position:absolute;left:50%;top:52%;width:46vmin;height:46vmin;transform:translate(-50%,-50%);border-radius:50%;background:conic-gradient(from 0deg,rgba(143,123,255,0),rgba(0,240,255,.35),rgba(255,0,127,.3),rgba(143,123,255,0));filter:blur(42px);animation:glowSpin 14s linear infinite;pointer-events:none;z-index:1}
-@keyframes glowSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.hud-cps{font-size:14px;color:var(--cyan);font-weight:700;margin-top:4px}
+.balance-chip{position:fixed;top:10px;right:10px;z-index:25;padding:6px 12px;border-radius:20px;background:linear-gradient(135deg,rgba(143,123,255,.25),rgba(255,106,213,.2));backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1px solid var(--gb);font-family:'Orbitron',monospace;font-weight:900;font-size:14px;color:#fff}
 
-/* Комбо/уровень */
-.combo-zone{position:fixed;left:18px;bottom:18px;z-index:66;display:flex;align-items:flex-end;gap:12px;pointer-events:auto}
-.level-badge{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:14px;background:linear-gradient(135deg,rgba(255,210,0,.2),rgba(255,0,127,.15));backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1px solid rgba(255,210,0,.4);font-family:'Orbitron',monospace;font-weight:900;font-size:16px;color:#fff}
-.level-badge .lb-num{color:var(--gold)}
-.combo-meter{width:min(220px,40vw);display:flex;flex-direction:column;gap:4px;padding:8px 12px;border-radius:14px;background:var(--glass);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1px solid var(--gb)}
+/* Комбо снизу */
+.combo-box{position:absolute;bottom:14px;left:200px;right:14px;z-index:22;pointer-events:none}
+.combo-meter{display:flex;flex-direction:column;gap:4px;padding:8px 12px;border-radius:14px;background:var(--glass);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1px solid var(--gb)}
 .combo-label{font-family:'Orbitron',monospace;font-weight:900;font-size:18px;color:var(--cyan);text-align:center;text-shadow:0 0 10px rgba(0,240,255,.7)}
 .combo-label.hot{animation:comboPulse .3s ease}
 @keyframes comboPulse{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
 .combo-track{height:8px;border-radius:6px;background:rgba(255,255,255,.08);overflow:hidden}
 .combo-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--magenta));border-radius:6px;transition:width .1s linear}
 .combo-count{font-size:11px;color:var(--muted);text-align:center;font-weight:700}
+.level-badge{position:absolute;top:10px;left:200px;z-index:22;padding:6px 10px;border-radius:12px;background:linear-gradient(135deg,rgba(255,210,0,.2),rgba(255,0,127,.15));backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1px solid rgba(255,210,0,.4);font-family:'Orbitron',monospace;font-weight:900;font-size:15px;color:var(--gold)}
 
-/* Золотой бонус + аномалия */
-.golden-gem{position:fixed;width:70px;height:70px;z-index:68;cursor:pointer;pointer-events:auto;opacity:0;transform:scale(.5);transition:opacity .4s,transform .3s}
-.golden-gem.active{opacity:1;transform:scale(1);animation:gemBounce 1.4s ease-in-out infinite}
-@keyframes gemBounce{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-14px) rotate(6deg)}}
-.gg-inner{width:100%;height:100%;background:radial-gradient(circle at 35% 30%,#fff8d0,#ffd700 45%,#ff8c00);clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);box-shadow:0 0 30px rgba(255,215,0,.9),inset 0 0 18px rgba(255,255,255,.5);animation:gemShine 2s ease-in-out infinite}
-@keyframes gemShine{0%,100%{filter:brightness(1)}50%{filter:brightness(1.35)}}
-.golden-gem.pop{animation:gemPop .5s ease forwards}
-@keyframes gemPop{0%{transform:scale(1);opacity:1}100%{transform:scale(1.6);opacity:0}}
+/* Дрон-ассистент */
+.assistant-drone{position:absolute;top:14px;right:14px;z-index:24;width:56px;height:56px;pointer-events:none}
+.ad-inner{width:100%;height:100%;border-radius:50%;background:radial-gradient(circle,#fff,var(--cyan) 35%,transparent 75%);box-shadow:0 0 30px rgba(0,240,255,.7);animation:adFloat 2.5s ease-in-out infinite}
+@keyframes adFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.ad-bubble{position:absolute;top:56px;right:0;width:200px;background:rgba(20,15,40,.9);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(0,240,255,.4);border-radius:12px;padding:10px 12px;font-size:12px;color:var(--text);opacity:0;transition:opacity .3s;pointer-events:none}
+.ad-bubble.visible{opacity:1}
+.ad-bubble.alert{border-color:var(--bad);background:rgba(60,10,10,.85)}
 
-/* Космическая аномалия */
-.anomaly{position:fixed;width:64px;height:64px;z-index:69;cursor:pointer;pointer-events:auto;opacity:0;transform:scale(.3);transition:opacity .3s,transform .3s}
+/* Аномалия */
+.anomaly{position:fixed;width:56px;height:56px;z-index:70;cursor:pointer;pointer-events:auto;opacity:0;transform:scale(.3);transition:opacity .3s,transform .3s}
 .anomaly.active{opacity:1;transform:scale(1);animation:anomSpin 1.2s linear infinite}
 @keyframes anomSpin{to{transform:rotate(360deg)}}
-.anom-inner{width:100%;height:100%;border-radius:50%;background:radial-gradient(circle,#fff,#a04dff 30%,transparent 70%);box-shadow:0 0 40px rgba(160,77,255,.9),0 0 90px rgba(255,0,127,.5);animation:anomPulse 0.4s ease-in-out infinite}
+.anom-inner{width:100%;height:100%;border-radius:50%;background:radial-gradient(circle,#fff,#00f0ff 30%,transparent 70%);box-shadow:0 0 40px rgba(0,240,255,.9),0 0 90px rgba(0,240,255,.5);animation:anomPulse .4s ease-in-out infinite}
 @keyframes anomPulse{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.25);filter:brightness(1.6)}}
 
-/* Рынок */
-.shop-head{max-width:640px;margin:0 auto 14px;text-align:center}
-/* Контейнер карточек "Рынка" — накладывается поверх WebGL-канваса.
-   Центр экрана (примерно 40-50% ширины) полностью свободен от HTML,
-   чтобы там беспрепятственно отображался 3D-продавец. */
-.shop-ui-container{
-  position:absolute;
-  top:0;
-  left:200px; /* отступ от бокового меню навигации */
-  width:calc(100% - 200px);
-  height:100%;
-  z-index:10;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:40px 60px; /* аккуратные отступы от краёв и 3D-модели */
-  pointer-events:none; /* чтобы можно было кликать сквозь пустой центр */
-}
-.shop-column{
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-  width:280px; /* компактная фиксированная ширина колонок */
-  max-width:300px;
-  pointer-events:auto; /* возвращаем кликабельность карточкам */
-}
-.shop-column.left{align-items:flex-start}
-.shop-column.right{align-items:flex-end}
-/* Баббл продавца: привязан к центру сверху, парит над головой 3D-модели */
-.merchant-bubble{
-  position:absolute;
-  top:150px;
-  left:50%;
-  transform:translateX(-50%);
-  z-index:12;
-  background:rgba(255,255,255,.05);
-  backdrop-filter:blur(10px);
-  -webkit-backdrop-filter:blur(10px);
-  border:1px solid rgba(0,240,255,.3);
-  padding:15px 25px;
-  border-radius:12px;
-  text-align:center;
-  max-width:400px;
-  color:var(--text);
-  font-weight:700;
-  opacity:0;
-  transition:opacity .3s;
-  pointer-events:none;
-}
-.merchant-bubble.visible{opacity:1}
-.upgrade-card{background:var(--glass);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1px solid var(--gb);border-radius:14px;padding:11px 12px;display:flex;flex-direction:column;gap:7px;width:100%;max-width:280px;transition:transform .2s,box-shadow .2s,opacity .25s;position:relative;overflow:hidden}
-.upgrade-card:hover{transform:translateY(-4px);box-shadow:0 14px 34px rgba(0,0,0,.45)}
-.upgrade-card.locked{opacity:.4}
-.upgrade-card .u-top{display:flex;align-items:center;gap:10px}
-.upgrade-card .u-icon{width:40px;height:40px;display:grid;place-items:center;background:rgba(255,255,255,.06);border-radius:10px;flex-shrink:0}
-.upgrade-card .u-icon .svg-ic{color:var(--cyan);width:24px;height:24px}
-.upgrade-card .u-name{font-weight:800;font-size:13px}
-.upgrade-card .u-desc{color:var(--muted);font-size:11px}
-.upgrade-card .u-level{color:var(--cyan);font-size:11px;font-weight:700}
-.upgrade-card .u-cost{font-weight:800;font-size:14px;color:var(--gold)}
-.upgrade-card .buy-btn{margin-top:auto;border:none;border-radius:10px;padding:9px;font-weight:800;font-size:13px;font-family:inherit;cursor:pointer;background:linear-gradient(135deg,var(--neon),var(--magenta));color:#fff;transition:transform .15s,filter .2s}
-.upgrade-card .buy-btn:hover:not(:disabled){transform:scale(1.03);filter:brightness(1.1)}
-.upgrade-card .buy-btn:disabled{background:#3a3550;cursor:not-allowed;color:var(--muted)}
+/* ==== ЦЕНТРАЛЬНАЯ КОЛОНКА ==== */
+.col-center-inner{padding:14px;display:flex;flex-direction:column;gap:14px;min-height:100%}
+.news-ticker{background:linear-gradient(135deg,rgba(0,240,255,.1),rgba(255,0,127,.1));border:1px solid var(--gb);border-radius:12px;padding:10px 14px;font-size:13px;font-weight:700;text-align:center;min-height:44px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 18px rgba(0,240,255,.15)}
+.news-ticker .news-label{color:var(--cyan);margin-right:8px;white-space:nowrap}
+.news-ticker .news-text{flex:1}
+
+.tabs-bar{display:flex;gap:6px;flex-wrap:wrap}
+.tab-btn{border:1px solid var(--gb);background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--muted);border-radius:10px;padding:8px 12px;font-family:inherit;font-weight:800;font-size:12px;cursor:pointer;transition:all .2s;flex:1;min-width:70px}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{background:linear-gradient(135deg,rgba(143,123,255,.35),rgba(255,106,213,.35));color:#fff}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.panel{background:var(--glass);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1px solid var(--gb);border-radius:16px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.panel-title{font-weight:900;font-size:18px;margin-bottom:10px}
+.panel-sub{color:var(--muted);font-size:12px;margin-bottom:12px}
+
+/* Лаборатория */
+.resource-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.resource{background:rgba(255,255,255,.05);border:1px solid var(--gb);border-radius:12px;padding:10px;text-align:center}
+.resource .r-ico{font-size:26px}
+.resource .r-name{font-size:11px;color:var(--muted);margin:3px 0}
+.resource .r-count{font-weight:900;font-size:18px}
+.craft-item{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--gb);border-radius:12px;margin-bottom:8px;background:rgba(255,255,255,.04);flex-wrap:wrap}
+.craft-item .ci-cost{font-size:11px;color:var(--muted);flex:1;min-width:120px}
+.craft-btn{border:none;border-radius:10px;padding:8px 12px;font-weight:800;font-family:inherit;cursor:pointer;background:linear-gradient(135deg,var(--cyan),var(--magenta));color:#fff}
 
 /* Контейнеры */
-.box-card{text-align:center;padding:24px}
-.box-icon{width:90px;height:90px;margin:0 auto 12px;display:grid;place-items:center;font-size:44px;border-radius:20px;background:radial-gradient(circle at 30% 30%,#2a1a55,#0f0a22);border:1px solid rgba(0,240,255,.4);box-shadow:0 0 40px rgba(143,123,255,.4);animation:boxFloat 3s ease-in-out infinite;cursor:pointer;transition:transform .2s}
-.box-icon:hover{transform:scale(1.06)}
+.box-card{text-align:center;padding:18px}
+.box-icon{width:70px;height:70px;margin:0 auto 10px;display:grid;place-items:center;font-size:34px;border-radius:16px;background:radial-gradient(circle at 30% 30%,#2a1a55,#0f0a22);border:1px solid rgba(0,240,255,.4);box-shadow:0 0 30px rgba(143,123,255,.4);animation:boxFloat 3s ease-in-out infinite;cursor:pointer}
 @keyframes boxFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.box-icon.opening{animation:boxOpen 0.8s ease}
+.box-icon.opening{animation:boxOpen .8s ease}
 @keyframes boxOpen{0%{transform:scale(1)}40%{transform:scale(1.25) rotate(10deg)}60%{transform:scale(.9) rotate(-10deg)}100%{transform:scale(1)}}
 .box-reveal{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center}
 .box-reveal.show{display:flex}
@@ -222,121 +150,98 @@ nav.sidebar{position:fixed;top:50%;left:16px;transform:translateY(-50%);z-index:
 .reveal-rarity{font-size:13px;font-weight:800;letter-spacing:1px}
 .reveal-close{margin-top:18px;border:none;border-radius:12px;padding:12px;width:100%;font-weight:800;font-family:inherit;cursor:pointer;background:linear-gradient(135deg,var(--cyan),var(--magenta));color:#fff}
 
-/* Лаборатория/крафт */
-.resource-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
-.resource{background:rgba(255,255,255,.05);border:1px solid var(--gb);border-radius:14px;padding:14px;text-align:center}
-.resource .r-ico{font-size:30px}
-.resource .r-name{font-size:12px;color:var(--muted);margin:4px 0 2px}
-.resource .r-count{font-weight:900;font-size:20px}
-.craft-item{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--gb);border-radius:14px;margin-bottom:10px;background:rgba(255,255,255,.04)}
-.craft-item .ci-cost{font-size:12px;color:var(--muted);flex:1}
-.craft-btn{border:none;border-radius:10px;padding:9px 14px;font-weight:800;font-family:inherit;cursor:pointer;background:linear-gradient(135deg,var(--cyan),var(--magenta));color:#fff}
+/* Версии (таймлайн) */
+.clg-timeline{position:relative;padding-left:22px}
+.clg-timeline::before{content:'';position:absolute;left:5px;top:8px;bottom:8px;width:3px;background:linear-gradient(180deg,var(--cyan),var(--magenta));border-radius:3px}
+.clg-node{position:relative;margin-bottom:14px}
+.clg-marker{position:absolute;left:-22px;top:12px;width:14px;height:14px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);border:3px solid var(--bg)}
+.clg-card{background:rgba(255,255,255,.05);border:1px solid var(--gb);border-radius:12px;padding:10px 12px}
+.clg-head{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.clg-tag{font-family:'Orbitron',monospace;font-weight:900;color:var(--cyan);background:rgba(0,240,255,.12);padding:1px 8px;border-radius:6px;font-size:12px}
+.clg-date{color:var(--muted);font-size:11px}
+.clg-title{font-weight:800;font-size:14px;margin-bottom:4px}
+.clg-list{margin-left:16px;font-size:11px;color:var(--text)}
 
-/* Рестарт/престиж */
-.dark-matter{font-size:34px;font-weight:900;color:#a04dff;text-shadow:0 0 20px rgba(160,77,255,.8);text-align:center;margin:10px 0}
-.dm-shop-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px;border:1px solid rgba(160,77,255,.3);border-radius:14px;margin-bottom:10px;background:rgba(160,77,255,.06)}
-.dm-shop-item .dm-info{font-size:13px;flex:1}
-.dm-btn{border:none;border-radius:10px;padding:9px 14px;font-weight:800;font-family:inherit;cursor:pointer;background:linear-gradient(135deg,#a04dff,#ff007f);color:#fff}
+/* Рестарт */
+.dark-matter{font-size:26px;font-weight:900;color:#a04dff;text-shadow:0 0 20px rgba(160,77,255,.8);text-align:center;margin:10px 0}
+.dm-shop-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border:1px solid rgba(160,77,255,.3);border-radius:12px;margin-bottom:8px;background:rgba(160,77,255,.06)}
+.dm-shop-item .dm-info{font-size:12px;flex:1}
+.dm-btn{border:none;border-radius:10px;padding:8px 12px;font-weight:800;font-family:inherit;cursor:pointer;background:linear-gradient(135deg,#a04dff,#ff007f);color:#fff}
 
-/* Квесты (контракты) */
-.contract{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--gb);border-radius:14px;margin-bottom:10px;background:rgba(255,255,255,.04)}
-.contract .c-body{flex:1}
-.contract .c-name{font-weight:800;font-size:14px}
-.contract .c-desc{font-size:12px;color:var(--muted)}
-.contract .c-prog{font-size:12px;color:var(--cyan);font-weight:700}
-.contract .c-track{height:6px;border-radius:5px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:4px}
-.contract .c-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--magenta));border-radius:5px;transition:width .3s}
-.claim-btn{border:none;border-radius:10px;padding:9px 14px;font-weight:800;font-family:inherit;cursor:pointer;background:linear-gradient(135deg,var(--gold),#ff9d00);color:#000}
-.claim-btn:disabled{background:#3a3550;color:var(--muted);cursor:not-allowed}
+/* ==== ПРАВАЯ КОЛОНКА (Рынок) ==== */
+.col-right-inner{padding:14px;display:flex;flex-direction:column;gap:12px;min-height:100%}
+.market-header{text-align:center}
+.market-title{font-family:'Orbitron',monospace;font-weight:900;font-size:22px;background:linear-gradient(90deg,var(--cyan),var(--magenta));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.market-sub{color:var(--muted);font-size:12px}
+/* Робот по центру правой колонки */
+#merchant-scene{position:relative;width:100%;height:230px;z-index:2}
+#merchant-scene canvas{display:block;width:100%;height:100%}
+.merchant-bubble{position:absolute;top:6px;left:50%;transform:translateX(-50%);z-index:12;background:rgba(255,255,255,.05);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(0,240,255,.3);padding:10px 16px;border-radius:10px;text-align:center;max-width:320px;font-size:13px;font-weight:700;color:var(--text);opacity:0;transition:opacity .3s;pointer-events:none}
+.merchant-bubble.visible{opacity:1}
+/* Под-колонки товаров по краям правой колонки */
+.shop-split{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}
+.shop-column{display:flex;flex-direction:column;gap:10px;pointer-events:auto}
+.shop-col-title{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:800}
 
-/* Чат (плавающий виджет) */
-.chat-widget-btn{position:fixed;right:18px;bottom:18px;z-index:110;width:54px;height:54px;border-radius:50%;border:1px solid var(--gb);background:var(--glass);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);color:var(--cyan);cursor:pointer;display:grid;place-items:center;box-shadow:0 8px 30px rgba(0,0,0,.5);transition:transform .2s}
-.chat-widget-btn:hover{transform:scale(1.1)}
-.chat-widget-btn .svg-ic{width:26px;height:26px}
-.chat-drawer{position:fixed;right:18px;bottom:82px;z-index:110;width:min(340px,92vw);height:min(50vh,440px);display:none;flex-direction:column;background:rgba(20,15,40,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--gb);border-radius:18px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+/* Карточки товаров */
+.upgrade-card{background:var(--glass);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1px solid var(--gb);border-radius:14px;padding:11px 12px;display:flex;flex-direction:column;gap:7px;transition:transform .2s,box-shadow .2s,opacity .25s;position:relative;overflow:hidden}
+.upgrade-card:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(0,0,0,.45)}
+.upgrade-card.locked{opacity:.4}
+.upgrade-card .u-top{display:flex;align-items:center;gap:10px}
+.upgrade-card .u-icon{width:38px;height:38px;display:grid;place-items:center;background:rgba(255,255,255,.06);border-radius:10px;flex-shrink:0}
+.upgrade-card .u-icon .svg-ic{color:var(--cyan);width:22px;height:22px}
+.upgrade-card .u-name{font-weight:800;font-size:13px}
+.upgrade-card .u-desc{color:var(--muted);font-size:11px}
+.upgrade-card .u-level{color:var(--cyan);font-size:11px;font-weight:700}
+.upgrade-card .u-cost{font-weight:800;font-size:13px;color:var(--gold)}
+.upgrade-card .buy-btn{margin-top:auto;border:none;border-radius:9px;padding:8px;font-weight:800;font-size:12px;font-family:inherit;cursor:pointer;background:linear-gradient(135deg,var(--neon),var(--magenta));color:#fff;transition:transform .15s,filter .2s}
+.upgrade-card .buy-btn:hover:not(:disabled){transform:scale(1.03);filter:brightness(1.1)}
+.upgrade-card .buy-btn:disabled{background:#3a3550;cursor:not-allowed;color:var(--muted)}
+
+/* Чат-виджет */
+.chat-widget-btn{position:fixed;right:14px;bottom:14px;z-index:110;width:48px;height:48px;border-radius:50%;border:1px solid var(--gb);background:var(--glass);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);color:var(--cyan);cursor:pointer;display:grid;place-items:center;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+.chat-drawer{position:fixed;right:14px;bottom:70px;z-index:110;width:min(320px,92vw);height:min(46vh,400px);display:none;flex-direction:column;background:rgba(20,15,40,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--gb);border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.6)}
 .chat-drawer.show{display:flex}
-.chat-drawer .cd-head{padding:12px 16px;font-weight:900;border-bottom:1px solid var(--gb);display:flex;justify-content:space-between;align-items:center}
-.chat-log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:12px}
-.chat-log::-webkit-scrollbar{width:6px}
-.chat-log::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:6px}
-.chat-msg{background:rgba(255,255,255,.05);border-radius:12px;padding:7px 11px}
+.cd-head{padding:10px 14px;font-weight:900;border-bottom:1px solid var(--gb);display:flex;justify-content:space-between}
+.chat-log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:7px;padding:10px}
+.chat-msg{background:rgba(255,255,255,.05);border-radius:10px;padding:6px 10px;font-size:12px}
 .chat-msg.you{background:linear-gradient(135deg,rgba(0,240,255,.12),rgba(255,0,127,.12));align-self:flex-end}
 .chat-msg.vendor{border:1px solid rgba(0,240,255,.4)}
-.chat-msg .m-nick{font-weight:800;font-size:12px;color:var(--cyan)}
-.chat-msg.you .m-nick{color:var(--magenta)}
-.chat-msg .m-text{font-size:13px;margin-top:1px;word-break:break-word}
+.chat-msg .m-nick{font-weight:800;font-size:11px;color:var(--cyan)}
+.chat-msg .m-text{margin-top:1px}
 .chat-input-row{display:flex;gap:8px;padding:10px;border-top:1px solid var(--gb)}
-#chat-input{flex:1;padding:9px 12px;border-radius:10px;border:1px solid var(--gb);background:rgba(255,255,255,.05);color:var(--text);font-family:inherit;font-size:13px;outline:none}
-#chat-send{border:none;border-radius:10px;padding:0 14px;background:linear-gradient(135deg,var(--cyan),var(--magenta));color:#fff;cursor:pointer}
-
-/* Контракты-виджет на главной */
-/* Панель контрактов (Задания): закреплена по центру правой стороны экрана */
-.quest-drawer{position:absolute;right:40px;top:50%;transform:translateY(-30%);z-index:70;width:360px;max-width:92vw;pointer-events:auto;display:flex;flex-direction:column}
-.quest-toggle{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--gb);background:var(--glass);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);color:var(--text);border-radius:14px 14px 0 0;padding:12px 16px;font-family:inherit;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 8px 26px rgba(0,0,0,.45)}
-.quest-toggle .qt-count{background:linear-gradient(135deg,var(--cyan),var(--magenta));color:#fff;border-radius:20px;padding:1px 9px;font-size:12px}
-.quest-drawer-body{height:500px;max-height:70vh;overflow-y:auto;padding:16px;border-radius:0 0 14px 14px;background:rgba(20,15,40,.9);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--gb);border-top:none;box-shadow:0 16px 50px rgba(0,0,0,.6)}
-.quest-drawer-body.collapsed{display:none}
+#chat-input{flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--gb);background:rgba(255,255,255,.05);color:var(--text);font-family:inherit;font-size:12px;outline:none}
+#chat-send{border:none;border-radius:8px;padding:0 12px;background:linear-gradient(135deg,var(--cyan),var(--magenta));color:#fff;cursor:pointer}
 
 /* Достижения */
-#ach-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
-.ach-card{background:var(--glass);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1px solid var(--gb);border-radius:16px;padding:14px;display:flex;gap:12px;align-items:center}
-.ach-card.done{border-color:rgba(61,255,156,.4);box-shadow:0 0 18px rgba(61,255,156,.18)}
-.ach-card .a-icon{width:44px;height:44px;display:grid;place-items:center;background:rgba(255,255,255,.06);border-radius:12px;flex-shrink:0}
-.ach-card .a-icon .svg-ic{color:var(--gold);width:24px;height:24px}
+#ach-list{display:grid;grid-template-columns:1fr;gap:8px}
+.ach-card{background:var(--glass);border:1px solid var(--gb);border-radius:12px;padding:10px;display:flex;gap:10px;align-items:center}
+.ach-card.done{border-color:rgba(61,255,156,.4)}
+.ach-card .a-icon{width:36px;height:36px;display:grid;place-items:center;background:rgba(255,255,255,.06);border-radius:10px;flex-shrink:0}
+.ach-card .a-icon .svg-ic{color:var(--gold);width:20px;height:20px}
 .ach-card.done .a-icon .svg-ic{color:var(--good)}
-.ach-card .a-body .a-name{font-weight:800;font-size:14px}
-.ach-card .a-body .a-desc{color:var(--muted);font-size:12px;margin:2px 0}
-.ach-card .a-body .a-reward{font-size:12px;color:var(--gold);font-weight:700}
-.ach-card .a-status{margin-left:auto;font-size:11px;font-weight:800;color:var(--muted);white-space:nowrap}
+.ach-card .a-body .a-name{font-weight:800;font-size:12px}
+.ach-card .a-body .a-desc{color:var(--muted);font-size:10px}
+.ach-card .a-status{margin-left:auto;font-size:10px;font-weight:800;color:var(--muted);white-space:nowrap}
 .ach-card.done .a-status{color:var(--good)}
 
-/* Общее */
-.stat-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07)}
-.stat-row:last-child{border-bottom:none}
-.stat-row .k{color:var(--muted);font-size:14px}
-.stat-row .v{font-weight:800;font-size:16px}
-.reset-btn{border:1px solid var(--bad);color:var(--bad);background:rgba(255,90,90,.08);border-radius:12px;padding:12px 20px;font-weight:800;font-family:inherit;font-size:14px;cursor:pointer;margin-top:20px;transition:background .2s}
-.reset-btn:hover{background:rgba(255,90,90,.18)}
-code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:5px;font-size:12px}
+/* SVG-иконки */
+.svg-ic{display:inline-block;vertical-align:middle;filter:drop-shadow(0 0 4px currentColor)}
 
-/* Мобильные */
-@media(max-width:820px){
-  nav.sidebar{top:auto;bottom:0;left:0;right:0;transform:none;flex-direction:row;justify-content:space-around;border-radius:20px 20px 0 0;border-bottom:none;padding:8px 4px}
-  .nav-btn{flex-direction:column;gap:1px;font-size:9px;padding:6px 4px}
-  .nav-btn:hover{transform:translateY(-2px)}
-  .page-scroll{padding:80px 14px 110px}
-  /* Мобильные: 3D-продавец в верхней части, карточки уходят вниз в скролл */
-  .shop-ui-container{position:relative;height:auto;padding:0;flex-direction:column;align-items:stretch;gap:12px}
-  .shop-column{width:100%;gap:10px;align-items:stretch}
-  .shop-column.left{align-items:stretch}
-  .shop-column.right{align-items:stretch}
-  .merchant-bubble{top:60px}
-  #page-market .page-scroll{padding-top:26vh}
-  .resource-grid{grid-template-columns:repeat(3,1fr)}
-  .quest-drawer{right:12px;width:min(340px,92vw);transform:translateY(-20%)}
-  .quest-drawer-body{height:400px;max-height:60vh}
+/* ==== МОБИЛЬНАЯ АДАПТАЦИЯ ==== */
+@media(max-width:900px){
+  #app{grid-template-columns:1fr;overflow-y:auto;display:flex;flex-direction:column}
+  .col{position:relative;min-height:auto;overflow-y:visible}
+  .col-left{height:60vh;border-right:none;border-bottom:1px solid rgba(0,240,255,.15)}
+  .col-center,.col-right{min-height:auto}
+  .nav-menu{position:absolute;top:auto;bottom:0;left:0;right:0;width:100%;height:auto;flex-direction:row;justify-content:space-around;padding:6px 4px;border-right:none;border-top:1px solid var(--gb);border-radius:0}
+  .nav-btn{flex-direction:column;gap:1px;font-size:8px;padding:4px 4px}
+  .nav-brand{display:none}
+  .col-left-content{margin-left:0;padding-bottom:60px}
+  .combo-box{left:14px}
+  .level-badge{left:14px}
+  .shop-split{grid-template-columns:1fr}
 }
-@media(max-width:480px){
-  .page-title{font-size:22px}
-  .hud-balance{font-size:36px}
-  .topbar{padding:0 10px}
-  .balance-chip{padding:6px 10px;font-size:14px}
-  .online-badge{padding:6px 10px;font-size:11px}
-  .logo{font-size:16px}
-}
-
-/* ===== Таймлайн истории версий (страница "Версии") ===== */
-.clg-timeline{position:relative;padding-left:28px}
-.clg-timeline::before{content:'';position:absolute;left:8px;top:8px;bottom:8px;width:3px;background:linear-gradient(180deg,var(--cyan),var(--magenta));border-radius:3px;box-shadow:0 0 12px rgba(0,240,255,.5)}
-.clg-node{position:relative;margin-bottom:18px}
-.clg-marker{position:absolute;left:-28px;top:14px;width:16px;height:16px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan);border:3px solid var(--bg)}
-.clg-card{background:rgba(255,255,255,.05);border:1px solid var(--gb);border-radius:14px;padding:14px 16px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-.clg-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
-.clg-tag{font-family:'Orbitron',monospace;font-weight:900;color:var(--cyan);background:rgba(0,240,255,.12);padding:2px 10px;border-radius:8px;font-size:14px}
-.clg-date{color:var(--muted);font-size:13px}
-.clg-title{font-weight:800;font-size:16px;margin-bottom:8px}
-.clg-list{margin-left:18px;display:flex;flex-direction:column;gap:5px}
-.clg-list li{font-size:13px;color:var(--text)}
 </style>
 </head>
 <body>
@@ -352,188 +257,152 @@ code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:5px;font-siz
       <button class="login-btn" id="login-btn">Войти</button>
       <button class="login-btn register" id="register-btn">Зарегистрироваться</button>
       <button class="login-btn anonymous" id="anon-btn">Войти анонимно (без пароля)</button>
-      <div class="login-note">Аккаунт сохраняется в этом браузере и восстанавливается при повторном входе.</div>
+      <div class="login-note">Аккаунт сохраняется в этом браузере.</div>
     </div>
   </div>
 
-  <div id="scene-container"></div>
   <div id="fx-layer"></div>
   <div id="toast-container"></div>
+  <div class="balance-chip" id="balance-chip">0 💎</div>
 
-  <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
-  <div class="topbar">
-    <div class="logo" id="game-logo">[CRYSTAL.NET]</div>
-    <div class="topbar-right">
-      <div class="balance-chip" id="balance-chip">0 💎</div>
-      <div class="online-badge"><span class="dot"></span><span>В СЕТИ: <span id="online-count">–</span></span></div>
-      <button class="sound-toggle" id="sound-toggle"></button>
+  <!-- 3-КОЛОНОЧНЫЙ КАРКАС -->
+  <div id="app">
+
+    <!-- КОЛОНКА 1: Кристалл (клик) -->
+    <div class="col col-left">
+      <div id="scene-container"></div>
+      <nav class="nav-menu">
+        <div class="nav-brand">[CRYSTAL.NET]</div>
+        <button class="nav-btn active" data-target="crystal"><span class="ni" data-ic="gem"></span><span>Кристалл</span></button>
+        <button class="nav-btn" data-target="market"><span class="ni" data-ic="cart"></span><span>Рынок</span></button>
+        <button class="nav-btn" data-target="containers"><span class="ni" data-ic="box"></span><span>Контейнеры</span></button>
+        <button class="nav-btn" data-target="lab"><span class="ni" data-ic="lab"></span><span>Лаборатория</span></button>
+        <button class="nav-btn" data-target="restart"><span class="ni" data-ic="refresh"></span><span>Рестарт</span></button>
+        <button class="nav-btn" data-target="versions"><span class="ni" data-ic="doc"></span><span>Версии</span></button>
+      </nav>
+      <div class="col-left-content">
+        <div class="balance-hud clickable">
+          <div class="hud-balance" id="hud-balance">0 💎</div>
+          <div class="hud-cps" id="hud-cps">💠 0 / сек</div>
+        </div>
+        <div class="level-badge" id="level-badge">LVL 1</div>
+        <div class="combo-box" id="combo-box">
+          <div class="combo-meter">
+            <div class="combo-label" id="combo-label">x1.0</div>
+            <div class="combo-track"><div class="combo-fill" id="combo-fill"></div></div>
+            <div class="combo-count" id="combo-count">0 комбо</div>
+          </div>
+        </div>
+        <!-- Дрон-ассистент -->
+        <div class="assistant-drone">
+          <div class="ad-inner"></div>
+          <div class="ad-bubble" id="ad-bubble"></div>
+        </div>
+        <!-- Аномалия -->
+        <div class="anomaly" id="anomaly"><div class="anom-inner"></div></div>
+      </div>
     </div>
-  </div>
 
-  <!-- НАВИГАЦИЯ: 5 экранов -->
-  <nav class="sidebar">
-    <button class="nav-btn active" data-target="page-crystal"><span class="nav-icon" data-ic="gem"></span><span>Кристалл</span></button>
-    <button class="nav-btn" data-target="page-market"><span class="nav-icon" data-ic="cart"></span><span>Рынок</span></button>
-    <button class="nav-btn" data-target="page-containers"><span class="nav-icon" data-ic="box"></span><span>Контейнеры</span></button>
-    <button class="nav-btn" data-target="page-lab"><span class="nav-icon" data-ic="lab"></span><span>Лаборатория</span></button>
-    <button class="nav-btn" data-target="page-restart"><span class="nav-icon" data-ic="refresh"></span><span>Рестарт</span></button>
-    <button class="nav-btn" data-target="page-changelog"><span class="nav-icon" data-ic="doc"></span><span>Версии</span></button>
-  </nav>
+    <!-- КОЛОНКА 2: Контент и системы -->
+    <div class="col col-center">
+      <div class="col-center-inner">
+        <!-- Галактические новости -->
+        <div class="news-ticker"><span class="news-label">📡 НОВОСТИ ФЕДЕРАЦИИ</span><span class="news-text" id="news-text"></span></div>
+        <!-- Вкладки -->
+        <div class="tabs-bar">
+          <button class="tab-btn active" data-tab="tab-lab">Лаборатория</button>
+          <button class="tab-btn" data-tab="tab-containers">Контейнеры</button>
+          <button class="tab-btn" data-tab="tab-versions">Версии</button>
+          <button class="tab-btn" data-tab="tab-restart">Рестарт</button>
+        </div>
 
-  <!-- СТРАНИЦА 1: КРИСТАЛЛ -->
-  <section id="page-crystal" class="page visible active">
-    <div class="crystal-glow"></div>
-    <div class="page-scroll">
-      <div class="clickable-ui hud">
-        <div class="hud-balance" id="hud-balance">0 💎</div>
-        <div class="hud-cps" id="hud-cps">💠 0 / сек</div>
-        <div style="margin-top:14px">
-          <div style="font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:700">ЦЕЛЬ РЕСТАРТА (10 000 000)</div>
-          <div style="display:flex;align-items:center;gap:10px">
-            <div class="goal-track"><div class="goal-fill" id="goal-fill" style="width:0%"></div></div>
-            <div class="goal-label" id="goal-label">0</div>
+        <!-- Вкладка Лаборатория -->
+        <div class="tab-panel active" id="tab-lab">
+          <div class="panel">
+            <div class="panel-title">🛠️ Крафт</div>
+            <div class="panel-sub">При кликах (5% шанс) выпадают ресурсы. Собирай Супер-Дроны (+50 CPS).</div>
+            <div class="resource-grid">
+              <div class="resource"><div class="r-ico">⚙️</div><div class="r-name">Сплав</div><div class="r-count" id="res-alloy">0</div></div>
+              <div class="resource"><div class="r-ico">💾</div><div class="r-name">Микросхемы</div><div class="r-count" id="res-chip">0</div></div>
+              <div class="resource"><div class="r-ico">⚡</div><div class="r-name">Энерго-ядро</div><div class="r-count" id="res-core">0</div></div>
+            </div>
+            <div style="font-weight:800;margin-bottom:8px;font-size:13px">Супер-Дроны: <span id="super-count">0</span> шт · +50 CPS каждый</div>
+            <div class="craft-item">
+              <div>🛸</div>
+              <div class="ci-cost">Собрать Супер-Дрона<br>(10 Сплав · 8 Микросхем · 5 Ядер)</div>
+              <button class="craft-btn" id="craft-super">Собрать</button>
+            </div>
+            <div style="font-weight:800;margin-top:10px;margin-bottom:6px;font-size:13px">Статистика</div>
+            <div class="stat-row"><span class="k">Всего кликов</span><span class="v" id="stat-clicks">0</span></div>
+            <div class="stat-row"><span class="k">Заработано</span><span class="v" id="stat-earned">0 💎</span></div>
+            <div class="stat-row"><span class="k">Время в игре</span><span class="v" id="stat-time">0 сек</span></div>
+            <div class="stat-row"><span class="k">Множитель</span><span class="v" id="stat-mult">x1</span></div>
+            <button class="reset-btn" id="reset-btn">Сбросить прогресс</button>
+            <button class="reset-btn" id="wipe-btn" style="background:rgba(255,90,90,.2)">Полный вайп</button>
+            <div style="font-weight:800;margin-top:12px;margin-bottom:6px;font-size:13px">Достижения</div>
+            <div id="ach-list"></div>
+          </div>
+        </div>
+
+        <!-- Вкладка Контейнеры -->
+        <div class="tab-panel" id="tab-containers">
+          <div class="panel box-card">
+            <div class="panel-title">📦 Квантовые Контейнеры</div>
+            <div class="panel-sub">Открой лутбокс за 5 000 💎 — выпадет случайный скин для кристалла!</div>
+            <div class="box-icon" id="box-icon">📦</div>
+            <div style="margin-bottom:10px;font-size:13px">Открыто: <b id="box-count">0</b></div>
+            <button class="login-btn" id="box-open" style="max-width:220px;margin:0 auto">Открыть за 5 000 💎</button>
+            <div id="skin-collection" style="margin-top:14px"></div>
+          </div>
+        </div>
+
+        <!-- Вкладка Версии -->
+        <div class="tab-panel" id="tab-versions">
+          <div class="panel">
+            <div class="panel-title">📝 История версий</div>
+            <div id="changelog-box"></div>
+          </div>
+        </div>
+
+        <!-- Вкладка Рестарт -->
+        <div class="tab-panel" id="tab-restart">
+          <div class="panel" style="text-align:center">
+            <div class="panel-title">🔄 Перерождение</div>
+            <div class="panel-sub">При достижении 10 000 000 💎 можно обнулить прогресс ради Тёмной Материи.</div>
+            <div class="dark-matter">Тёмная Материя: <span id="dm-count">0</span></div>
+            <button class="login-btn" id="prestige-btn" style="max-width:260px;margin:0 auto 6px">Переродиться (нужно 10 000 000 💎)</button>
+            <div style="font-size:11px;color:var(--muted)" id="prestige-hint">Накопите 10 000 000 💎, чтобы получить 1 Тёмную Материю</div>
+          </div>
+          <div class="panel" style="margin-top:10px">
+            <div class="panel-title">Магазин Тёмной Материи</div>
+            <div class="dm-shop-item"><div>⚡</div><div class="dm-info"><b>Усиление клика</b><br>+25% к силе клика · ур. <span id="dm-click-lvl">0</span></div><button class="dm-btn" id="dm-click-btn">Купить (1 ТМ)</button></div>
+            <div class="dm-shop-item"><div>💠</div><div class="dm-info"><b>Усиление пассива</b><br>+25% к CPS · ур. <span id="dm-cps-lvl">0</span></div><button class="dm-btn" id="dm-cps-btn">Купить (1 ТМ)</button></div>
           </div>
         </div>
       </div>
-      <div class="clickable-ui hud-hint"><div class="hud-hint">Кликни по кристаллу — удерживай комбо и лови бонусы! ⚡</div></div>
-      <div class="clickable-ui combo-zone">
-        <div class="level-badge"><span class="lb-num" id="level-num">1</span></div>
-        <div class="combo-meter">
-          <div class="combo-label" id="combo-label">x1</div>
-          <div class="combo-track"><div class="combo-fill" id="combo-fill"></div></div>
-          <div class="combo-count" id="combo-count">0 комбо</div>
+    </div>
+
+    <!-- КОЛОНКА 3: Гипермаркет -->
+    <div class="col col-right">
+      <div class="col-right-inner">
+        <div class="market-header">
+          <div class="market-title">ГИПЕРМАРКЕТ</div>
+          <div class="market-sub">Кибер-торговец ждёт твоих кристаллов</div>
+        </div>
+        <!-- Робот-продавец в центре -->
+        <div id="merchant-scene">
+          <div class="merchant-bubble" id="vendor-bubble"><span id="vendor-bubble-text"></span></div>
+        </div>
+        <!-- Две под-колонки товаров по краям -->
+        <div class="shop-split">
+          <div class="shop-column" id="shop-col-left"><div class="shop-col-title">Модули</div></div>
+          <div class="shop-column" id="shop-col-right"><div class="shop-col-title">Автоматизация</div></div>
         </div>
       </div>
-      <div class="clickable-ui golden-gem" id="golden-gem"><div class="gg-inner"></div></div>
-      <div class="clickable-ui anomaly" id="anomaly"><div class="anom-inner"></div></div>
-      <div class="clickable-ui quest-drawer">
-        <button class="quest-toggle" id="quest-toggle"><span>Задания</span><span class="qt-count" id="quest-count">0</span></button>
-        <div class="quest-drawer-body" id="quest-drawer-body">
-          <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:700">ГЛОБАЛЬНЫЕ КОНТРАКТЫ</div>
-          <div id="quests-box"></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- СТРАНИЦА 2: РЫНОК -->
-  <section id="page-market" class="page">
-    <!-- Плоский HTML-баббл над головой робота (строго по центру сверху) -->
-    <div class="merchant-bubble" id="vendor-bubble"><span id="vendor-bubble-text"></span></div>
-    <!-- Контейнер карточек поверх WebGL-канваса, колонки по краям -->
-    <div class="shop-ui-container">
-      <div class="shop-column left" id="shop-col-left"></div>
-      <div class="shop-column right" id="shop-col-right"></div>
-    </div>
-  </section>
-
-  <!-- СТРАНИЦА 3: КОНТЕЙНЕРЫ -->
-  <section id="page-containers" class="page">
-    <div class="page-scroll">
-      <div class="panel box-card">
-        <div class="page-title">Квантовые Контейнеры</div>
-        <div class="page-sub">Открой лутбокс за 5 000 💎 и получи случайный скин для кристалла — от Обычного до Секретного!</div>
-        <div class="box-icon" id="box-icon">📦</div>
-        <div style="margin-bottom:10px">Открыто: <b id="box-count">0</b></div>
-        <button class="login-btn" id="box-open" style="max-width:260px;margin:0 auto">Открыть за 5 000 💎</button>
-        <div id="skin-collection" style="margin-top:20px"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- СТРАНИЦА 4: ЛАБОРАТОРИЯ -->
-  <section id="page-lab" class="page">
-    <div class="page-scroll">
-      <div class="panel">
-        <div class="page-title">Крафт и Модификации</div>
-        <div class="page-sub">При кликах по кристаллу (шанс 5%) выпадают ресурсы. Собирай Супер-Дроны — их не купить на Рынке.</div>
-        <div class="resource-grid">
-          <div class="resource"><div class="r-ico">⚙️</div><div class="r-name">Сплав</div><div class="r-count" id="res-alloy">0</div></div>
-          <div class="resource"><div class="r-ico">💾</div><div class="r-name">Микросхемы</div><div class="r-count" id="res-chip">0</div></div>
-          <div class="resource"><div class="r-ico">⚡</div><div class="r-name">Энерго-ядро</div><div class="r-count" id="res-core">0</div></div>
-        </div>
-        <div style="font-weight:800;margin-bottom:10px">Супер-Дроны: <span id="super-count">0</span> шт · +50 CPS каждый</div>
-        <div class="craft-item">
-          <div>🛸</div>
-          <div class="ci-cost">Собрать Супер-Дрона<br>(10 Сплав · 8 Микросхем · 5 Ядер)</div>
-          <button class="craft-btn" id="craft-super">Собрать</button>
-        </div>
-      </div>
-      <div style="height:18px"></div>
-      <div class="panel">
-        <div class="page-title">Статистика</div>
-        <div class="stat-row"><span class="k">Всего кликов</span><span class="v" id="stat-clicks">0</span></div>
-        <div class="stat-row"><span class="k">Заработано всего</span><span class="v" id="stat-earned">0 💎</span></div>
-        <div class="stat-row"><span class="k">Время в игре</span><span class="v" id="stat-time">0 сек</span></div>
-        <div class="stat-row"><span class="k">Множитель дохода</span><span class="v" id="stat-mult">x1</span></div>
-        <div class="stat-row"><span class="k">Супер-Дроны</span><span class="v" id="stat-super">0</span></div>
-        <button class="reset-btn" id="reset-btn">Сбросить прогресс</button>
-        <button class="reset-btn" id="wipe-btn" style="background:rgba(255,90,90,.2)">Полный вайп (аккаунт + всё)</button>
-      </div>
-      <div style="height:18px"></div>
-      <div class="panel">
-        <div class="page-title">Достижения</div>
-        <div id="ach-list"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- СТРАНИЦА 5: РЕСТАРТ -->
-  <section id="page-restart" class="page">
-    <div class="page-scroll">
-      <div class="panel" style="text-align:center">
-        <div class="page-title">Перерождение</div>
-        <div class="page-sub">При достижении 10 000 000 💎 можно обнулить прогресс ради Тёмной Материи.</div>
-        <div class="dark-matter">Тёмная Материя: <span id="dm-count">0</span></div>
-        <button class="login-btn" id="prestige-btn" style="max-width:300px;margin:0 auto 6px">Переродиться (нужно 10 000 000 💎)</button>
-        <div style="font-size:12px;color:var(--muted)" id="prestige-hint">Накопите 10 000 000 💎, чтобы получить 1 Тёмную Материю</div>
-      </div>
-      <div style="height:18px"></div>
-      <div class="panel">
-        <div class="page-title">Магазин Тёмной Материи</div>
-        <div class="page-sub">Вечные множители. Покупаются за Тёмную Материю.</div>
-        <div class="dm-shop-item">
-          <div>⚡</div>
-          <div class="dm-info"><b>Усиление клика</b><br>+25% к силе клика навсегда · ур. <span id="dm-click-lvl">0</span></div>
-          <button class="dm-btn" id="dm-click-btn">Купить (1 ТМ)</button>
-        </div>
-        <div class="dm-shop-item">
-          <div>💠</div>
-          <div class="dm-info"><b>Усиление пассива</b><br>+25% к CPS навсегда · ур. <span id="dm-cps-lvl">0</span></div>
-          <button class="dm-btn" id="dm-cps-btn">Купить (1 ТМ)</button>
-        </div>
-      </div>
-      <div style="height:18px"></div>
-      <div class="panel">
-        <div class="page-title">История версий</div>
-        <div id="changelog-box"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- СТРАНИЦА 6: ВЕРСИИ (Changelog, timeline) -->
-  <section id="page-changelog" class="page">
-    <div class="page-scroll">
-      <div class="panel" style="max-width:720px;margin:0 auto;width:100%">
-        <div class="page-title">История версий</div>
-        <div class="page-sub">Таймлайн обновлений [CRYSTAL.NET] · текущая версия <b id="version-chip"></b></div>
-        <div id="changelog-box"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ЧАТ (плавающий виджет) -->
-  <button class="chat-widget-btn" id="chat-widget-btn"></button>
-  <div class="chat-drawer" id="chat-drawer">
-    <div class="cd-head"><span>Глобальный чат</span><span id="chat-online">—</span></div>
-    <div class="chat-log" id="chat-log"></div>
-    <div class="chat-input-row">
-      <input id="chat-input" placeholder="Сообщение..." maxlength="120" autocomplete="off">
-      <button id="chat-send">➤</button>
     </div>
   </div>
 
-  <!-- РЕВИЛ СКИНА ИЗ КОНТЕЙНЕРА -->
+  <!-- Ревил скина -->
   <div class="box-reveal" id="box-reveal">
     <div class="reveal-card">
       <div class="rarity-swatch" id="reveal-swatch"></div>
@@ -544,17 +413,22 @@ code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:5px;font-siz
     </div>
   </div>
 
+  <!-- Чат -->
+  <button class="chat-widget-btn" id="chat-widget-btn"></button>
+  <div class="chat-drawer" id="chat-drawer">
+    <div class="cd-head"><span>Глобальный чат</span><span id="chat-online">—</span></div>
+    <div class="chat-log" id="chat-log"></div>
+    <div class="chat-input-row"><input id="chat-input" placeholder="Сообщение..." maxlength="120" autocomplete="off"><button id="chat-send">➤</button></div>
+  </div>
+
   <script src="config.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
 'use strict';
-/* ============================================================
-   [CRYSTAL.NET] — 3D Кликер. Космическая сборка v4.
-   ============================================================ */
-var SAVE_KEY='crystal-net-save-v4';
+var SAVE_KEY='crystal-net-save-v5';
 var PASSIVE_TICK_MS=100;
 var SAVE_INTERVAL_MS=5000;
-var GAME_VERSION='4.1.1';
+var GAME_VERSION='5.0.0';
 
 var SVG_ICONS={
   gem:'<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20"/><path d="M12 21L8 9"/><path d="M12 21l4-12"/>',
@@ -562,6 +436,7 @@ var SVG_ICONS={
   lab:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 3v6L4 21h16L16 9V3"/><path d="M9 13h6"/><path d="M10 3h4"/>',
   box:'<path d="M21 8V6l-9-4-9 4v10l9 4 9-4z"/><path d="M3 6l9 4 9-4"/><path d="M12 10v8"/>',
   refresh:'<path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/><path d="M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>',
+  doc:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h6"/>',
   clicker:'<path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51z"/><path d="M13 13l6 6"/>',
   drone:'<path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>',
   drill:'<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/>',
@@ -576,8 +451,7 @@ var SVG_ICONS={
   trophy:'<circle cx="12" cy="8" r="6"/><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/>',
   music:'<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
   mute:'<path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M23 9l-6 6"/><path d="M17 9l6 6"/>',
-  net:'<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>',
-  doc:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h6"/>'
+  net:'<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>'
 };
 function svgIcon(name,size){var s=size||22;var p=SVG_ICONS[name]||SVG_ICONS.gem;return '<svg class="svg-ic" width="'+s+'" height="'+s+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';}
 
@@ -590,18 +464,16 @@ var UPGRADE_DEFS=[
   {id:'galaxy',name:'Галактический Конденсатор',icon:'galaxy',desc:'+8000 CPS',baseCost:3500000,kind:'cps',per:8000}
 ];
 
-/* Скины с редкостью (для контейнеров) */
 var SKIN_RARITIES={common:'Обычный',uncommon:'Необычный',rare:'Редкий',epic:'Эпический',legendary:'Легендарный',secret:'СЕКРЕТНЫЙ'};
 var SKINS={
-  default:{id:'default',name:'Базовый кристалл',color:0x8f7bff,emissive:0x2a1a66,metalness:0.9,roughness:0.15,glow:0x8f7bff,mult:1,rarity:'common',cost:0,owned:true},
-  cyan:{id:'cyan',name:'Неоновая Лазурь',color:0x00f0ff,emissive:0x0088aa,metalness:0.7,roughness:0.2,glow:0x00f0ff,mult:1.2,rarity:'uncommon',cost:0},
-  emerald:{id:'emerald',name:'Изумрудный неон',color:0x00ff88,emissive:0x00aa55,metalness:0.7,roughness:0.2,glow:0x00ff88,mult:1.5,rarity:'rare',cost:0},
-  ruby:{id:'ruby',name:'Рубиновый взрыв',color:0xff2255,emissive:0xaa0033,metalness:0.8,roughness:0.18,glow:0xff2255,mult:2,rarity:'epic',cost:0},
-  gold:{id:'gold',name:'Золотой слиток',color:0xffd700,emissive:0x885500,metalness:1.0,roughness:0.05,glow:0xffd700,mult:3,rarity:'legendary',cost:0},
-  void:{id:'void',name:'Пустотный Кристалл',color:0x220033,emissive:0x6600ff,metalness:1.0,roughness:0.1,glow:0xa04dff,mult:5,rarity:'secret',cost:0}
+  default:{id:'default',name:'Базовый кристалл',color:0x8f7bff,emissive:0x2a1a66,metalness:0.9,roughness:0.15,glow:0x8f7bff,mult:1,rarity:'common'},
+  cyan:{id:'cyan',name:'Неоновая Лазурь',color:0x00f0ff,emissive:0x0088aa,metalness:0.7,roughness:0.2,glow:0x00f0ff,mult:1.2,rarity:'uncommon'},
+  emerald:{id:'emerald',name:'Изумрудный неон',color:0x00ff88,emissive:0x00aa55,metalness:0.7,roughness:0.2,glow:0x00ff88,mult:1.5,rarity:'rare'},
+  ruby:{id:'ruby',name:'Рубиновый взрыв',color:0xff2255,emissive:0xaa0033,metalness:0.8,roughness:0.18,glow:0xff2255,mult:2,rarity:'epic'},
+  gold:{id:'gold',name:'Золотой слиток',color:0xffd700,emissive:0x885500,metalness:1.0,roughness:0.05,glow:0xffd700,mult:3,rarity:'legendary'},
+  void:{id:'void',name:'Пустотный Кристалл',color:0x220033,emissive:0x6600ff,metalness:1.0,roughness:0.1,glow:0xa04dff,mult:5,rarity:'secret'}
 };
 var RARITY_COLORS={common:'#8f9bb3',uncommon:'#00f0ff',rare:'#00ff88',epic:'#ff007f',legendary:'#ffd700',secret:'#a04dff'};
-/* Шансы выпадения из контейнера: сумма=1 */
 var RARITY_CHANCES=[['secret',0.01],['legendary',0.04],['epic',0.1],['rare',0.2],['uncommon',0.3],['common',0.35]];
 
 var ACHIEVEMENTS=[
@@ -614,14 +486,16 @@ var ACHIEVEMENTS=[
   {id:'million',name:'Миллионер',icon:'coin',desc:'1 000 000 💎',reward:5000,check:function(s){return s.balance>=1000000;}}
 ];
 
-/* Глобальные контракты (ежедневные квесты) */
-var CONTRACTS=[
-  {id:'c_clicks',name:'Разминка',desc:'Сделать 50 кликов',type:'clicks',target:50,reward:300},
-  {id:'c_earn',name:'Первые деньги',desc:'Заработать 10 000 💎',type:'earn',target:10000,reward:500},
-  {id:'c_alloy',name:'Металлолом',desc:'Собрать 10 Сплава',type:'alloy',target:10,reward:400},
-  {id:'c_buy',name:'Покупатель',desc:'Купить 3 апгрейда',type:'buy',target:3,reward:600},
-  {id:'c_boxes',name:'Коллекционер',desc:'Открыть 2 контейнера',type:'boxes',target:2,reward:800},
-  {id:'c_100k',name:'Капитал',desc:'Накопить 100 000 💎',type:'balance',target:100000,reward:2000}
+/* Галактические новости */
+var GALACTIC_NEWS=[
+  'Федерация объявила: кристаллы теперь — официальная валюта галактики!',
+  'Учёные подтвердили: кликать по кристаллу полезно для квантового здоровья.',
+  'На рынке резкий скачок цен на дронов — успей купить!',
+  'Пиратский флот разбит у Андромеды. Фарм продолжается!',
+  'Империя Зеркал скупает Сплав тоннами.',
+  'Обнаружена новая аномалия близ Кристалла-Матёра. Берегись!',
+  'Энерго-ядра подорожали на 12% за ночь.',
+  'Легендарный игрок «Магнат-3000» снова в топе!'
 ];
 
 function freshUpgrades(){var u={};UPGRADE_DEFS.forEach(function(d){u[d.id]={level:0};});return u;}
@@ -631,35 +505,31 @@ var gameState={
   balance:0,totalEarned:0,totalClicks:0,playTime:0,upgrades:freshUpgrades(),
   ownedSkins:['default'],activeSkin:'default',achievements:freshAchievements(),chatHistory:[],
   resources:{alloy:0,chip:0,core:0},superDrones:0,darkMatter:0,dmClick:0,dmCps:0,
-  openedContainers:0,contracts:{},contractsDay:'',bestCombo:0,level:1,xp:0,lastDailyBonus:'',totalBonuses:0
+  openedContainers:0,bestCombo:0,level:1,xp:0,lastDailyBonus:'',totalBonuses:0,tutorialStep:0
 };
-var derived={clickPower:1,skinMult:1,prestigeMult:1,levelMult:1,hyperMult:1,cps:0};
+var derived={clickPower:1,skinMult:1,levelMult:1,hyperMult:1,cps:0};
 var comboState={count:0,mult:1,timer:null};
-var activePage='page-crystal';
+var activeView='crystal';
 var currentNick='';
 var hyperdriveActive=false;
 var hyperdriveTimer=null;
 window.Online={real:false,signedIn:false,onSendPlayerChat:null,sendPlayerStats:null};
 
-/* ---- Утилиты ---- */
 function formatNumber(n){if(!isFinite(n))return '∞';n=Math.floor(n);if(n<1000)return String(n);var s=['','K','M','B','T','Qa','Qi'];var t=Math.floor(Math.log10(n)/3);if(t>=s.length)t=s.length-1;var sc=n/Math.pow(10,t*3);return sc.toFixed(sc>=100?0:sc>=10?1:2)+s[t];}
 function formatBalance(n){return formatNumber(n)+' 💎';}
 function formatTime(s){s=Math.floor(s);var h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;return h>0?h+'ч '+m+'м '+sec+'с':(m>0?m+'м '+sec+'с':sec+' сек');}
-function getUpgradeCost(def){return Math.floor(def.baseCost*Math.pow(1.16,gameState.upgrades[def.id].level));}
+function getUpgradeCost(def){return Math.floor(def.baseCost*Math.pow(1.15,gameState.upgrades[def.id].level));}
 function randomItem(arr){return arr[Math.floor(Math.random()*arr.length)];}
 function getDayKey(){return new Date().toISOString().slice(0,10);}
 function xpForLevel(lv){return Math.floor(150*Math.pow(lv,1.8));}
 
-/* ---- Доход ---- */
 function recomputeDerived(){
   var clickBase=1,cpsBase=0;
   UPGRADE_DEFS.forEach(function(def){var lv=gameState.upgrades[def.id].level;if(def.kind==='click')clickBase+=def.per*lv;else cpsBase+=def.per*lv;});
   cpsBase+=gameState.superDrones*50;
   var skin=SKINS[gameState.activeSkin]||SKINS.default;
   derived.skinMult=skin.mult;
-  derived.prestigeMult=1+gameState.darkMatter*0; /* база */
   derived.levelMult=1+(gameState.level-1)*0.05;
-  /* Тёмная материя: +25% за уровень на клик/CPS */
   var dmClickMult=1+gameState.dmClick*0.25;
   var dmCpsMult=1+gameState.dmCps*0.25;
   derived.hyperMult=hyperdriveActive?5:1;
@@ -679,436 +549,285 @@ function registerClick(){
   gameState.balance+=gain;gameState.totalEarned+=gain;gameState.totalClicks++;
   var xpGain=1+Math.floor(comboState.count/10)+(isCrit?5:0);
   addXp(xpGain);
-  /* Ресурсы для крафта: 5% шанс */
   if(Math.random()<0.05){
     var pool=['alloy','alloy','chip','core'];
     var r=randomItem(pool);
     gameState.resources[r]++;
-    spawnDamageText(innerWidth/2,innerHeight*0.3,(r==='alloy'?'⚙️':'')+(r==='chip'?'💾':'')+(r==='core'?'⚡':'')+' +1');
+    var l=document.getElementById('scene-container').getBoundingClientRect();
+    spawnDamageText(l.left+l.width/2,l.top+l.height*0.3,(r==='alloy'?'⚙️':'')+(r==='chip'?'💾':'')+(r==='core'?'⚡':'')+' +1');
   }
   updateComboUI();
+  runTutorial();
   return {gain:gain,isCrit:isCrit};
 }
-function addXp(amount){gameState.xp+=amount;var lv=gameState.level;while(gameState.xp>=xpForLevel(lv)){gameState.xp-=xpForLevel(lv);lv++;}if(lv!==gameState.level){gameState.level=lv;recomputeDerived();playSound('level');showToast(svgIcon('spark',24),'Новый уровень!','Уровень '+lv+' · доход +5%');}updateLevelUI();}
+function addXp(amount){gameState.xp+=amount;var lv=gameState.level;while(gameState.xp>=xpForLevel(lv)){gameState.xp-=xpForLevel(lv);lv++;}if(lv!==gameState.level){gameState.level=lv;recomputeDerived();playSound('level');showToast(svgIcon('spark',24),'Новый уровень!','Уровень '+lv);}updateLevelUI();}
 
-/* ---- Уведомления и эффекты ---- */
 function showToast(iconHtml,title,desc){var c=document.getElementById('toast-container');var el=document.createElement('div');el.className='toast';el.innerHTML='<span class="t-icon">'+iconHtml+'</span><div><div class="t-title"></div><div class="t-desc"></div></div>';el.querySelector('.t-title').textContent=title;el.querySelector('.t-desc').textContent=desc;c.appendChild(el);setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},3000);}
 function spawnDamageText(cx,cy,text){var l=document.getElementById('fx-layer');var el=document.createElement('div');el.className='dmg-float';el.textContent=text;el.style.left=cx+'px';el.style.top=cy+'px';l.appendChild(el);el.addEventListener('animationend',function(){if(el.parentNode)el.parentNode.removeChild(el);});}
 function spawnClickRipple(cx,cy){var l=document.getElementById('fx-layer');var el=document.createElement('div');el.className='click-ripple';el.style.left=cx+'px';el.style.top=cy+'px';l.appendChild(el);el.addEventListener('animationend',function(){if(el.parentNode)el.parentNode.removeChild(el);});}
 function shakeScreen(){var b=document.body;if(b._sa)b.style.animation='none';b.style.animation='shake .3s ease';b._sa=true;setTimeout(function(){b.style.animation='';b._sa=false;},320);}
 
-/* ---- Звук ---- */
 var audioCtx=null;var soundEnabled=true;
-function ensureAudio(){if(!audioCtx){try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){audioCtx=null;}}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();if(audioCtx&&musicState.currentZone&&!musicState.playing)startZoneMusic(musicState.currentZone);}
-function toggleSound(){soundEnabled=!soundEnabled;var btn=document.getElementById('sound-toggle');if(btn){btn.classList.toggle('muted',!soundEnabled);btn.innerHTML=svgIcon(soundEnabled?'music':'mute',20);}if(!soundEnabled)stopMusic();try{localStorage.setItem('crystal-net-sound',soundEnabled?'1':'0');}catch(e){}}
-function loadSoundPref(){try{var v=localStorage.getItem('crystal-net-sound');soundEnabled=(v===null)?true:(v==='1');}catch(e){soundEnabled=true;}var btn=document.getElementById('sound-toggle');if(btn){btn.classList.toggle('muted',!soundEnabled);btn.innerHTML=svgIcon(soundEnabled?'music':'mute',20);}}
+function ensureAudio(){if(!audioCtx){try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){audioCtx=null;}}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();}
 function playTone(freq,dur,type,vol){if(!audioCtx)return;try{var o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type||'sine';o.frequency.setValueAtTime(freq,audioCtx.currentTime);g.gain.setValueAtTime(vol||0.15,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+dur);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+dur);}catch(e){}}
-function playSound(name){if(!audioCtx||!soundEnabled)return;var b=380+Math.random()*60;switch(name){
-  case 'click':playTone(b,0.06,'sine',0.1);playTone(b*1.5,0.05,'triangle',0.04);break;
-  case 'crit':playTone(120,0.28,'sawtooth',0.16);playTone(240,0.2,'square',0.08);playTone(880,0.25,'sine',0.1);break;
+function robotBlip(){if(!audioCtx||!soundEnabled)return;try{var o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='square';var f=600+Math.random()*200;o.frequency.setValueAtTime(f,audioCtx.currentTime);o.frequency.exponentialRampToValueAtTime(f*1.3,audioCtx.currentTime+0.04);g.gain.setValueAtTime(0.04,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.05);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+0.06);}catch(e){}}
+function playSound(name){if(!audioCtx||!soundEnabled)return;switch(name){
+  case 'click':playTone(380+Math.random()*60,0.06,'sine',0.1);break;
+  case 'crit':playTone(120,0.28,'sawtooth',0.16);playTone(880,0.25,'sine',0.1);break;
   case 'level':[523,659,784,1046].forEach(function(f,i){setTimeout(function(){playTone(f,0.18,'sine',0.16);},i*110);});break;
   case 'buy':playTone(660,0.1,'square',0.1);setTimeout(function(){playTone(880,0.12,'square',0.1);},90);break;
   case 'gem':[880,1108,1318,1760].forEach(function(f,i){setTimeout(function(){playTone(f,0.2,'sine',0.14);},i*80);});break;
-  case 'login':[392,523,659,784].forEach(function(f,i){setTimeout(function(){playTone(f,0.16,'sine',0.14);},i*100);});break;
   case 'box':[262,330,392,523,659].forEach(function(f,i){setTimeout(function(){playTone(f,0.25,'square',0.12);},i*120);});break;
-  case 'deny':playTone(300,0.15,'sawtooth',0.1);break;
   case 'hyper':[120,240,480,960,1920].forEach(function(f,i){setTimeout(function(){playTone(f,0.2,'sawtooth',0.12);},i*90);});break;
 }}
 
-/* ---- Музыка ---- */
-var musicState={playing:false,timer:null,step:0,currentZone:''};var musicMasterGain=null;
-var MUSIC_ZONES={market:{bpm:100,notes:[261.6,329.6,392.0,523.3,392.0,329.6,293.7,329.6]},lab:{bpm:78,notes:[220.0,277.2,329.6,415.3,329.6,277.2,246.9,277.2]}};
-function scheduleMusicNote(freq,t,dur,vol){if(!audioCtx||!musicMasterGain)return;try{var o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='triangle';o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.connect(g);g.connect(musicMasterGain);o.start(t);o.stop(t+dur+0.05);}catch(e){}}
-function startZoneMusic(zone){if(!audioCtx||!soundEnabled)return;if(musicState.playing&&musicState.currentZone===zone)return;stopMusic();var cfg=MUSIC_ZONES[zone];if(!cfg)return;if(!musicMasterGain){musicMasterGain=audioCtx.createGain();musicMasterGain.gain.value=0.5;musicMasterGain.connect(audioCtx.destination);}musicState.playing=true;musicState.currentZone=zone;musicState.step=0;var stepDur=60/cfg.bpm/2;var nextTime=audioCtx.currentTime+0.05;var lookahead=0;function schedule(){if(!musicState.playing||musicState.currentZone!==zone)return;while(nextTime<audioCtx.currentTime+0.6){var idx=musicState.step%cfg.notes.length;var note=cfg.notes[idx];scheduleMusicNote(note,nextTime,stepDur*0.9,0.12);if(musicState.step%4===0)scheduleMusicNote(note/2,nextTime,stepDur*0.95,0.08);nextTime+=stepDur;musicState.step++;}lookahead=setTimeout(schedule,120);}schedule();musicState.timer=lookahead;}
-function stopMusic(){if(musicState.timer){clearTimeout(musicState.timer);musicState.timer=null;}musicState.playing=false;musicState.currentZone='';}
-
-/* ---- Ретро-голос робота ---- */
-function robotBlip(){if(!audioCtx||!soundEnabled)return;try{var o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='square';var f=600+Math.random()*200;o.frequency.setValueAtTime(f,audioCtx.currentTime);o.frequency.exponentialRampToValueAtTime(f*1.3,audioCtx.currentTime+0.04);g.gain.setValueAtTime(0.04,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.05);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+0.06);}catch(e){}}
+/* ==== ИИ-АССИСТЕНТ: отдельный аудиотрек из папки audio/assistant/ ==== */
+var ASSISTANT_PLAYLIST={
+  welcome:{file:'audio/assistant/welcome.mp3',text:'Приветствую! Я твой ИИ-ассистент. Кликни по Кристаллу 10 раз!'},
+  go_to_shop:{file:'audio/assistant/go_to_shop.mp3',text:'Отлично! Энергия пошла. Теперь открой вкладку Рынок и купи первый авто-майнер'},
+  tutorial_done:{file:'audio/assistant/tutorial_done.mp3',text:'Система автоматизирована! Я буду следить за прогрессом'},
+  idle_warning:{file:'audio/assistant/idle_warning.mp3',text:'Эй, оператор! Кристалл сам себя не добудет, поднажми!'},
+  rich:{file:'audio/assistant/rich.mp3',text:'Ого, отличный баланс! Наша кристальная империя растет!'}
+};
+var assistantAudio=null; /* активный элемент Audio из папки audio/assistant/ */
+var assistantBubbleTimer=null;
+function assistantSpeak(key){
+  var entry=ASSISTANT_PLAYLIST[key];
+  if(!entry)return;
+  /* Останавливаем предыдущий файл ассистента, чтобы голоса не накладывались */
+  if(assistantAudio){try{assistantAudio.pause();assistantAudio.currentTime=0;}catch(e){}}
+  assistantAudio=new Audio(entry.file);
+  assistantAudio.volume=0.8;
+  if(soundEnabled){assistantAudio.play().catch(function(){/* файл может отсутствовать */});}
+  var bubble=document.getElementById('ad-bubble');
+  if(bubble){
+    bubble.classList.add('visible');
+    bubble.classList.remove('alert');
+    bubble.textContent='';
+    var i=0;
+    if(assistantBubbleTimer)clearInterval(assistantBubbleTimer);
+    assistantBubbleTimer=setInterval(function(){
+      i++;
+      bubble.textContent=entry.text.slice(0,i);
+      if(i>=entry.text.length){clearInterval(assistantBubbleTimer);setTimeout(function(){bubble.classList.remove('visible');},3000);}
+    },25);
+  }
+}
+function assistantAlert(text){
+  var bubble=document.getElementById('ad-bubble');
+  if(bubble){bubble.classList.add('visible');bubble.classList.add('alert');bubble.textContent=text;setTimeout(function(){bubble.classList.remove('visible');},3000);}
+}
+/* Туториал */
+var idleWarningTimer=null;
+function runTutorial(){
+  if(gameState.tutorialStep===0&&gameState.totalClicks>=10){gameState.tutorialStep=1;assistantSpeak('go_to_shop');}
+  if(gameState.tutorialStep===1){var any=0;UPGRADE_DEFS.forEach(function(d){any+=gameState.upgrades[d.id].level;});if(any>0){gameState.tutorialStep=2;assistantSpeak('tutorial_done');}}
+  if(gameState.tutorialStep===2&&gameState.balance>=100000){gameState.tutorialStep=3;assistantSpeak('rich');}
+}
+function setupIdleWarning(){
+  setInterval(function(){
+    if(gameState.totalClicks>0&&gameState.tutorialStep<2){
+      if(Date.now()-lastActivityTime>40000){
+        assistantSpeak('idle_warning');
+        lastActivityTime=Date.now();
+      }
+    }
+  },5000);
+}
+var lastActivityTime=Date.now();
 
 /* ============================================================
-   THREE.JS
+   СЦЕНА 1: КРИСТАЛЛ (левая колонка)
    ============================================================ */
 var renderer,scene,camera;
 var crystalGroup,crystalMesh,crystalMaterial,crystalLight;
+var crystalKeyLight,crystalRim;
 var particles=[];var clock=new THREE.Clock();
-var cameraLook=new THREE.Vector3(0,0,0);
 var orbitObjects=[];var orbitRoot=null;
-var shopGroup=null;
-var vendorGroup=null,vendorBody=null,vendorHead=null,vendorHat=null,vendorFace=null,vendorArmR=null,vendorArmL=null;
-var vendorFaceCanvas=null,vendorFaceCtx=null,vendorFaceTexture=null;
-var vendorHover=false;
-var vendorAnim={approve:0,poor:0};
-var VENDOR_FACES={idle:'[ ^ _ ^ ]',hover:'[ ?  ? ]',buy:'[ $  $ ]',poor:'[ T  T ]'};
-var hyperDrone=null; /* 3D-дрон в углу при гипер-драйве */
+var targetRotationSpeed=0.6;var targetBrightness=1.0;
+var currentRotationSpeed=0.6;var currentBrightness=1.0;
 
-function initThree(){
+function initCrystalScene(){
   var container=document.getElementById('scene-container');
   renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
-  renderer.setSize(window.innerWidth,window.innerHeight);
+  renderer.setSize(container.clientWidth,container.clientHeight);
   renderer.shadowMap.enabled=true;
   container.appendChild(renderer.domElement);
   scene=new THREE.Scene();
-  scene.fog=new THREE.Fog(0x0a0718,16,28);
-  camera=new THREE.PerspectiveCamera(55,window.innerWidth/window.innerHeight,0.1,100);
-  camera.position.set(0,0.4,6);
+  scene.fog=new THREE.Fog(0x0a0718,14,26);
+  camera=new THREE.PerspectiveCamera(55,container.clientWidth/container.clientHeight,0.1,100);
+  camera.position.set(0,0.3,6);
   camera.lookAt(0,0,0);
-  scene.add(new THREE.AmbientLight(0x44446a,0.6));
-  var key=new THREE.DirectionalLight(0xffffff,1.1);key.position.set(4,6,6);scene.add(key);
-  var rim=new THREE.DirectionalLight(0x38f0ff,0.5);rim.position.set(-5,-2,-4);scene.add(rim);
-  crystalLight=new THREE.PointLight(0x8f7bff,1.6,10);crystalLight.position.set(0,0,0);scene.add(crystalLight);
+  scene.add(new THREE.AmbientLight(0x44446a,0.5));
+  crystalKeyLight=new THREE.DirectionalLight(0xffffff,1.0);
+  crystalKeyLight.position.set(4,6,6);
+  scene.add(crystalKeyLight);
+  crystalRim=new THREE.DirectionalLight(0x38f0ff,0.5);
+  crystalRim.position.set(-5,-2,-4);
+  scene.add(crystalRim);
+  crystalLight=new THREE.PointLight(0x8f7bff,1.4,10);
+  crystalLight.position.set(0,0,0);
+  scene.add(crystalLight);
   createStars();
   createCrystal();
-  createShop();
-  createHyperDrone();
 }
-function createStars(){var g=new THREE.BufferGeometry();var c=600;var p=new Float32Array(c*3);for(var i=0;i<c;i++){p[i*3]=(Math.random()-0.5)*60;p[i*3+1]=(Math.random()-0.5)*40;p[i*3+2]=-Math.random()*30-5;}g.setAttribute('position',new THREE.BufferAttribute(p,3));scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0xffffff,size:0.06,transparent:true,opacity:0.8})));}
+function createStars(){var g=new THREE.BufferGeometry();var c=500;var p=new Float32Array(c*3);for(var i=0;i<c;i++){p[i*3]=(Math.random()-0.5)*50;p[i*3+1]=(Math.random()-0.5)*34;p[i*3+2]=-Math.random()*26-4;}g.setAttribute('position',new THREE.BufferAttribute(p,3));scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0xffffff,size:0.06,transparent:true,opacity:0.8})));}
 function createCrystal(){
   crystalGroup=new THREE.Group();scene.add(crystalGroup);
-  var geo=new THREE.IcosahedronGeometry(1.55,1);
+  var geo=new THREE.IcosahedronGeometry(1.4,1);
   var skin=SKINS[gameState.activeSkin]||SKINS.default;
-  crystalMaterial=new THREE.MeshPhysicalMaterial({color:skin.color,emissive:skin.emissive,metalness:skin.metalness,roughness:skin.roughness,clearcoat:1.0,clearcoatRoughness:0.15,flatShading:true});
+  crystalMaterial=new THREE.MeshPhysicalMaterial({color:skin.color,emissive:skin.emissive,emissiveIntensity:0.6,metalness:skin.metalness,roughness:skin.roughness,clearcoat:1.0,clearcoatRoughness:0.15,flatShading:true});
   crystalMesh=new THREE.Mesh(geo,crystalMaterial);crystalMesh.castShadow=true;crystalGroup.add(crystalMesh);
-  var core=new THREE.Mesh(new THREE.OctahedronGeometry(0.75,0),new THREE.MeshBasicMaterial({color:skin.glow,transparent:true,opacity:0.35}));
+  var core=new THREE.Mesh(new THREE.OctahedronGeometry(0.65,0),new THREE.MeshBasicMaterial({color:skin.glow,transparent:true,opacity:0.35}));
   crystalGroup.add(core);crystalGroup.userData.core=core;
-  var og=new THREE.Group();
-  for(var i=0;i<6;i++){var sm=new THREE.Mesh(new THREE.OctahedronGeometry(0.2,0),new THREE.MeshStandardMaterial({color:skin.glow,emissive:skin.glow,emissiveIntensity:0.6,metalness:0.8,roughness:0.2}));var a=(i/6)*Math.PI*2;sm.position.set(Math.cos(a)*2.6,Math.sin(a*2)*0.5,Math.sin(a)*2.6);og.add(sm);}
-  crystalGroup.add(og);crystalGroup.userData.orbitGroup=og;
   orbitRoot=new THREE.Group();scene.add(orbitRoot);orbitObjects=[];
 }
-function applySkin(){var skin=SKINS[gameState.activeSkin]||SKINS.default;crystalMaterial.color.setHex(skin.color);crystalMaterial.emissive.setHex(skin.emissive);crystalMaterial.metalness=skin.metalness;crystalMaterial.roughness=skin.roughness;crystalLight.color.setHex(skin.glow);crystalLight.intensity=1.6;if(crystalGroup.userData.core)crystalGroup.userData.core.material.color.setHex(skin.glow);if(crystalGroup.userData.orbitGroup)crystalGroup.userData.orbitGroup.children.forEach(function(m){m.material.color.setHex(skin.glow);m.material.emissive.setHex(skin.glow);});}
+function applySkin(){var skin=SKINS[gameState.activeSkin]||SKINS.default;crystalMaterial.color.setHex(skin.color);crystalMaterial.emissive.setHex(skin.emissive);crystalLight.color.setHex(skin.glow);if(crystalGroup.userData.core)crystalGroup.userData.core.material.color.setHex(skin.glow);}
 
-/* Спутники */
-function buildOrbitSatellite(kind){var geo,mat;if(kind==='sphere'){geo=new THREE.SphereGeometry(0.22,16,12);mat=new THREE.MeshStandardMaterial({color:0x00f0ff,emissive:0x00f0ff,emissiveIntensity:0.9,metalness:0.6,roughness:0.2});}else if(kind==='cone'){geo=new THREE.ConeGeometry(0.18,0.55,12);mat=new THREE.MeshStandardMaterial({color:0x9aa3c8,emissive:0x444466,emissiveIntensity:0.5,metalness:1.0,roughness:0.3});}else{geo=new THREE.TorusGeometry(0.2,0.06,10,20);mat=new THREE.MeshStandardMaterial({color:0xff007f,emissive:0xff007f,emissiveIntensity:0.8,metalness:0.6,roughness:0.2});}var m=new THREE.Mesh(geo,mat);m.userData.angle=Math.random()*Math.PI*2;m.userData.radius=3.5+Math.random()*2.5;m.userData.speed=0.4+Math.random()*0.7;m.userData.height=(Math.random()-0.5)*1.2;m.userData.spinX=Math.random()*Math.PI*2;m.userData.spinY=Math.random()*Math.PI*2;m.userData.spinSpeed=1+Math.random()*1.5;return m;}
+function buildOrbitSatellite(kind){var geo,mat;if(kind==='sphere'){geo=new THREE.SphereGeometry(0.2,16,12);mat=new THREE.MeshStandardMaterial({color:0x00f0ff,emissive:0x00f0ff,emissiveIntensity:0.9,metalness:0.6,roughness:0.2});}else if(kind==='cone'){geo=new THREE.ConeGeometry(0.17,0.5,12);mat=new THREE.MeshStandardMaterial({color:0x9aa3c8,emissive:0x444466,emissiveIntensity:0.5,metalness:1.0,roughness:0.3});}else{geo=new THREE.TorusGeometry(0.18,0.055,10,20);mat=new THREE.MeshStandardMaterial({color:0xff007f,emissive:0xff007f,emissiveIntensity:0.8,metalness:0.6,roughness:0.2});}var m=new THREE.Mesh(geo,mat);m.userData.angle=Math.random()*Math.PI*2;m.userData.radius=3.0+Math.random()*2.2;m.userData.speed=0.4+Math.random()*0.6;m.userData.height=(Math.random()-0.5)*1.1;m.userData.spinX=Math.random()*Math.PI*2;m.userData.spinY=Math.random()*Math.PI*2;m.userData.spinSpeed=1+Math.random()*1.5;m.userData.baseColor=mat.color.getHex();m.userData.baseEmissive=mat.emissive.getHex();return m;}
 function refreshOrbitObjects(){orbitObjects.forEach(function(o){if(orbitRoot&&o.parent)orbitRoot.remove(o);if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});orbitObjects=[];if(!orbitRoot)return;UPGRADE_DEFS.forEach(function(def){if(!def.sat)return;var lv=gameState.upgrades[def.id]?gameState.upgrades[def.id].level:0;for(var i=0;i<lv;i++)orbitObjects.push(buildOrbitSatellite(def.sat));});orbitObjects.forEach(function(o){orbitRoot.add(o);});}
+function dimOrbitObjects(dim){orbitObjects.forEach(function(o){if(dim){o.material.color.setHex(0x000000);o.material.emissive.setHex(0x000000);o.material.emissiveIntensity=0;}else{o.material.color.setHex(o.userData.baseColor);o.material.emissive.setHex(o.userData.baseEmissive);o.material.emissiveIntensity=0.8;}});}
 
-/* Лавка и продавец */
-function drawVendorFace(emotion){if(!vendorFaceCtx||!vendorFaceCanvas)return;var ctx=vendorFaceCtx;ctx.clearRect(0,0,vendorFaceCanvas.width,vendorFaceCanvas.height);var text=VENDOR_FACES[emotion]||VENDOR_FACES.idle;ctx.font='900 46px "Courier New", monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowColor=emotion==='buy'?'#00f0ff':'#ff007f';ctx.shadowBlur=18;ctx.fillStyle=emotion==='buy'?'#00f0ff':'#ff007f';ctx.fillText(text,128,66);ctx.shadowBlur=0;if(vendorFaceTexture)vendorFaceTexture.needsUpdate=true;}
-function createShop(){
-  shopGroup=new THREE.Group();scene.add(shopGroup);
+var raycaster=new THREE.Raycaster();var mouseNDC=new THREE.Vector2();var isDown=false;
+function updateMouse(e){var r=renderer.domElement.getBoundingClientRect();var cx=e.clientX,cy=e.clientY;if(e.touches&&e.touches.length>0){cx=e.touches[0].clientX;cy=e.touches[0].clientY;}mouseNDC.x=((cx-r.left)/r.width)*2-1;mouseNDC.y=-((cy-r.top)/r.height)*2+1;}
+function onPointerDown(e){isDown=true;updateMouse(e);crystalGroup.scale.set(0.92,0.92,0.92);lastActivityTime=Date.now();}
+function onPointerUp(e){if(!isDown)return;isDown=false;crystalGroup.scale.set(1,1,1);updateMouse(e);raycaster.setFromCamera(mouseNDC,camera);var hits=raycaster.intersectObject(crystalMesh);if(hits.length===0)return;var r=registerClick();var r2=renderer.domElement.getBoundingClientRect();var cx=(e.clientX!==undefined?e.clientX:e.changedTouches[0].clientX);var cy=(e.clientY!==undefined?e.clientY:e.changedTouches[0].clientY);if(r.isCrit){spawnDamageText(cx,cy-30,'КРИТ! +'+formatNumber(r.gain)+' 💎');spawnClickRipple(cx,cy);spawnParticles(hits[0].point.clone());spawnParticles(hits[0].point.clone());shakeScreen();playSound('crit');}else{spawnDamageText(cx,cy,'+'+formatNumber(r.gain)+' 💎');spawnClickRipple(cx,cy);spawnParticles(hits[0].point.clone());playSound('click');}refreshUI();checkAchievements();}
+
+function spawnParticles(point){var count=15+Math.floor(Math.random()*5);var skin=SKINS[gameState.activeSkin]||SKINS.default;for(var i=0;i<count;i++){var size=0.05+Math.random()*0.1;var cube=new THREE.Mesh(new THREE.BoxGeometry(size,size,size),new THREE.MeshStandardMaterial({color:skin.glow,emissive:skin.glow,emissiveIntensity:0.8,metalness:0.9,roughness:0.2}));cube.position.copy(point);var dir=new THREE.Vector3((Math.random()-0.5)*2,(Math.random()-0.5)*2,(Math.random()-0.5)*2).normalize();cube.userData.velocity=dir.multiplyScalar(2+Math.random()*3);cube.userData.life=1;scene.add(cube);particles.push(cube);}}
+function updateParticles(dt){for(var i=particles.length-1;i>=0;i--){var p=particles[i];p.userData.life-=dt*0.9;p.userData.velocity.y-=dt*5;p.position.add(p.userData.velocity.clone().multiplyScalar(dt));p.rotation.x+=dt*4;p.rotation.y+=dt*4;p.scale.setScalar(Math.max(0,p.userData.life));if(p.userData.life<=0){scene.remove(p);p.geometry.dispose();p.material.dispose();particles.splice(i,1);}}}
+
+/* Кинематика: lerp скорости и яркости в зависимости от активной вкладки */
+function setCrystalActive(active){
+  targetRotationSpeed=active?0.6:0.05;
+  targetBrightness=active?1.0:0.05;
+}
+function animateCrystal(){
+  requestAnimationFrame(animateCrystal);
+  var dt=Math.min(clock.getDelta(),0.05);
+  var time=clock.elapsedTime;
+  var isActive=(activeView==='crystal');
+  currentRotationSpeed+=(targetRotationSpeed-currentRotationSpeed)*dt*3;
+  currentBrightness+=(targetBrightness-currentBrightness)*dt*3;
+  crystalGroup.rotation.y+=dt*currentRotationSpeed;
+  crystalGroup.rotation.x=Math.sin(time*0.5)*(isActive?0.08:0);
+  crystalGroup.position.y=isActive?Math.sin(time*1.2)*0.12:0;
+  /* свет и эмиссия */
+  crystalKeyLight.intensity=0.3+currentBrightness*0.9;
+  crystalRim.intensity=0.1+currentBrightness*0.4;
+  crystalLight.intensity=0.2+currentBrightness*1.4;
+  crystalMaterial.emissiveIntensity=0.05+currentBrightness*0.7;
+  /* спутники */
+  orbitObjects.forEach(function(sat){var a=sat.userData.angle+time*sat.userData.speed;sat.position.x=Math.cos(a)*sat.userData.radius;sat.position.z=Math.sin(a)*sat.userData.radius;sat.position.y=sat.userData.height+Math.sin(time*1.3+sat.userData.angle)*0.15;sat.rotation.x=sat.userData.spinX+time*sat.userData.spinSpeed*0.5;sat.rotation.y=sat.userData.spinY+time*sat.userData.spinSpeed;});
+  dimOrbitObjects(!isActive);
+  updateParticles(dt);
+  /* камера: небольшой отлет, когда неактивна */
+  var targetZ=isActive?6:7.2;
+  var targetY=isActive?0.3:0.6;
+  camera.position.z+=(targetZ-camera.position.z)*dt*3;
+  camera.position.y+=(targetY-camera.position.y)*dt*3;
+  camera.lookAt(0,0,0);
+  renderer.render(scene,camera);
+}
+
+/* ============================================================
+   СЦЕНА 2: РОБОТ-ПРОДАВЕЦ (правая колонка)
+   ============================================================ */
+var mRenderer,mScene,mCamera,mMerchant,mMerchantHead,mMerchantHat,mMerchantFace,mMerchantFaceCtx,mMerchantFaceCanvas,mMerchantFaceTexture,mMerchantArmR,mMerchantArmL;
+var merchantHover=false;
+var merchantAnim={approve:0,poor:0};
+var MERCHANT_FACES={idle:'[ ^ _ ^ ]',hover:'[ ?  ? ]',buy:'[ $  $ ]',poor:'[ X  X ]'};
+var merchantPhrases={
+  welcome:['Приветствую, оператор!','Мои дроны заждались хозяина!','Добро пожаловать в мой магазин!','Свежие апгрейды для твоей империи!','Заходи, странник, здесь выгодно!'],
+  successBuy:['Отличная сделка, оператор!','Эта штука ускорит твой доход!','Ха-ха, выгодно купил!','Мудрое вложение в будущее!','С такими модулями ты взлетишь!'],
+  noFunds:['Твои карманы пусты!','Сначала заработай кристаллы!','Вернись, когда будут кристаллы!','Пустой кошелёк — грустно!','Копи кристаллы и возвращайся!'],
+  idle:['Ты уснул, оператор?','Если любуешься моей шляпой — спасибо!','Покупай, пока цены низкие!','Я жду твой заказ!','Прилавок к твоим услугам!']
+};
+
+function initMerchantScene(){
+  var container=document.getElementById('merchant-scene');
+  mRenderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+  mRenderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  mRenderer.setSize(container.clientWidth,container.clientHeight);
+  container.appendChild(mRenderer.domElement);
+  mScene=new THREE.Scene();
+  mScene.fog=new THREE.Fog(0x16102e,10,20);
+  mCamera=new THREE.PerspectiveCamera(45,container.clientWidth/container.clientHeight,0.1,50);
+  mCamera.position.set(0,1.6,4.5);
+  mCamera.lookAt(0,1.4,0);
+  mScene.add(new THREE.AmbientLight(0x44446a,0.6));
   var metal=new THREE.MeshStandardMaterial({color:0x6f6a9e,metalness:0.9,roughness:0.3});
   var dark=new THREE.MeshStandardMaterial({color:0x2a2440,metalness:0.8,roughness:0.35});
   var cyan=new THREE.MeshStandardMaterial({color:0x00f0ff,emissive:0x00f0ff,emissiveIntensity:0.8,metalness:0.6,roughness:0.3});
   var pink=new THREE.MeshStandardMaterial({color:0xff007f,emissive:0xff007f,emissiveIntensity:0.7,metalness:0.6,roughness:0.3});
   var gold=new THREE.MeshStandardMaterial({color:0xffd700,emissive:0x885500,emissiveIntensity:0.4,metalness:1.0,roughness:0.2});
-  var floor=new THREE.Mesh(new THREE.BoxGeometry(6.4,0.12,4.2),dark);shopGroup.add(floor);
-  /* Прилавок на z=-0.5 */
-  var counter=new THREE.Mesh(new THREE.BoxGeometry(3.6,1.0,1.3),metal);counter.position.set(0,0.5,-0.5);shopGroup.add(counter);
-  var edge=new THREE.Mesh(new THREE.BoxGeometry(3.6,0.06,0.06),cyan);edge.position.set(0,1.03,-0.1);shopGroup.add(edge);
-  var rackL=new THREE.Mesh(new THREE.BoxGeometry(0.5,3.0,0.6),dark);rackL.position.set(-3.0,1.5,0);
-  var rackR=new THREE.Mesh(new THREE.BoxGeometry(0.5,3.0,0.6),dark);rackR.position.set(3.0,1.5,0);
-  shopGroup.add(rackL);shopGroup.add(rackR);
-  var shelfPos=[[-3.0,1.0,0],[-3.0,2.2,0],[3.0,1.0,0],[3.0,2.2,0]];
-  for(var s=0;s<4;s++){var sh=new THREE.Mesh(new THREE.BoxGeometry(1.0,0.06,0.9),pink);sh.position.set(shelfPos[s][0],shelfPos[s][1],shelfPos[s][2]);shopGroup.add(sh);var cr=new THREE.Mesh(new THREE.OctahedronGeometry(0.16,0),gold);cr.position.set(shelfPos[s][0],shelfPos[s][1]+0.1,shelfPos[s][2]);cr.userData.spin=Math.random()*Math.PI*2;shopGroup.add(cr);}
-  [[-1.2,1.06,-0.9],[0,1.06,-1.0],[1.2,1.06,-0.9]].forEach(function(p){var cr=new THREE.Mesh(new THREE.OctahedronGeometry(0.16,0),gold);cr.position.set(p[0],p[1],p[2]);cr.userData.spin=Math.random()*Math.PI*2;shopGroup.add(cr);});
-  var sign=new THREE.Mesh(new THREE.BoxGeometry(2.6,0.6,0.18),cyan);sign.position.set(0,3.3,-0.9);shopGroup.add(sign);
-  var shopLight=new THREE.PointLight(0x00f0ff,1.2,8);shopLight.position.set(0,3.8,-0.4);shopGroup.add(shopLight);
-  var neonL=new THREE.PointLight(0x00f0ff,0.8,7);neonL.position.set(-3.2,2.0,1.2);shopGroup.add(neonL);
-  var neonR=new THREE.PointLight(0xff007f,0.8,7);neonR.position.set(3.2,2.0,1.2);shopGroup.add(neonR);
-  /* Яркий направленный свет спереди на лицо-монитор робота */
-  var faceLight=new THREE.DirectionalLight(0xffffff,2.5);
-  faceLight.position.set(0,2,4);
-  shopGroup.add(faceLight);
-  /* ПРОДАВЕЦ ЗА ПРИЛАВКОМ (z=-1.4): голова и шляпа ровно по центру пустого
-     пространства между колонками, лицо смотрит прямо на камеру */
-  vendorGroup=new THREE.Group();vendorGroup.position.set(0,0,-1.4);shopGroup.add(vendorGroup);
-  vendorBody=new THREE.Mesh(new THREE.CylinderGeometry(0.62,0.9,1.5,16,1,true),metal);vendorBody.position.y=1.2;vendorGroup.add(vendorBody);
-  var neck=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.26,0.2,12),dark);neck.position.y=1.95;vendorGroup.add(neck);
-  vendorHead=new THREE.Mesh(new THREE.BoxGeometry(0.85,0.7,0.7),metal);vendorHead.position.y=2.35;vendorGroup.add(vendorHead);
-  vendorFaceCanvas=document.createElement('canvas');vendorFaceCanvas.width=256;vendorFaceCanvas.height=128;vendorFaceCtx=vendorFaceCanvas.getContext('2d');vendorFaceTexture=new THREE.CanvasTexture(vendorFaceCanvas);vendorFaceTexture.minFilter=THREE.LinearFilter;vendorFace=new THREE.Mesh(new THREE.PlaneGeometry(0.76,0.6),new THREE.MeshBasicMaterial({map:vendorFaceTexture,transparent:true}));vendorFace.position.set(0,2.35,0.351);vendorGroup.add(vendorFace);drawVendorFace('idle');
-  vendorHat=new THREE.Group();var brim=new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.5,0.08,24),pink);brim.position.y=2.72;var top=new THREE.Mesh(new THREE.CylinderGeometry(0.34,0.4,0.4,24),cyan);top.position.y=2.96;var band=new THREE.Mesh(new THREE.CylinderGeometry(0.41,0.41,0.09,24),pink);band.position.y=2.76;vendorHat.add(brim);vendorHat.add(top);vendorHat.add(band);vendorGroup.add(vendorHat);
-  var ant=new THREE.Mesh(new THREE.CylinderGeometry(0.025,0.025,0.45,8),dark);ant.position.y=3.3;vendorGroup.add(ant);
-  var tip=new THREE.Mesh(new THREE.SphereGeometry(0.07,8,8),new THREE.MeshBasicMaterial({color:0xff007f}));tip.position.y=3.55;vendorGroup.add(tip);
-  vendorArmR=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.12,0.55,8),dark);vendorArmR.position.set(0.78,1.5,0);vendorArmR.rotation.z=-0.5;vendorGroup.add(vendorArmR);
-  var handR=new THREE.Mesh(new THREE.SphereGeometry(0.12,8,8),cyan);handR.position.set(1.15,1.1,0);vendorGroup.add(handR);
-  vendorArmL=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.12,0.55,8),dark);vendorArmL.position.set(-0.78,1.5,0);vendorArmL.rotation.z=0.5;vendorGroup.add(vendorArmL);
-  var handL=new THREE.Mesh(new THREE.SphereGeometry(0.12,8,8),pink);handL.position.set(-1.15,1.1,0);vendorGroup.add(handL);
-  var spot=new THREE.SpotLight(0x38f0ff,1.6,12,Math.PI/6,0.6,1);spot.position.set(0,4.5,2.5);spot.target.position.set(0,1.6,-1.4);shopGroup.add(spot);shopGroup.add(spot.target);
+  /* Пол */
+  var floor=new THREE.Mesh(new THREE.BoxGeometry(3.6,0.12,2.4),dark);floor.position.y=0;mScene.add(floor);
+  /* Прилавок перед роботом */
+  var counter=new THREE.Mesh(new THREE.BoxGeometry(2.8,0.9,0.6),metal);counter.position.set(0,0.45,0.4);mScene.add(counter);
+  var edge=new THREE.Mesh(new THREE.BoxGeometry(2.8,0.05,0.05),cyan);edge.position.set(0,0.9,0.45);mScene.add(edge);
+  /* Кристаллы на прилавке */
+  [[-0.6,0.95,0.5],[0,0.95,0.55],[0.6,0.95,0.5]].forEach(function(p){var c=new THREE.Mesh(new THREE.OctahedronGeometry(0.12,0),gold);c.position.set(p[0],p[1],p[2]);c.userData.spin=Math.random()*Math.PI*2;mScene.add(c);});
+  /* РОБОТ (за прилавком) */
+  mMerchant=new THREE.Group();mMerchant.position.set(0,0,-0.4);mScene.add(mMerchant);
+  var body=new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.7,1.2,16,1,true),metal);body.position.y=1.0;mMerchant.add(body);
+  var neck=new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.22,0.16,12),dark);neck.position.y=1.6;mMerchant.add(neck);
+  mMerchantHead=new THREE.Mesh(new THREE.BoxGeometry(0.7,0.58,0.58),metal);mMerchantHead.position.y=1.92;mMerchant.add(mMerchantHead);
+  /* Лицо-монитор */
+  mMerchantFaceCanvas=document.createElement('canvas');mMerchantFaceCanvas.width=256;mMerchantFaceCanvas.height=128;mMerchantFaceCtx=mMerchantFaceCanvas.getContext('2d');mMerchantFaceTexture=new THREE.CanvasTexture(mMerchantFaceCanvas);mMerchantFaceTexture.minFilter=THREE.LinearFilter;mMerchantFace=new THREE.Mesh(new THREE.PlaneGeometry(0.62,0.5),new THREE.MeshBasicMaterial({map:mMerchantFaceTexture,transparent:true}));mMerchantFace.position.set(0,1.92,0.291);mMerchant.add(mMerchantFace);drawMerchantFace('idle');
+  /* Шляпа-цилиндр */
+  mMerchantHat=new THREE.Group();
+  var brim=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.42,0.06,24),pink);brim.position.y=2.22;
+  var top=new THREE.Mesh(new THREE.CylinderGeometry(0.28,0.33,0.34,24),cyan);top.position.y=2.42;
+  var band=new THREE.Mesh(new THREE.CylinderGeometry(0.33,0.33,0.07,24),pink);band.position.y=2.26;
+  mMerchantHat.add(brim);mMerchantHat.add(top);mMerchantHat.add(band);mMerchant.add(mMerchantHat);
+  /* Антенна */
+  var ant=new THREE.Mesh(new THREE.CylinderGeometry(0.02,0.02,0.35,8),dark);ant.position.y=2.68;mMerchant.add(ant);
+  var tip=new THREE.Mesh(new THREE.SphereGeometry(0.06,8,8),new THREE.MeshBasicMaterial({color:0xff007f}));tip.position.y=2.9;mMerchant.add(tip);
+  /* Руки */
+  mMerchantArmR=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.1,0.45,8),dark);mMerchantArmR.position.set(0.62,1.2,0);mMerchantArmR.rotation.z=-0.5;mMerchant.add(mMerchantArmR);
+  var handR=new THREE.Mesh(new THREE.SphereGeometry(0.1,8,8),cyan);handR.position.set(0.9,0.95,0);mMerchant.add(handR);
+  mMerchantArmL=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.1,0.45,8),dark);mMerchantArmL.position.set(-0.62,1.2,0);mMerchantArmL.rotation.z=0.5;mMerchant.add(mMerchantArmL);
+  var handL=new THREE.Mesh(new THREE.SphereGeometry(0.1,8,8),pink);handL.position.set(-0.9,0.95,0);mMerchant.add(handL);
+  /* Индивидуальный SpotLight сверху-спереди */
+  var spot=new THREE.SpotLight(0xffffff,2.0,10,Math.PI/7,0.5,1);
+  spot.position.set(0,3.5,2.5);spot.target.position.set(0,1.6,-0.4);mScene.add(spot);mScene.add(spot.target);
 }
-/* 3D-дрон для гипер-драйва (в углу сцены) */
-function createHyperDrone(){
-  hyperDrone=new THREE.Group();
-  var body=new THREE.Mesh(new THREE.IcosahedronGeometry(0.28,0),new THREE.MeshStandardMaterial({color:0xa04dff,emissive:0xa04dff,emissiveIntensity:0.8,metalness:0.8,roughness:0.2}));
-  hyperDrone.add(body);
-  var eyeMat=new THREE.MeshBasicMaterial({color:0xffffff});
-  var eye=new THREE.Mesh(new THREE.SphereGeometry(0.08,8,8),eyeMat);eye.position.set(0,0,0.26);hyperDrone.add(eye);
-  [0,Math.PI*2/3,Math.PI*4/3].forEach(function(a){var prop=new THREE.Mesh(new THREE.TorusGeometry(0.22,0.02,6,16),new THREE.MeshStandardMaterial({color:0x8f7bff,emissive:0x8f7bff,emissiveIntensity:0.5}));prop.position.set(Math.cos(a)*0.4,Math.sin(a)*0.4,0);prop.userData.spin=a;hyperDrone.add(prop);});
-  hyperDrone.position.set(-3.2,2.2,1.5);
-  hyperDrone.visible=false;
-  scene.add(hyperDrone);
-}
-
-/* Частицы */
-function spawnParticles(point){var count=14+Math.floor(Math.random()*5);var skin=SKINS[gameState.activeSkin]||SKINS.default;for(var i=0;i<count;i++){var size=0.05+Math.random()*0.1;var cube=new THREE.Mesh(new THREE.BoxGeometry(size,size,size),new THREE.MeshStandardMaterial({color:skin.glow,emissive:skin.glow,emissiveIntensity:0.8,metalness:0.9,roughness:0.2}));cube.position.copy(point);var dir=new THREE.Vector3((Math.random()-0.5)*2,(Math.random()-0.5)*2,(Math.random()-0.5)*2).normalize();cube.userData.velocity=dir.multiplyScalar(2+Math.random()*3);cube.userData.life=1;scene.add(cube);particles.push(cube);}}
-function updateParticles(dt){for(var i=particles.length-1;i>=0;i--){var p=particles[i];p.userData.life-=dt*0.9;p.userData.velocity.y-=dt*5;p.position.add(p.userData.velocity.clone().multiplyScalar(dt));p.rotation.x+=dt*4;p.rotation.y+=dt*4;p.scale.setScalar(Math.max(0,p.userData.life));if(p.userData.life<=0){scene.remove(p);p.geometry.dispose();p.material.dispose();particles.splice(i,1);}}}
-
-/* Клики */
-var raycaster=new THREE.Raycaster();var mouseNDC=new THREE.Vector2();var isDown=false;
-function updateMouse(e){var r=renderer.domElement.getBoundingClientRect();var cx=e.clientX,cy=e.clientY;if(e.touches&&e.touches.length>0){cx=e.touches[0].clientX;cy=e.touches[0].clientY;}mouseNDC.x=((cx-r.left)/r.width)*2-1;mouseNDC.y=-((cy-r.top)/r.height)*2+1;}
-function onPointerDown(e){isDown=true;updateMouse(e);crystalGroup.scale.set(0.92,0.92,0.92);}
-function onPointerUp(e){if(!isDown)return;isDown=false;crystalGroup.scale.set(1,1,1);updateMouse(e);raycaster.setFromCamera(mouseNDC,camera);var hits=raycaster.intersectObject(crystalMesh);if(hits.length===0)return;var r=registerClick();var cx=(e.clientX!==undefined?e.clientX:e.changedTouches[0].clientX);var cy=(e.clientY!==undefined?e.clientY:e.changedTouches[0].clientY);if(r.isCrit){spawnDamageText(cx,cy-30,'КРИТ! +'+formatNumber(r.gain)+' 💎');spawnClickRipple(cx,cy);spawnParticles(hits[0].point.clone());spawnParticles(hits[0].point.clone());shakeScreen();playSound('crit');}else{spawnDamageText(cx,cy,'+'+formatNumber(r.gain)+' 💎');spawnClickRipple(cx,cy);spawnParticles(hits[0].point.clone());playSound('click');}refreshUI();checkAchievements();checkContracts();}
-
-/* Аномалия и гипер-драйв */
-var anomalyTimer=null;
-function spawnAnomaly(){
-  var a=document.getElementById('anomaly');
-  if(!a)return;
-  if(activePage!=='page-crystal'){scheduleAnomaly();return;}
-  /* Безопасная зона спавна: строго в свободном пространстве вокруг 3D-кристалла.
-     X: центральные 600px, сдвинуты от левого меню (навигация ~200px).
-     Y: центральная область, не заходящая на комбо-панель (низ) и топбар. */
-  var safeXmin=300;
-  var safeXmax=window.innerWidth-300;
-  var safeYmin=160;
-  var safeYmax=window.innerHeight-260;
-  if(safeXmax<=safeXmin)safeXmax=safeXmin+200;
-  if(safeYmax<=safeYmin)safeYmax=safeYmin+200;
-  var x=safeXmin+Math.random()*(safeXmax-safeXmin);
-  var y=safeYmin+Math.random()*(safeYmax-safeYmin);
-  a.style.left=x+'px';a.style.top=y+'px';
-  a.classList.add('active');
-  var collected=false;
-  a.onclick=function(){if(collected)return;collected=true;a.classList.remove('active');activateHyperdrive();scheduleAnomaly();};
-  /* Движение аномалии 5 секунд в пределах безопасной зоны, потом исчезает */
-  var t0=Date.now();
-  var mv=setInterval(function(){
-    if(collected){clearInterval(mv);return;}
-    var el=Date.now()-t0;
-    var nx=x+Math.sin(el/200)*40;
-    var ny=y+Math.cos(el/150)*30;
-    if(nx<safeXmin)nx=safeXmin;
-    if(nx>safeXmax)nx=safeXmax;
-    if(ny<safeYmin)ny=safeYmin;
-    if(ny>safeYmax)ny=safeYmax;
-    a.style.left=nx+'px';a.style.top=ny+'px';
-    if(el>=5000){clearInterval(mv);if(!collected){a.classList.remove('active');scheduleAnomaly();}}
-  },50);
-}
-function scheduleAnomaly(){if(anomalyTimer)clearTimeout(anomalyTimer);anomalyTimer=setTimeout(spawnAnomaly,120000+Math.random()*60000);} /* 2-3 мин */
-function activateHyperdrive(){
-  hyperdriveActive=true;
-  recomputeDerived();
-  document.body.classList.add('hyperdrive');
-  if(hyperDrone)hyperDrone.visible=true;
-  playSound('hyper');
-  showToast(svgIcon('zap',24),'ГИПЕР-ДРАЙВ!','Доход x5 на 15 секунд!');
-  var droneBubble=document.getElementById('vendor-bubble');
-  if(droneBubble){droneBubble.classList.add('visible');document.getElementById('vendor-bubble-text').textContent='ВЖЖ-ВЖЖ! x5 скорость!';setTimeout(function(){droneBubble.classList.remove('visible');},2500);}
-  if(hyperdriveTimer)clearTimeout(hyperdriveTimer);
-  hyperdriveTimer=setTimeout(function(){
-    hyperdriveActive=false;
-    recomputeDerived();
-    document.body.classList.remove('hyperdrive');
-    if(hyperDrone)hyperDrone.visible=false;
-    refreshUI();
-  },15000);
-  refreshUI();
-}
-
-/* Игровой цикл */
-function animate(){
-  requestAnimationFrame(animate);
+function drawMerchantFace(emotion){if(!mMerchantFaceCtx||!mMerchantFaceCanvas)return;var ctx=mMerchantFaceCtx;ctx.clearRect(0,0,mMerchantFaceCanvas.width,mMerchantFaceCanvas.height);var text=MERCHANT_FACES[emotion]||MERCHANT_FACES.idle;ctx.font='900 44px "Courier New",monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowColor=emotion==='buy'?'#00f0ff':'#ff007f';ctx.shadowBlur=16;ctx.fillStyle=emotion==='buy'?'#00f0ff':'#ff007f';ctx.fillText(text,128,66);ctx.shadowBlur=0;if(mMerchantFaceTexture)mMerchantFaceTexture.needsUpdate=true;}
+function animateMerchant(){
+  requestAnimationFrame(animateMerchant);
   var dt=Math.min(clock.getDelta(),0.05);
   var time=clock.elapsedTime;
-  var isMarket=(activePage==='page-market');
-  var isMobile=window.innerWidth<820;
-  crystalGroup.visible=!isMarket;
-  crystalGroup.position.y=isMarket?0:Math.sin(time*1.2)*0.12;
-  crystalGroup.rotation.y+=dt*0.6;
-  crystalGroup.rotation.x=Math.sin(time*0.5)*0.08;
-  crystalLight.intensity=1.4+Math.sin(time*2.2)*0.3;
-  if(crystalGroup.userData.orbitGroup)crystalGroup.userData.orbitGroup.rotation.y+=dt*0.8;
-  var cs=(activePage==='page-crystal')?1:(isMarket?0.5:0.55);
-  crystalGroup.scale.lerp(new THREE.Vector3(cs,cs,cs),dt*4);
-  /* спутники */
-  orbitObjects.forEach(function(sat){var a=sat.userData.angle+time*sat.userData.speed;sat.position.x=Math.cos(a)*sat.userData.radius;sat.position.z=Math.sin(a)*sat.userData.radius;sat.position.y=sat.userData.height+Math.sin(time*1.3+sat.userData.angle)*0.15;sat.rotation.x=sat.userData.spinX+time*sat.userData.spinSpeed*0.5;sat.rotation.y=sat.userData.spinY+time*sat.userData.spinSpeed;});
-  if(orbitRoot)orbitRoot.visible=(activePage==='page-crystal');
-  updateParticles(dt);
-  /* камера */
-  var camT=new THREE.Vector3(),lookT=new THREE.Vector3();
-  if(activePage==='page-crystal'){camT.set(0,0.4,6);lookT.set(0,0,0);}
-  else if(isMarket){var z=isMobile?8.5:6.0,y=isMobile?1.8:1.6,ly=isMobile?1.4:1.4;camT.set(0,y,z);lookT.set(0,ly,0);}
-  else{camT.set(0,1.4,13.5);lookT.set(0,0,0);}
-  camera.position.x+=(camT.x-camera.position.x)*dt*3;camera.position.y+=(camT.y-camera.position.y)*dt*3;camera.position.z+=(camT.z-camera.position.z)*dt*3;
-  cameraLook.lerp(lookT,dt*3);camera.lookAt(cameraLook);
-  if(shopGroup)shopGroup.visible=isMarket;
-  if(shopGroup&&isMarket)shopGroup.children.forEach(function(ch){if(ch.userData&&ch.userData.spin!==undefined){ch.userData.spin+=dt*1.5;ch.rotation.y=ch.userData.spin;}});
-  /* продавец */
-  if(vendorGroup){
-    var breath=Math.sin(time*1.6)*0.035;
-    vendorBody.position.y=1.2+breath;vendorHead.position.y=2.35+breath;vendorHat.position.y=vendorHead.position.y;
-    var hx=activePage==='page-market'?mouseNDC.y*0.35:0;var hy=activePage==='page-market'?mouseNDC.x*0.5:0;
-    vendorHead.rotation.x+=(hx-vendorHead.rotation.x)*dt*4;vendorHead.rotation.y+=(hy-vendorHead.rotation.y)*dt*4;
-    vendorHat.rotation.x=vendorHead.rotation.x;vendorHat.rotation.y=vendorHead.rotation.y;
-    vendorFace.rotation.x=vendorHead.rotation.x;vendorFace.rotation.y=vendorHead.rotation.y;
-    var armRz=-0.5+Math.sin(time*1.1)*0.18;var armLz=0.5+Math.sin(time*1.1+1.5)*0.18;
-    if(vendorHover&&vendorAnim.approve<=0&&vendorAnim.poor<=0)vendorBody.rotation.x+=(0.08-vendorBody.rotation.x)*dt*3;else vendorBody.rotation.x+=(0-vendorBody.rotation.x)*dt*3;
-    if(vendorAnim.approve>0){vendorHead.rotation.x=Math.sin(vendorAnim.approve*8)*0.5;armRz=-1.7;armLz=1.7;}
-    if(vendorAnim.poor>0){vendorHead.rotation.y=Math.sin(vendorAnim.poor*9)*0.6;vendorHat.rotation.y=vendorHead.rotation.y;}
-    vendorArmR.rotation.z=armRz;vendorArmL.rotation.z=armLz;
-  }
-  /* гипер-дрон */
-  if(hyperDrone&&hyperDrone.visible){
-    hyperDrone.position.y=2.2+Math.sin(time*3)*0.15;
-    hyperDrone.rotation.y+=dt*2;
-    hyperDrone.children.forEach(function(c){if(c.userData&&c.userData.spin!==undefined)c.rotation.z+=dt*8;});
-  }
-  renderer.render(scene,camera);
+  if(!mMerchant)return;
+  var breath=Math.sin(time*1.6)*0.03;
+  mMerchant.position.y=breath;
+  var hx=0,hy=0;
+  if(activeView==='market'){hx=mouseNDC.y*0.3;hy=mouseNDC.x*0.5;}
+  mMerchantHead.rotation.x+=(hx-mMerchantHead.rotation.x)*dt*4;
+  mMerchantHead.rotation.y+=(hy-mMerchantHead.rotation.y)*dt*4;
+  mMerchantHat.rotation.x=mMerchantHead.rotation.x;mMerchantHat.rotation.y=mMerchantHead.rotation.y;
+  mMerchantFace.rotation.x=mMerchantHead.rotation.x;mMerchantFace.rotation.y=mMerchantHead.rotation.y;
+  var armRz=-0.5+Math.sin(time*1.1)*0.18;
+  var armLz=0.5+Math.sin(time*1.1+1.5)*0.18;
+  if(merchantAnim.approve>0){mMerchantHead.rotation.x=Math.sin(merchantAnim.approve*8)*0.5;armRz=-1.6;armLz=1.6;}
+  if(merchantAnim.poor>0){mMerchantHead.rotation.y=Math.sin(merchantAnim.poor*9)*0.6;mMerchantHat.rotation.y=mMerchantHead.rotation.y;}
+  mMerchantArmR.rotation.z=armRz;mMerchantArmL.rotation.z=armLz;
+  mScene.children.forEach(function(ch){if(ch.userData&&ch.userData.spin!==undefined){ch.userData.spin+=dt*1.5;ch.rotation.y=ch.userData.spin;}});
+  mRenderer.render(mScene,mCamera);
 }
+function vendorSpeak(text,emotion){var b=document.getElementById('vendor-bubble');var t=document.getElementById('vendor-bubble-text');if(emotion)drawMerchantFace(emotion);if(b&&t){b.classList.add('visible');t.textContent='';var i=0;clearInterval(b._t);b._t=setInterval(function(){i++;t.textContent=text.slice(0,i);robotBlip();if(i>=text.length){clearInterval(b._t);setTimeout(function(){b.classList.remove('visible');},1500);}},55);}}
+var merchantIdleTimer=null;
+function resetMerchantIdle(){if(merchantIdleTimer)clearTimeout(merchantIdleTimer);merchantIdleTimer=setTimeout(function(){if(activeView==='market')speak('idle');},30000);}
+function speak(type){var lines=merchantPhrases[type];if(!lines||lines.length===0)return;var line=randomItem(lines);if(type==='successBuy'){drawMerchantFace('buy');merchantAnim.approve=1;merchantAnim.poor=0;setTimeout(function(){merchantAnim.approve=0;drawMerchantFace('idle');},1600);}else if(type==='noFunds'){drawMerchantFace('poor');merchantAnim.poor=1;merchantAnim.approve=0;setTimeout(function(){merchantAnim.poor=0;drawMerchantFace('idle');},1500);}else if(type==='welcome'){drawMerchantFace('hover');setTimeout(function(){drawMerchantFace('idle');},2200);}vendorSpeak(line,type==='successBuy'?'buy':(type==='noFunds'?'poor':null));resetMerchantIdle();}
 
-/* ---- Контракты (ежедневные квесты) ---- */
-function resetContractsIfNeeded(){var dk=getDayKey();if(gameState.contractsDay!==dk){gameState.contractsDay=dk;gameState.contracts={};renderContracts();}}
-function contractProgress(c){
-  if(c.type==='clicks')return gameState.totalClicks;
-  if(c.type==='earn')return Math.floor(gameState.totalEarned);
-  if(c.type==='alloy')return gameState.resources.alloy;
-  if(c.type==='buy'){var b=0;UPGRADE_DEFS.forEach(function(d){b+=gameState.upgrades[d.id].level;});return b;}
-  if(c.type==='boxes')return gameState.openedContainers;
-  if(c.type==='balance')return Math.floor(gameState.balance);
-  return 0;
-}
-function checkContracts(){
-  resetContractsIfNeeded();
-  var changed=false;
-  CONTRACTS.forEach(function(c){
-    var st=gameState.contracts[c.id]||{ready:false,claimed:false};
-    if(st.claimed)return;
-    if(contractProgress(c)>=c.target&&!st.ready){st.ready=true;gameState.contracts[c.id]=st;changed=true;}
-  });
-  if(changed)renderContracts();
-}
-function claimContract(id){
-  var c=CONTRACTS.find(function(x){return x.id===id;});
-  if(!c)return;
-  var st=gameState.contracts[c.id]||{};
-  if(!st.ready||st.claimed)return;
-  st.claimed=true;gameState.contracts[c.id]=st;
-  gameState.balance+=c.reward;gameState.totalEarned+=c.reward;
-  playSound('gem');
-  showToast(svgIcon('trophy',24),'Контракт выполнен!','+'+formatNumber(c.reward)+' 💎');
-  refreshUI();renderContracts();
-}
-function renderContracts(){
-  resetContractsIfNeeded();
-  var box=document.getElementById('quests-box');
-  if(!box)return;
-  box.innerHTML='';
-  var active=0;
-  CONTRACTS.forEach(function(c){
-    var st=gameState.contracts[c.id]||{};
-    var prog=contractProgress(c);
-    var pct=Math.min(1,prog/c.target);
-    var div=document.createElement('div');
-    div.className='contract';
-    div.innerHTML='<div class="c-body"><div class="c-name"></div><div class="c-desc"></div><div class="c-track"><div class="c-fill" style="width:'+Math.round(pct*100)+'%"></div></div><div class="c-prog"></div></div><button class="claim-btn" '+(st.ready&&!st.claimed?'':'disabled')+'>'+(st.claimed?'✓':(st.ready?'Забрать':''))+'</button>';
-    div.querySelector('.c-name').textContent=c.name;
-    div.querySelector('.c-desc').textContent=c.desc;
-    div.querySelector('.c-prog').textContent=st.claimed?'выполнено':formatNumber(Math.min(prog,c.target))+' / '+formatNumber(c.target);
-    var btn=div.querySelector('.claim-btn');
-    if(st.ready&&!st.claimed)btn.addEventListener('click',function(){claimContract(c.id);});
-    box.appendChild(div);
-    if(!st.claimed)active++;
-  });
-  var qc=document.getElementById('quest-count');if(qc)qc.textContent=active;
-}
-
-/* ---- Контейнеры ---- */
-function rollRarity(){
-  var r=Math.random();
-  for(var i=0;i<RARITY_CHANCES.length;i++){
-    var ch=RARITY_CHANCES[i];
-    if(r<ch[1])return ch[0];
-    r-=ch[1];
-  }
-  return 'common';
-}
-function openContainer(){
-  if(gameState.balance<5000){showToast(svgIcon('zap',24),'Недостаточно','Нужно 5 000 💎');return;}
-  gameState.balance-=5000;
-  gameState.openedContainers++;
-  var icon=document.getElementById('box-icon');
-  icon.classList.remove('opening');void icon.offsetWidth;icon.classList.add('opening');
-  playSound('box');
-  refreshUI();
-  /* выбираем скин */
-  var rarity=rollRarity();
-  var candidates=Object.keys(SKINS).filter(function(k){return SKINS[k].rarity===rarity;});
-  var skin=SKINS[candidates[Math.floor(Math.random()*candidates.length)]];
-  /* показываем ревил */
-  setTimeout(function(){
-    var rv=document.getElementById('box-reveal');
-    rv.classList.add('show');
-    document.getElementById('reveal-swatch').style.background='radial-gradient(circle at 35% 30%,#ffffff55,#'+new THREE.Color(skin.color).getHexString()+')';
-    document.getElementById('reveal-swatch').style.color=RARITY_COLORS[rarity];
-    document.getElementById('reveal-name').textContent=skin.name;
-    document.getElementById('reveal-rarity').textContent='['+SKIN_RARITIES[rarity]+']';
-    document.getElementById('reveal-rarity').style.color=RARITY_COLORS[rarity];
-    document.getElementById('reveal-desc').textContent=rarity==='secret'?'ПОЗДРАВЛЯЕМ! Редчайший кристалл во вселенной!' : ('Множитель дохода x'+skin.mult);
-    document.getElementById('reveal-close').onclick=function(){
-      rv.classList.remove('show');
-      /* применяем скин перманентно */
-      if(gameState.ownedSkins.indexOf(skin.id)===-1)gameState.ownedSkins.push(skin.id);
-      gameState.activeSkin=skin.id;
-      recomputeDerived();applySkin();renderSkinsCollection();renderAchievements();checkAchievements();refreshUI();
-      playSound('level');
-    };
-  },700);
-  checkContracts();
-}
-function renderSkinsCollection(){
-  var box=document.getElementById('skin-collection');
-  if(!box)return;
-  var owned=gameState.ownedSkins.filter(function(id){return SKINS[id];});
-  box.innerHTML='<div style="font-weight:800;margin-bottom:8px">Коллекция скинов ('+owned.length+'/'+Object.keys(SKINS).length+')</div><div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center">';
-  Object.keys(SKINS).forEach(function(id){
-    var s=SKINS[id];
-    var has=gameState.ownedSkins.indexOf(id)!==-1;
-    var active=gameState.activeSkin===id;
-    box.innerHTML+='<div style="padding:8px 12px;border-radius:12px;border:1px solid '+(has?RARITY_COLORS[s.rarity]:'var(--gb)')+';opacity:'+(has?1:0.4)+';font-size:12px">'+s.name+'<br><span style="color:'+RARITY_COLORS[s.rarity]+'">'+(active?'✓ ':'')+SKIN_RARITIES[s.rarity]+'</span></div>';
-  });
-  box.innerHTML+='</div>';
-}
-
-/* ---- Престиж / Рестарт ---- */
-function performPrestige(){
-  if(gameState.balance<10000000){showToast(svgIcon('zap',24),'Мало','Нужно 10 000 000 💎');return;}
-  var ok=confirm('Переродиться?\nСбросить баланс и апгрейды за 1 Тёмную Материю?');
-  if(!ok)return;
-  gameState.darkMatter++;
-  gameState.balance=0;gameState.totalEarned=0;gameState.totalClicks=0;
-  gameState.upgrades=freshUpgrades();
-  gameState.resources={alloy:0,chip:0,core:0};gameState.superDrones=0;
-  recomputeDerived();refreshOrbitObjects();
-  refreshUI();renderShop();renderLab();renderPrestige();renderAchievements();renderContracts();
-  showToast(svgIcon('spark',24),'Перерождение!','+1 Тёмная Материя');
-}
-function buyDMClick(){
-  if(gameState.darkMatter<1){showToast(svgIcon('zap',24),'Нет ТМ','Нужна 1 Тёмная Материя');return;}
-  gameState.darkMatter--;gameState.dmClick++;
-  recomputeDerived();renderPrestige();refreshUI();
-  playSound('buy');
-}
-function buyDMCps(){
-  if(gameState.darkMatter<1){showToast(svgIcon('zap',24),'Нет ТМ','Нужна 1 Тёмная Материя');return;}
-  gameState.darkMatter--;gameState.dmCps++;
-  recomputeDerived();renderPrestige();refreshUI();
-  playSound('buy');
-}
-function renderPrestige(){
-  document.getElementById('dm-count').textContent=gameState.darkMatter;
-  document.getElementById('dm-click-lvl').textContent=gameState.dmClick;
-  document.getElementById('dm-cps-lvl').textContent=gameState.dmCps;
-  var btn=document.getElementById('prestige-btn');
-  btn.disabled=gameState.balance<10000000;
-  btn.textContent='Переродиться за 1 Тёмную Материю ('+formatNumber(gameState.balance)+' / 10M)';
-}
-
-/* ---- Магазин ---- */
+/* ============================================================
+   РЫНОК: правые под-колонки
+   ============================================================ */
 function renderShop(){
   var left=document.getElementById('shop-col-left'),right=document.getElementById('shop-col-right');
   if(!left||!right)return;
-  left.innerHTML='';right.innerHTML='';
-  var mid=Math.ceil(UPGRADE_DEFS.length/2);
+  left.innerHTML='<div class="shop-col-title">Модули</div>';right.innerHTML='<div class="shop-col-title">Автоматизация</div>';
+  var mid=3;
   UPGRADE_DEFS.forEach(function(def,idx){
     var lvl=gameState.upgrades[def.id].level;
     var cost=getUpgradeCost(def);
@@ -1116,14 +835,14 @@ function renderShop(){
     var kind=def.kind==='click'?'+'+def.per+' к клику':'+'+def.per+' CPS';
     var card=document.createElement('div');
     card.className='upgrade-card'+(affordable?'':' locked');
-    card.innerHTML='<div class="u-top"><div class="u-icon">'+svgIcon(def.icon,28)+'</div><div><div class="u-name"></div><div class="u-level"></div></div></div><div class="u-desc"></div><div class="u-cost"></div><button class="buy-btn" '+(affordable?'':'disabled')+'>Купить</button>';
+    card.innerHTML='<div class="u-top"><div class="u-icon">'+svgIcon(def.icon,22)+'</div><div><div class="u-name"></div><div class="u-level"></div></div></div><div class="u-desc"></div><div class="u-cost"></div><button class="buy-btn" '+(affordable?'':'disabled')+'>Купить</button>';
     card.querySelector('.u-name').textContent=def.name;
     card.querySelector('.u-level').textContent='Ур. '+lvl+' · '+kind;
     card.querySelector('.u-desc').textContent=def.desc;
     card.querySelector('.u-cost').textContent='Цена: '+formatNumber(cost)+' 💎';
     card.querySelector('.buy-btn').addEventListener('click',function(){purchaseUpgrade(def.id);});
-    card.addEventListener('mouseenter',function(){vendorHover=true;if(vendorAnim.approve<=0&&vendorAnim.poor<=0)drawVendorFace('hover');});
-    card.addEventListener('mouseleave',function(){vendorHover=false;if(vendorAnim.approve<=0&&vendorAnim.poor<=0)drawVendorFace('idle');});
+    card.addEventListener('mouseenter',function(){merchantHover=true;if(merchantAnim.approve<=0&&merchantAnim.poor<=0)drawMerchantFace('hover');});
+    card.addEventListener('mouseleave',function(){merchantHover=false;if(merchantAnim.approve<=0&&merchantAnim.poor<=0)drawMerchantFace('idle');});
     (idx<mid?left:right).appendChild(card);
   });
 }
@@ -1133,50 +852,112 @@ function purchaseUpgrade(id){
   var cost=getUpgradeCost(def);
   if(gameState.balance<cost){speak('noFunds');showToast(svgIcon('zap',24),'Недостаточно','Нужно '+formatNumber(cost)+' 💎');return;}
   gameState.balance-=cost;gameState.upgrades[id].level++;
-  recomputeDerived();refreshUI();renderShop();checkAchievements();checkContracts();
+  recomputeDerived();refreshUI();renderShop();checkAchievements();
   playSound('buy');refreshOrbitObjects();
   speak('successBuy');
-  addChatMessage('[ПРОДАВЕЦ]',def.name+' теперь твой!',false,{vendor:true});
+  runTutorial();
   showToast(svgIcon(def.icon,24),'Куплено: '+def.name,'Ур. '+gameState.upgrades[id].level);
 }
 
-/* ---- Реплики продавца ---- */
-var SPEAK_DB={
-  welcome:[
-    'Приветствую, оператор!',
-    'Мои дроны заждались хозяина!',
-    'Добро пожаловать на мой рынок!',
-    'Свежие апгрейды только для своих!',
-    'Заходи, странник, здесь выгодно!'
-  ],
-  successBuy:[
-    'Отличная сделка, оператор!',
-    'Эта штука увеличит твой доход!',
-    'Ха-ха, выгодно купил!',
-    'Мудрое вложение в своё будущее!',
-    'С такими апгрейдами ты взлетишь!'
-  ],
-  noFunds:[
-    'Твои карманы пусты!',
-    'Сначала заработай кристаллы!',
-    'Вернись, когда будут кристаллы!',
-    'Эх, пустой кошелёк — грустное зрелище!',
-    'Копи кристаллы и приходи снова!'
-  ],
-  idle:[
-    'Ты уснул, оператор?',
-    'Если любуешься моей шляпой — спасибо!',
-    'Покупай, пока цены низкие!',
-    'Я стою тут и жду твоего заказа!',
-    'Не стесняйся, прилавок к твоим услугам!'
-  ]
-};
-var vendorIdleTimer=null;
-function resetVendorIdleTimer(){if(vendorIdleTimer)clearTimeout(vendorIdleTimer);vendorIdleTimer=setTimeout(function(){if(activePage==='page-market')speak('idle');},30000);}
-function vendorSpeak(text,emotion){var b=document.getElementById('vendor-bubble');var t=document.getElementById('vendor-bubble-text');if(emotion)drawVendorFace(emotion);if(b&&t){b.classList.add('visible');t.textContent='';var i=0;clearInterval(b._t);b._t=setInterval(function(){i++;t.textContent=text.slice(0,i);robotBlip();if(i>=text.length){clearInterval(b._t);setTimeout(function(){b.classList.remove('visible');},1200);}},55);}}
-function speak(type){var lines=SPEAK_DB[type];if(!lines||lines.length===0)return;var line=randomItem(lines);if(type==='successBuy'){drawVendorFace('buy');vendorAnim.approve=1;vendorAnim.poor=0;setTimeout(function(){vendorAnim.approve=0;if(!vendorHover)drawVendorFace('idle');},1600);}else if(type==='noFunds'){drawVendorFace('poor');vendorAnim.poor=1;vendorAnim.approve=0;setTimeout(function(){vendorAnim.poor=0;if(!vendorHover)drawVendorFace('idle');},1500);}else if(type==='welcome'){drawVendorFace('hover');setTimeout(function(){drawVendorFace('idle');},2200);}vendorSpeak(line,type==='successBuy'?'buy':(type==='noFunds'?'poor':null));if(type==='successBuy'||type==='noFunds')addChatMessage('[ПРОДАВЕЦ]',line,false,{vendor:true});resetVendorIdleTimer();}
+/* ==== ВКЛАДКИ (центр) ==== */
+function switchTab(tabId){
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-tab')===tabId);});
+  document.querySelectorAll('.tab-panel').forEach(function(p){p.classList.toggle('active',p.id===tabId);});
+}
+function bindTabs(){document.querySelectorAll('.tab-btn').forEach(function(b){b.addEventListener('click',function(){switchTab(b.getAttribute('data-tab'));});});}
 
-/* ---- Лаборатория ---- */
+/* ==== НАВИГАЦИЯ (вкладки определяют активный вид для кинематики) ==== */
+function setView(view){
+  activeView=view;
+  document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-target')===view);});
+  setCrystalActive(view==='crystal');
+  if(view==='market'){renderShop();resetMerchantIdle();setTimeout(function(){if(activeView==='market')speak('welcome');},600);}
+  if(view==='lab')renderLab();
+  if(view==='containers')renderSkinsCollection();
+  if(view==='restart')renderPrestige();
+  if(view==='versions')renderChangelog();
+}
+function bindNav(){document.querySelectorAll('.nav-btn').forEach(function(b){b.addEventListener('click',function(){setView(b.getAttribute('data-target'));});});}
+
+/* ==== Галактические новости ==== */
+var newsIdx=0;
+function rotateNews(){var el=document.getElementById('news-text');if(!el)return;el.textContent=GALACTIC_NEWS[newsIdx%GALACTIC_NEWS.length];newsIdx++;}
+
+/* ==== АНОМАЛИЯ И ГИПЕР-ДРАЙВ ==== */
+var anomalyTimer=null;
+function spawnAnomaly(){
+  var a=document.getElementById('anomaly');
+  if(!a)return;
+  if(activeView!=='crystal'){scheduleAnomaly();return;}
+  var c=document.getElementById('scene-container').getBoundingClientRect();
+  var safeXmin=c.left+80;
+  var safeXmax=c.left+c.width-80;
+  var safeYmin=c.top+90;
+  var safeYmax=c.top+c.height-120;
+  if(safeXmax<=safeXmin)safeXmax=safeXmin+120;
+  if(safeYmax<=safeYmin)safeYmax=safeYmin+120;
+  var x=safeXmin+Math.random()*(safeXmax-safeXmin);
+  var y=safeYmin+Math.random()*(safeYmax-safeYmin);
+  a.style.left=x+'px';a.style.top=y+'px';
+  a.classList.add('active');
+  var collected=false;
+  a.onclick=function(){if(collected)return;collected=true;a.classList.remove('active');activateHyperdrive();scheduleAnomaly();};
+  var t0=Date.now();
+  var mv=setInterval(function(){
+    if(collected){clearInterval(mv);return;}
+    var el=Date.now()-t0;
+    var nx=x+Math.sin(el/200)*35;
+    var ny=y+Math.cos(el/150)*25;
+    if(nx<safeXmin)nx=safeXmin;if(nx>safeXmax)nx=safeXmax;
+    if(ny<safeYmin)ny=safeYmin;if(ny>safeYmax)ny=safeYmax;
+    a.style.left=nx+'px';a.style.top=ny+'px';
+    if(el>=5000){clearInterval(mv);if(!collected){a.classList.remove('active');scheduleAnomaly();}}
+  },50);
+}
+function scheduleAnomaly(){if(anomalyTimer)clearTimeout(anomalyTimer);anomalyTimer=setTimeout(spawnAnomaly,120000+Math.random()*60000);}
+function activateHyperdrive(){
+  hyperdriveActive=true;recomputeDerived();
+  document.body.classList.add('hyperdrive');
+  playSound('hyper');
+  var bubble=document.getElementById('ad-bubble');
+  if(bubble){bubble.classList.add('visible');bubble.classList.add('alert');bubble.textContent='ВЖЖ-ВЖЖ! ГИПЕР-ДРАЙВ x5!';setTimeout(function(){bubble.classList.remove('visible');},2500);}
+  if(hyperdriveTimer)clearTimeout(hyperdriveTimer);
+  hyperdriveTimer=setTimeout(function(){hyperdriveActive=false;recomputeDerived();document.body.classList.remove('hyperdrive');refreshUI();},15000);
+  refreshUI();
+}
+
+/* ==== КОНТЕЙНЕРЫ ==== */
+function rollRarity(){var r=Math.random();for(var i=0;i<RARITY_CHANCES.length;i++){var ch=RARITY_CHANCES[i];if(r<ch[1])return ch[0];r-=ch[1];}return 'common';}
+function openContainer(){
+  if(gameState.balance<5000){showToast(svgIcon('zap',24),'Недостаточно','Нужно 5 000 💎');return;}
+  gameState.balance-=5000;gameState.openedContainers++;
+  var icon=document.getElementById('box-icon');
+  icon.classList.remove('opening');void icon.offsetWidth;icon.classList.add('opening');
+  playSound('box');refreshUI();
+  var rarity=rollRarity();
+  var candidates=Object.keys(SKINS).filter(function(k){return SKINS[k].rarity===rarity;});
+  var skin=SKINS[candidates[Math.floor(Math.random()*candidates.length)]];
+  setTimeout(function(){
+    var rv=document.getElementById('box-reveal');
+    rv.classList.add('show');
+    document.getElementById('reveal-swatch').style.background='radial-gradient(circle at 35% 30%,#ffffff55,#'+new THREE.Color(skin.color).getHexString()+')';
+    document.getElementById('reveal-swatch').style.color=RARITY_COLORS[rarity];
+    document.getElementById('reveal-name').textContent=skin.name;
+    document.getElementById('reveal-rarity').textContent='['+SKIN_RARITIES[rarity]+']';
+    document.getElementById('reveal-rarity').style.color=RARITY_COLORS[rarity];
+    document.getElementById('reveal-desc').textContent=rarity==='secret'?'ПОЗДРАВЛЯЕМ! Редчайший кристалл!' : ('Множитель дохода x'+skin.mult);
+    document.getElementById('reveal-close').onclick=function(){
+      rv.classList.remove('show');
+      if(gameState.ownedSkins.indexOf(skin.id)===-1)gameState.ownedSkins.push(skin.id);
+      gameState.activeSkin=skin.id;
+      recomputeDerived();applySkin();renderSkinsCollection();checkAchievements();refreshUI();
+      playSound('level');
+    };
+  },700);
+}
+function renderSkinsCollection(){var box=document.getElementById('skin-collection');if(!box)return;var owned=gameState.ownedSkins.filter(function(id){return SKINS[id];});box.innerHTML='<div style="font-weight:800;font-size:12px;margin-bottom:8px">Коллекция ('+owned.length+'/'+Object.keys(SKINS).length+')</div><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">';Object.keys(SKINS).forEach(function(id){var s=SKINS[id];var has=gameState.ownedSkins.indexOf(id)!==-1;var active=gameState.activeSkin===id;box.innerHTML+='<div style="padding:6px 9px;border-radius:10px;border:1px solid '+(has?RARITY_COLORS[s.rarity]:'var(--gb)')+';opacity:'+(has?1:0.4)+';font-size:10px">'+s.name+'<br><span style="color:'+RARITY_COLORS[s.rarity]+'">'+(active?'✓ ':'')+SKIN_RARITIES[s.rarity]+'</span></div>';});box.innerHTML+='</div>';}
+
+/* ==== ЛАБОРАТОРИЯ ==== */
 function renderLab(){
   document.getElementById('res-alloy').textContent=gameState.resources.alloy;
   document.getElementById('res-chip').textContent=gameState.resources.chip;
@@ -1189,111 +970,60 @@ function craftSuperDrone(){
   if(r.alloy<10||r.chip<8||r.core<5){showToast(svgIcon('zap',24),'Нет ресурсов','Нужно 10 Сплав · 8 Микросхем · 5 Ядер');return;}
   r.alloy-=10;r.chip-=8;r.core-=5;
   gameState.superDrones++;
-  recomputeDerived();renderLab();refreshUI();checkContracts();
+  recomputeDerived();renderLab();refreshUI();refreshOrbitObjects();
   playSound('level');
-  refreshOrbitObjects();
   showToast(svgIcon('drone',24),'Супер-Дрон собран!','+50 CPS');
 }
-function renderStats(){
-  document.getElementById('stat-clicks').textContent=formatNumber(gameState.totalClicks);
-  document.getElementById('stat-earned').textContent=formatBalance(gameState.totalEarned);
-  document.getElementById('stat-time').textContent=formatTime(gameState.playTime);
-  document.getElementById('stat-mult').textContent='x'+(derived.skinMult*derived.levelMult*(1+gameState.dmClick*0.25)*(1+gameState.dmCps*0.25)).toFixed(2);
-  document.getElementById('stat-super').textContent=gameState.superDrones;
+function renderStats(){document.getElementById('stat-clicks').textContent=formatNumber(gameState.totalClicks);document.getElementById('stat-earned').textContent=formatBalance(gameState.totalEarned);document.getElementById('stat-time').textContent=formatTime(gameState.playTime);document.getElementById('stat-mult').textContent='x'+(derived.skinMult*derived.levelMult*(1+gameState.dmClick*0.25)*(1+gameState.dmCps*0.25)).toFixed(2);}
+
+/* ==== ПРЕСТИЖ ==== */
+function performPrestige(){
+  if(gameState.balance<10000000){showToast(svgIcon('zap',24),'Мало','Нужно 10 000 000 💎');return;}
+  if(!confirm('Переродиться?\nСбросить баланс и апгрейды за 1 Тёмную Материю?'))return;
+  gameState.darkMatter++;
+  gameState.balance=0;gameState.totalEarned=0;gameState.totalClicks=0;
+  gameState.upgrades=freshUpgrades();
+  gameState.resources={alloy:0,chip:0,core:0};gameState.superDrones=0;
+  recomputeDerived();refreshOrbitObjects();refreshUI();renderShop();renderLab();renderPrestige();checkAchievements();
+  showToast(svgIcon('spark',24),'Перерождение!','+1 Тёмная Материя');
 }
-function renderAchievements(){
-  var box=document.getElementById('ach-list');if(!box)return;box.innerHTML='';
-  ACHIEVEMENTS.forEach(function(ac){var st=gameState.achievements[ac.id];var div=document.createElement('div');div.className='ach-card'+(st.unlocked?' done':'');div.innerHTML='<div class="a-icon">'+svgIcon(ac.icon,24)+'</div><div class="a-body"><div class="a-name"></div><div class="a-desc"></div><div class="a-reward"></div></div><div class="a-status">'+(st.unlocked?'Выполнено':'')+'</div>';div.querySelector('.a-name').textContent=ac.name;div.querySelector('.a-desc').textContent=ac.desc;div.querySelector('.a-reward').textContent='+'+formatNumber(ac.reward)+' 💎';box.appendChild(div);});
-}
+function buyDMClick(){if(gameState.darkMatter<1){showToast(svgIcon('zap',24),'Нет ТМ','Нужна 1 Тёмная Материя');return;}gameState.darkMatter--;gameState.dmClick++;recomputeDerived();renderPrestige();refreshUI();playSound('buy');}
+function buyDMCps(){if(gameState.darkMatter<1){showToast(svgIcon('zap',24),'Нет ТМ','Нужна 1 Тёмная Материя');return;}gameState.darkMatter--;gameState.dmCps++;recomputeDerived();renderPrestige();refreshUI();playSound('buy');}
+function renderPrestige(){document.getElementById('dm-count').textContent=gameState.darkMatter;document.getElementById('dm-click-lvl').textContent=gameState.dmClick;document.getElementById('dm-cps-lvl').textContent=gameState.dmCps;document.getElementById('prestige-btn').disabled=gameState.balance<10000000;}
+
+/* ==== ДОСТИЖЕНИЯ ==== */
+function renderAchievements(){var box=document.getElementById('ach-list');if(!box)return;box.innerHTML='';ACHIEVEMENTS.forEach(function(ac){var st=gameState.achievements[ac.id];var div=document.createElement('div');div.className='ach-card'+(st.unlocked?' done':'');div.innerHTML='<div class="a-icon">'+svgIcon(ac.icon,20)+'</div><div class="a-body"><div class="a-name"></div><div class="a-desc"></div></div><div class="a-status">'+(st.unlocked?'✓':'')+'</div>';div.querySelector('.a-name').textContent=ac.name;div.querySelector('.a-desc').textContent=ac.desc;box.appendChild(div);});}
 function checkAchievements(){var changed=false;ACHIEVEMENTS.forEach(function(ac){var st=gameState.achievements[ac.id];if(st.unlocked)return;if(ac.check(gameState)){st.unlocked=true;gameState.balance+=ac.reward;gameState.totalEarned+=ac.reward;showToast(svgIcon('trophy',24),'Достижение: '+ac.name,'+'+formatNumber(ac.reward)+' 💎');changed=true;}});if(changed){recomputeDerived();renderAchievements();refreshUI();}}
 
-/* ---- Чат ---- */
-var chatKeySeq=0;
-function addChatMessage(nick,text,isPlayer,opts){opts=opts||{};var log=document.getElementById('chat-log');if(!log)return;var vendor=!!opts.vendor;var el=document.createElement('div');el.className='chat-msg'+(isPlayer?' you':'')+(vendor?' vendor':'');el.innerHTML='<div class="m-nick"></div><div class="m-text"></div>';el.querySelector('.m-nick').textContent=nick;el.querySelector('.m-text').textContent=text;log.appendChild(el);while(log.children.length>60)log.removeChild(log.firstChild);log.scrollTop=log.scrollHeight;}
-function sendPlayerMessage(text){var t=text.trim();if(!t)return;if(window.Online.real&&window.Online.onSendPlayerChat){window.Online.onSendPlayerChat(t);}else{addChatMessage(currentNick||'[Вы]',t,true);}gameState.chatHistory.push(t);if(gameState.chatHistory.length>50)gameState.chatHistory=gameState.chatHistory.slice(-50);}
-function bindChat(){var input=document.getElementById('chat-input'),btn=document.getElementById('chat-send');function send(){if(input.value.trim()){sendPlayerMessage(input.value);input.value='';input.focus();}}btn.addEventListener('click',send);input.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();send();}});if(!window.Online.real)gameState.chatHistory.forEach(function(m){addChatMessage('[Вы]',m,true);});}
-function toggleChatWidget(){var d=document.getElementById('chat-drawer');d.classList.toggle('show');}
+/* ==== ВЕРСИИ (timeline) ==== */
+function renderChangelog(){var box=document.getElementById('changelog-box');if(!box)return;var versions=[{v:'v1.4.0',date:'2026-08-03',title:'Финал',items:['3-колоночный каркас','ИИ-ассистент с озвучкой','Кинематика ухода кристалла']},{v:'v1.3.0',date:'2026-08-02',title:'Эволюция',items:['Квантовые Контейнеры','Крафт в Лаборатории','Режим Престижа','Космические Аномалии']},{v:'v1.2.0',date:'2026-08-01',title:'Орбитальный Рой',items:['Дроны летают по 3D-орбитам вокруг Кристалла']},{v:'v1.1.0',date:'2026-07-31',title:'Обновление Рынка',items:['3D-Робот-Продавец','Ретро-озвучка Web Audio','Динамические эмоции']},{v:'v1.0.0',date:'2026-07-30',title:'Релиз',items:['Запуск ядра [CRYSTAL.NET]','3D-кристалл','LocalStorage сохранения']}];var html='<div class="clg-timeline">';versions.forEach(function(ver){html+='<div class="clg-node"><div class="clg-marker"></div><div class="clg-card"><div class="clg-head"><span class="clg-tag">'+ver.v+'</span><span class="clg-date">'+ver.date+'</span></div><div class="clg-title">'+ver.title+'</div><ul class="clg-list">';ver.items.forEach(function(it){html+='<li>'+it+'</li>';});html+='</ul></div></div>';});html+='</div>';box.innerHTML=html;}
 
-/* ---- Логин ---- */
+/* ==== ЧАТ ==== */
+function addChatMessage(nick,text,isPlayer,opts){opts=opts||{};var log=document.getElementById('chat-log');if(!log)return;var vendor=!!opts.vendor;var el=document.createElement('div');el.className='chat-msg'+(isPlayer?' you':'')+(vendor?' vendor':'');el.innerHTML='<div class="m-nick"></div><div class="m-text"></div>';el.querySelector('.m-nick').textContent=nick;el.querySelector('.m-text').textContent=text;log.appendChild(el);while(log.children.length>50)log.removeChild(log.firstChild);log.scrollTop=log.scrollHeight;}
+function sendPlayerMessage(text){var t=text.trim();if(!t)return;if(window.Online.real&&window.Online.onSendPlayerChat){window.Online.onSendPlayerChat(t);}else{addChatMessage(currentNick||'[Вы]',t,true);}gameState.chatHistory.push(t);if(gameState.chatHistory.length>50)gameState.chatHistory=gameState.chatHistory.slice(-50);}
+function bindChat(){var input=document.getElementById('chat-input'),btn=document.getElementById('chat-send');function send(){if(input.value.trim()){sendPlayerMessage(input.value);input.value='';input.focus();}}btn.addEventListener('click',send);input.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();send();}});}
+function toggleChat(){var d=document.getElementById('chat-drawer');d.classList.toggle('show');}
+
+/* ==== ЛОГИН ==== */
 function getAccountsStore(){try{return JSON.parse(localStorage.getItem('crystal-net-accounts')||'{}');}catch(e){return {};}}
 function saveAccountsStore(store){try{localStorage.setItem('crystal-net-accounts',JSON.stringify(store));}catch(e){}}
 function getLocalAccount(){try{return JSON.parse(localStorage.getItem('crystal-net-session')||'null');}catch(e){return null;}}
 function setSession(a){try{localStorage.setItem('crystal-net-session',JSON.stringify(a));}catch(e){}}
-function logoutLocal(){try{localStorage.removeItem('crystal-net-session');}catch(e){}window.Online.signedIn=false;currentNick='';showLoginWall();}
 function showLoginWall(){var w=document.getElementById('login-wall');if(w)w.classList.remove('hidden');}
 function hideLoginWall(){var w=document.getElementById('login-wall');if(w)w.classList.add('hidden');}
-function bindLoginWall(){
-  var loginBtn=document.getElementById('login-btn'),regBtn=document.getElementById('register-btn'),anonBtn=document.getElementById('anon-btn'),errBox=document.getElementById('login-error');
-  function err(m){if(errBox)errBox.textContent=m;}
-  function doLogin(){var u=document.getElementById('login-user').value.trim(),p=document.getElementById('login-pass').value;if(!u||!p)return err('Введите никнейм и пароль');var store=getAccountsStore();if(!store[u]||store[u].pass!==p)return err('Неверные данные');setSession({username:u});window.Online.signedIn=true;currentNick=u;hideLoginWall();err('');playSound('login');}
-  function doRegister(){var u=document.getElementById('login-user').value.trim(),p=document.getElementById('login-pass').value;if(!u||!p)return err('Введите никнейм и пароль');if(p.length<4)return err('Пароль минимум 4 символа');var store=getAccountsStore();if(store[u])return err('Такой ник занят');store[u]={pass:p};saveAccountsStore(store);setSession({username:u});window.Online.signedIn=true;currentNick=u;hideLoginWall();err('');playSound('login');}
-  function doAnonymous(){var name='Гость_'+Math.floor(1000+Math.random()*9000);var store=getAccountsStore();store[name]={pass:'anon',anonymous:true};saveAccountsStore(store);setSession({username:name,anonymous:true});window.Online.signedIn=true;currentNick=name;hideLoginWall();err('');playSound('login');}
-  loginBtn.addEventListener('click',doLogin);regBtn.addEventListener('click',doRegister);anonBtn.addEventListener('click',doAnonymous);
-  document.getElementById('login-pass').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();doLogin();}});
-  document.getElementById('login-user').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();doLogin();}});
-}
+function bindLoginWall(){var loginBtn=document.getElementById('login-btn'),regBtn=document.getElementById('register-btn'),anonBtn=document.getElementById('anon-btn'),errBox=document.getElementById('login-error');function err(m){if(errBox)errBox.textContent=m;}function doLogin(){var u=document.getElementById('login-user').value.trim(),p=document.getElementById('login-pass').value;if(!u||!p)return err('Введите никнейм и пароль');var store=getAccountsStore();if(!store[u]||store[u].pass!==p)return err('Неверные данные');setSession({username:u});window.Online.signedIn=true;currentNick=u;hideLoginWall();err('');}function doRegister(){var u=document.getElementById('login-user').value.trim(),p=document.getElementById('login-pass').value;if(!u||!p)return err('Введите никнейм и пароль');if(p.length<4)return err('Пароль минимум 4');var store=getAccountsStore();if(store[u])return err('Ник занят');store[u]={pass:p};saveAccountsStore(store);setSession({username:u});window.Online.signedIn=true;currentNick=u;hideLoginWall();err('');}function doAnonymous(){var name='Гость_'+Math.floor(1000+Math.random()*9000);var store=getAccountsStore();store[name]={pass:'anon',anonymous:true};saveAccountsStore(store);setSession({username:name,anonymous:true});window.Online.signedIn=true;currentNick=name;hideLoginWall();err('');}loginBtn.addEventListener('click',doLogin);regBtn.addEventListener('click',doRegister);anonBtn.addEventListener('click',doAnonymous);}
 function enforceLoginGate(){var a=getLocalAccount();if(a){window.Online.signedIn=true;currentNick=a.username;hideLoginWall();}else showLoginWall();}
 
-/* ---- Навигация ---- */
-function populateIcons(){document.querySelectorAll('[data-ic]').forEach(function(el){el.innerHTML=svgIcon(el.getAttribute('data-ic'),22);});document.getElementById('chat-widget-btn').innerHTML=svgIcon('net',26);document.getElementById('sound-toggle').innerHTML=svgIcon(soundEnabled?'music':'mute',20);}
-function showPage(pageId){
-  var current=document.querySelector('.page.active');var target=document.getElementById(pageId);
-  if(!target||(current&&current.id===pageId))return;
-  if(current){current.classList.remove('active');setTimeout(function(){current.classList.remove('visible');},500);}
-  target.classList.add('visible');
-  requestAnimationFrame(function(){requestAnimationFrame(function(){target.classList.add('active');});});
-  activePage=pageId;
-  document.querySelectorAll('.nav-btn').forEach(function(btn){btn.classList.toggle('active',btn.getAttribute('data-target')===pageId);});
-  if(pageId==='page-market'){renderShop();startZoneMusic('market');setTimeout(function(){if(activePage==='page-market')speak('welcome');},600);resetVendorIdleTimer();}
-  else if(pageId==='page-containers'){renderSkinsCollection();stopMusic();}
-  else if(pageId==='page-lab'){renderLab();startZoneMusic('lab');}
-  else if(pageId==='page-restart'){renderPrestige();renderChangelog();stopMusic();}
-  else if(pageId==='page-changelog'){renderChangelog();stopMusic();}
-  else{stopMusic();}
-}
-function bindNavigation(){document.querySelectorAll('.nav-btn').forEach(function(btn){btn.addEventListener('click',function(){showPage(btn.getAttribute('data-target'));});});}
+/* ==== СОХРАНЕНИЕ ==== */
+function saveGame(){var data={balance:gameState.balance,totalEarned:gameState.totalEarned,totalClicks:gameState.totalClicks,playTime:gameState.playTime,upgrades:gameState.upgrades,ownedSkins:gameState.ownedSkins,activeSkin:gameState.activeSkin,achievements:gameState.achievements,chatHistory:gameState.chatHistory,resources:gameState.resources,superDrones:gameState.superDrones,darkMatter:gameState.darkMatter,dmClick:gameState.dmClick,dmCps:gameState.dmCps,openedContainers:gameState.openedContainers,bestCombo:gameState.bestCombo,level:gameState.level,xp:gameState.xp,lastDailyBonus:gameState.lastDailyBonus,totalBonuses:gameState.totalBonuses,tutorialStep:gameState.tutorialStep,lastSeen:Date.now()};try{localStorage.setItem(SAVE_KEY,JSON.stringify(data));}catch(e){}}
+function loadGame(){var raw=null;try{raw=localStorage.getItem(SAVE_KEY);}catch(e){raw=null;}if(!raw)return;var d=null;try{d=JSON.parse(raw);}catch(e){d=null;}if(!d)return;gameState.balance=typeof d.balance==='number'?d.balance:0;gameState.totalEarned=typeof d.totalEarned==='number'?d.totalEarned:0;gameState.totalClicks=typeof d.totalClicks==='number'?d.totalClicks:0;gameState.playTime=typeof d.playTime==='number'?d.playTime:0;if(d.upgrades){var fr=freshUpgrades();Object.keys(fr).forEach(function(id){if(d.upgrades[id]&&typeof d.upgrades[id].level==='number')fr[id].level=d.upgrades[id].level;});gameState.upgrades=fr;}if(Array.isArray(d.ownedSkins)&&d.ownedSkins.length){gameState.ownedSkins=d.ownedSkins.filter(function(id){return SKINS[id];});if(gameState.ownedSkins.indexOf('default')===-1)gameState.ownedSkins.push('default');gameState.activeSkin=SKINS[d.activeSkin]?d.activeSkin:'default';}if(d.achievements){var fa=freshAchievements();Object.keys(fa).forEach(function(id){if(d.achievements[id])fa[id].unlocked=!!d.achievements[id].unlocked;});gameState.achievements=fa;}if(Array.isArray(d.chatHistory))gameState.chatHistory=d.chatHistory.filter(function(m){return typeof m==='string';}).slice(-50);if(d.resources)gameState.resources={alloy:d.resources.alloy||0,chip:d.resources.chip||0,core:d.resources.core||0};gameState.superDrones=typeof d.superDrones==='number'?d.superDrones:0;gameState.darkMatter=typeof d.darkMatter==='number'?d.darkMatter:0;gameState.dmClick=typeof d.dmClick==='number'?d.dmClick:0;gameState.dmCps=typeof d.dmCps==='number'?d.dmCps:0;gameState.openedContainers=typeof d.openedContainers==='number'?d.openedContainers:0;gameState.bestCombo=typeof d.bestCombo==='number'?d.bestCombo:0;gameState.level=typeof d.level==='number'?d.level:1;gameState.xp=typeof d.xp==='number'?d.xp:0;gameState.lastDailyBonus=d.lastDailyBonus||'';gameState.totalBonuses=typeof d.totalBonuses==='number'?d.totalBonuses:0;gameState.tutorialStep=typeof d.tutorialStep==='number'?d.tutorialStep:0;recomputeDerived();if(typeof d.lastSeen==='number'){var away=Math.max(0,(Date.now()-d.lastSeen)/1000);if(away>60){var gain=Math.max(derived.cps*away*0.5,away*0.1);if(gain>0){gameState.balance+=gain;gameState.totalEarned+=gain;setTimeout(function(){showToast(svgIcon('spark',24),'Офлайн-доход','+'+formatNumber(gain)+' 💎');},800);}}}}
+function resetProgress(){if(!confirm('Сбросить прогресс?'))return;localStorage.removeItem(SAVE_KEY);gameState.balance=0;gameState.totalEarned=0;gameState.totalClicks=0;gameState.playTime=0;gameState.upgrades=freshUpgrades();gameState.ownedSkins=['default'];gameState.activeSkin='default';gameState.achievements=freshAchievements();gameState.chatHistory=[];gameState.resources={alloy:0,chip:0,core:0};gameState.superDrones=0;gameState.darkMatter=0;gameState.dmClick=0;gameState.dmCps=0;gameState.openedContainers=0;gameState.level=1;gameState.xp=0;gameState.bestCombo=0;gameState.totalBonuses=0;gameState.tutorialStep=0;recomputeDerived();applySkin();refreshOrbitObjects();refreshUI();renderShop();renderLab();renderPrestige();renderAchievements();renderSkinsCollection();}
+function wipeEverything(){if(!confirm('ПОЛНЫЙ ВАЙП: прогресс и аккаунт. Продолжить?'))return;['crystal-net-save-v5','crystal-net-session','crystal-net-accounts'].forEach(function(k){try{localStorage.removeItem(k);}catch(e){}});resetProgress();window.Online.signedIn=false;currentNick='';showLoginWall();}
 
-/* ---- Сохранение ---- */
-function saveGame(){
-  var data={balance:gameState.balance,totalEarned:gameState.totalEarned,totalClicks:gameState.totalClicks,playTime:gameState.playTime,upgrades:gameState.upgrades,ownedSkins:gameState.ownedSkins,activeSkin:gameState.activeSkin,achievements:gameState.achievements,chatHistory:gameState.chatHistory,resources:gameState.resources,superDrones:gameState.superDrones,darkMatter:gameState.darkMatter,dmClick:gameState.dmClick,dmCps:gameState.dmCps,openedContainers:gameState.openedContainers,contracts:gameState.contracts,contractsDay:gameState.contractsDay,bestCombo:gameState.bestCombo,level:gameState.level,xp:gameState.xp,lastDailyBonus:gameState.lastDailyBonus,totalBonuses:gameState.totalBonuses,lastSeen:Date.now()};
-  try{localStorage.setItem(SAVE_KEY,JSON.stringify(data));}catch(e){}
-}
-function loadGame(){
-  var raw=null;try{raw=localStorage.getItem(SAVE_KEY);}catch(e){raw=null;}if(!raw)return;
-  var d=null;try{d=JSON.parse(raw);}catch(e){d=null;}if(!d)return;
-  gameState.balance=typeof d.balance==='number'?d.balance:0;
-  gameState.totalEarned=typeof d.totalEarned==='number'?d.totalEarned:0;
-  gameState.totalClicks=typeof d.totalClicks==='number'?d.totalClicks:0;
-  gameState.playTime=typeof d.playTime==='number'?d.playTime:0;
-  if(d.upgrades){var fr=freshUpgrades();Object.keys(fr).forEach(function(id){if(d.upgrades[id]&&typeof d.upgrades[id].level==='number')fr[id].level=d.upgrades[id].level;});gameState.upgrades=fr;}
-  if(Array.isArray(d.ownedSkins)&&d.ownedSkins.length){gameState.ownedSkins=d.ownedSkins.filter(function(id){return SKINS[id];});if(gameState.ownedSkins.indexOf('default')===-1)gameState.ownedSkins.push('default');gameState.activeSkin=SKINS[d.activeSkin]?d.activeSkin:'default';}
-  if(d.achievements){var fa=freshAchievements();Object.keys(fa).forEach(function(id){if(d.achievements[id])fa[id].unlocked=!!d.achievements[id].unlocked;});gameState.achievements=fa;}
-  if(Array.isArray(d.chatHistory))gameState.chatHistory=d.chatHistory.filter(function(m){return typeof m==='string';}).slice(-50);
-  if(d.resources)gameState.resources={alloy:d.resources.alloy||0,chip:d.resources.chip||0,core:d.resources.core||0};
-  gameState.superDrones=typeof d.superDrones==='number'?d.superDrones:0;
-  gameState.darkMatter=typeof d.darkMatter==='number'?d.darkMatter:0;
-  gameState.dmClick=typeof d.dmClick==='number'?d.dmClick:0;
-  gameState.dmCps=typeof d.dmCps==='number'?d.dmCps:0;
-  gameState.openedContainers=typeof d.openedContainers==='number'?d.openedContainers:0;
-  gameState.contracts=(d.contracts&&typeof d.contracts==='object')?d.contracts:{};
-  gameState.contractsDay=d.contractsDay||'';
-  gameState.bestCombo=typeof d.bestCombo==='number'?d.bestCombo:0;
-  gameState.level=typeof d.level==='number'?d.level:1;
-  gameState.xp=typeof d.xp==='number'?d.xp:0;
-  gameState.lastDailyBonus=d.lastDailyBonus||'';
-  gameState.totalBonuses=typeof d.totalBonuses==='number'?d.totalBonuses:0;
-  recomputeDerived();
-  resetContractsIfNeeded();
-  if(typeof d.lastSeen==='number'){var away=Math.max(0,(Date.now()-d.lastSeen)/1000);if(away>60){var gain=Math.max(derived.cps*away*0.5,away*0.1);if(gain>0){gameState.balance+=gain;gameState.totalEarned+=gain;setTimeout(function(){showToast(svgIcon('spark',24),'Офлайн-доход','+'+formatNumber(gain)+' 💎');},800);}}}
-}
-function resetProgress(){if(!confirm('Сбросить прогресс?'))return;localStorage.removeItem(SAVE_KEY);gameState.balance=0;gameState.totalEarned=0;gameState.totalClicks=0;gameState.playTime=0;gameState.upgrades=freshUpgrades();gameState.ownedSkins=['default'];gameState.activeSkin='default';gameState.achievements=freshAchievements();gameState.chatHistory=[];gameState.resources={alloy:0,chip:0,core:0};gameState.superDrones=0;gameState.darkMatter=0;gameState.dmClick=0;gameState.dmCps=0;gameState.openedContainers=0;gameState.contracts={};gameState.contractsDay='';gameState.level=1;gameState.xp=0;gameState.bestCombo=0;gameState.lastDailyBonus='';gameState.totalBonuses=0;recomputeDerived();applySkin();refreshOrbitObjects();refreshUI();renderShop();renderLab();renderPrestige();renderAchievements();renderContracts();renderSkinsCollection();}
-function wipeEverything(){if(!confirm('ПОЛНЫЙ ВАЙП: прогресс, аккаунт и всё. Продолжить?'))return;['crystal-net-save-v4','crystal-net-session','crystal-net-accounts','crystal-net-nick'].forEach(function(k){try{localStorage.removeItem(k);}catch(e){}});resetProgress();window.Online.signedIn=false;currentNick='';showLoginWall();}
-
-/* ---- UI ---- */
+/* ==== UI ==== */
 var lastShownBalance=-1;
 function updateComboUI(){var label=document.getElementById('combo-label'),fill=document.getElementById('combo-fill'),count=document.getElementById('combo-count');if(!label||!fill||!count)return;label.textContent='x'+getComboMult().toFixed(1);if(comboState.count>0){label.classList.add('hot');setTimeout(function(){label.classList.remove('hot');},200);}fill.style.width=Math.min(100,(comboState.count%20)/20*100)+'%';count.textContent=comboState.count+' комбо';if(comboState.count>gameState.bestCombo)gameState.bestCombo=comboState.count;}
-function updateLevelUI(){var el=document.getElementById('level-num');if(el)el.textContent=gameState.level;}
-function updateGoal(){var fill=document.getElementById('goal-fill'),label=document.getElementById('goal-label');if(!fill||!label)return;var pct=Math.min(1,gameState.balance/10000000);fill.style.width=Math.round(pct*100)+'%';label.textContent=formatNumber(gameState.balance)+' / 10M';}
+function updateLevelUI(){var el=document.getElementById('level-badge');if(el)el.textContent='LVL '+gameState.level;}
 function refreshUI(){
   var text=formatBalance(gameState.balance);
   var chip=document.getElementById('balance-chip');if(chip)chip.textContent=text;
@@ -1301,181 +1031,105 @@ function refreshUI(){
   if(gameState.balance-lastShownBalance>derived.cps*0.1){bal.classList.remove('pop');void bal.offsetWidth;bal.classList.add('pop');}
   lastShownBalance=gameState.balance;
   document.getElementById('hud-cps').textContent='💠 '+formatNumber(derived.cps)+' / сек'+(hyperdriveActive?' ⚡x5':'');
-  updateGoal();
-  if(activePage==='page-lab')renderLab();
-  if(activePage==='page-restart')renderPrestige();
+  if(activeView==='lab')renderLab();
+  if(activeView==='restart')renderPrestige();
 }
 
-/* Золотой бонус + ежедневный */
-var goldenGemTimer=null;
-function spawnGoldenGem(){var gem=document.getElementById('golden-gem');if(!gem)return;var pad=90,x=pad+Math.random()*(window.innerWidth-pad*2),y=110+Math.random()*(window.innerHeight-220);gem.style.left=x+'px';gem.style.top=y+'px';gem.classList.add('active');gem.classList.remove('pop');var collected=false;var handler=function(){if(collected)return;collected=true;var bonus=Math.max(50,Math.floor(derived.cps*5))+gameState.level*25;gameState.balance+=bonus;gameState.totalEarned+=bonus;gameState.totalBonuses++;gem.classList.remove('active');gem.classList.add('pop');spawnDamageText(x,y,'+'+formatNumber(bonus)+' 💎 БОНУС!');playSound('gem');refreshUI();checkAchievements();setTimeout(function(){gem.classList.remove('pop');scheduleNextGem();},500);};gem.onclick=handler;setTimeout(function(){if(!collected){gem.classList.remove('active');scheduleNextGem();}},6000);}
-function scheduleNextGem(){if(goldenGemTimer)clearTimeout(goldenGemTimer);goldenGemTimer=setTimeout(spawnGoldenGem,25000+Math.random()*20000);}
-function checkDailyBonus(){var today=new Date().toISOString().slice(0,10);if(gameState.lastDailyBonus===today)return;var bonus=100+gameState.level*50;gameState.lastDailyBonus=today;gameState.balance+=bonus;gameState.totalEarned+=bonus;playSound('login');showToast(svgIcon('gem',24),'Ежедневный бонус!','+'+formatNumber(bonus)+' 💎');refreshUI();}
-
-/* ---- Init ---- */
-function onResize(){camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix();renderer.setSize(window.innerWidth,window.innerHeight);}
-function bindLogoSparkles(){var logo=document.getElementById('game-logo');var onEnter=function(){for(var i=0;i<8;i++){var s=document.createElement('span');s.className='spark';var a=Math.random()*Math.PI*2,d=30+Math.random()*40;s.style.setProperty('--sx',Math.cos(a)*d+'px');s.style.setProperty('--sy',Math.sin(a)*d+'px');s.style.left='50%';s.style.top='50%';logo.appendChild(s);s.addEventListener('animationend',function(){if(s.parentNode)s.parentNode.removeChild(s);});}};logo.addEventListener('mouseenter',onEnter);logo.addEventListener('touchstart',onEnter,{passive:true});}
-function renderChangelog(){
-  var chip=document.getElementById('version-chip');if(chip)chip.textContent=GAME_VERSION;
-  var boxes=document.querySelectorAll('#changelog-box');
-  if(boxes.length===0)return;
-  var versions=[
-    {v:'v4.0.0',date:'2026-08-03',title:'Космическая сборка',items:['5 экранов: Кристалл, Рынок, Контейнеры, Лаборатория, Рестарт, Версии','Квантовые контейнеры со скинами (до Секретного 1%)','Крафт Супер-Дронов из ресурсов','Престиж с Тёмной Материей и вечными множителями','Космическая аномалия и Гипер-Драйв (x5)','Глобальные контракты']},
-    {v:'v1.3.0',date:'2026-08-02',title:'Эволюция',items:['Интегрированы Квантовые Контейнеры (лутбоксы)','Система крафта деталей в Лаборатории','Режим Престижа (Рестарт за Тёмную Материю)','Космические Аномалии']},
-    {v:'v1.2.0',date:'2026-08-01',title:'Орбитальный Рой',items:['Визуализация пассивного дохода — купленные дроны физически летают по 3D-орбитам вокруг главного Кристалла','Спутники-сферы, конусы и торы по уровням апгрейдов']},
-    {v:'v1.1.0',date:'2026-07-31',title:'Обновление Рынка',items:['Добавлен интерактивный 3D-Робот-Продавец','Система ретро-озвучки букв Web Audio API','Динамические эмоции на мониторе']},
-    {v:'v1.0.0',date:'2026-07-30',title:'Релиз',items:['Запуск ядра [CRYSTAL.NET]','Базовая генерация 3D-кристалла','Запуск LocalStorage сохранений']}
-  ];
-  var html='<div class="clg-timeline">';
-  versions.forEach(function(ver){
-    html+='<div class="clg-node"><div class="clg-marker"></div><div class="clg-card"><div class="clg-head"><span class="clg-tag">'+ver.v+'</span><span class="clg-date">'+ver.date+'</span></div><div class="clg-title">'+ver.title+'</div><ul class="clg-list">';
-    ver.items.forEach(function(it){html+='<li>'+it+'</li>';});
-    html+='</ul></div></div>';
-  });
-  html+='</div>';
-  boxes.forEach(function(box){box.innerHTML=html;});
+/* ==== RESIZE ==== */
+function onResize(){
+  var c=document.getElementById('scene-container');
+  renderer.setSize(c.clientWidth,c.clientHeight);
+  camera.aspect=c.clientWidth/c.clientHeight;camera.updateProjectionMatrix();
+  var m=document.getElementById('merchant-scene');
+  mRenderer.setSize(m.clientWidth,m.clientHeight);
+  mCamera.aspect=m.clientWidth/m.clientHeight;mCamera.updateProjectionMatrix();
 }
 
+/* ==== INIT ==== */
+function populateIcons(){document.querySelectorAll('[data-ic]').forEach(function(el){el.innerHTML=svgIcon(el.getAttribute('data-ic'),18);});document.getElementById('chat-widget-btn').innerHTML=svgIcon('net',22);}
+function checkDailyBonus(){var today=new Date().toISOString().slice(0,10);if(gameState.lastDailyBonus===today)return;var bonus=100+gameState.level*50;gameState.lastDailyBonus=today;gameState.balance+=bonus;gameState.totalEarned+=bonus;showToast(svgIcon('gem',24),'Ежедневный бонус!','+'+formatNumber(bonus)+' 💎');refreshUI();}
+function passiveTick(){var gain=derived.cps*(PASSIVE_TICK_MS/1000);gameState.balance+=gain;gameState.totalEarned+=gain;gameState.playTime+=PASSIVE_TICK_MS/1000;if(gameState.playTime>30&&Math.random()<0.006)addXp(1);refreshUI();checkAchievements();}
 
 function init(){
   loadGame();
-  initThree();
+  initCrystalScene();
+  initMerchantScene();
   applySkin();
   recomputeDerived();
   refreshOrbitObjects();
   populateIcons();
-  bindNavigation();
+  bindNav();
+  bindTabs();
   bindLoginWall();
   enforceLoginGate();
   bindChat();
-  bindLogoSparkles();
   document.getElementById('reset-btn').addEventListener('click',resetProgress);
   document.getElementById('wipe-btn').addEventListener('click',wipeEverything);
-  document.getElementById('sound-toggle').addEventListener('click',toggleSound);
   document.getElementById('box-open').addEventListener('click',openContainer);
   document.getElementById('craft-super').addEventListener('click',craftSuperDrone);
   document.getElementById('prestige-btn').addEventListener('click',performPrestige);
   document.getElementById('dm-click-btn').addEventListener('click',buyDMClick);
   document.getElementById('dm-cps-btn').addEventListener('click',buyDMCps);
-  document.getElementById('quest-toggle').addEventListener('click',function(){document.getElementById('quest-drawer-body').classList.toggle('collapsed');});
-  document.getElementById('chat-widget-btn').addEventListener('click',toggleChatWidget);
+  document.getElementById('chat-widget-btn').addEventListener('click',toggleChat);
   document.getElementById('reveal-close').addEventListener('click',function(){document.getElementById('box-reveal').classList.remove('show');});
 
-  renderer.domElement.addEventListener('pointerdown',onPointerDown);
-  renderer.domElement.addEventListener('pointerup',onPointerUp);
-  renderer.domElement.addEventListener('pointermove',updateMouse);
-  renderer.domElement.addEventListener('touchstart',function(e){if(e.touches.length){isDown=true;crystalGroup.scale.set(0.92,0.92,0.92);}},{passive:true});
-  renderer.domElement.addEventListener('touchend',function(e){onPointerUp(e);},{passive:true});
+  var sc=document.getElementById('scene-container');
+  sc.addEventListener('pointerdown',onPointerDown);
+  sc.addEventListener('pointerup',onPointerUp);
+  sc.addEventListener('pointermove',updateMouse);
+  sc.addEventListener('touchstart',function(e){if(e.touches.length){isDown=true;crystalGroup.scale.set(0.92,0.92,0.92);}},{passive:true});
+  sc.addEventListener('touchend',function(e){onPointerUp(e);},{passive:true});
   window.addEventListener('resize',onResize);
   document.addEventListener('pointerdown',ensureAudio,{once:true});
   document.addEventListener('keydown',ensureAudio,{once:true});
-  loadSoundPref();
 
   setInterval(passiveTick,PASSIVE_TICK_MS);
-  setInterval(function(){checkContracts();},1500);
   setInterval(saveGame,SAVE_INTERVAL_MS);
   setInterval(function(){if(window.Online.real&&window.Online.sendPlayerStats)window.Online.sendPlayerStats({balance:gameState.balance});},3000);
   window.addEventListener('beforeunload',saveGame);
   document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')saveGame();});
 
   setTimeout(checkDailyBonus,600);
-  scheduleNextGem();
   scheduleAnomaly();
+  rotateNews();
+  setInterval(rotateNews,10000);
+  setupIdleWarning();
 
-  renderShop();renderLab();renderPrestige();renderAchievements();renderContracts();renderSkinsCollection();renderChangelog();
+  /* Туториал старт */
+  setTimeout(function(){if(gameState.tutorialStep===0)assistantSpeak('welcome');},1500);
+
+  renderShop();renderLab();renderPrestige();renderAchievements();renderSkinsCollection();renderChangelog();
   updateLevelUI();updateComboUI();refreshUI();
-  animate();
-}
-function passiveTick(){
-  var gain=derived.cps*(PASSIVE_TICK_MS/1000);
-  gameState.balance+=gain;gameState.totalEarned+=gain;gameState.playTime+=PASSIVE_TICK_MS/1000;
-  if(gameState.playTime>30&&Math.random()<0.006)addXp(1);
-  refreshUI();checkAchievements();
+  animateCrystal();
+  animateMerchant();
 }
 
 if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}else{init();}
   </script>
 
-  <!-- Модуль реального онлайна: Firebase Auth + Realtime Database -->
+  <!-- Модуль реального онлайна: Firebase (опционально) -->
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-    import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
     import { getDatabase, ref, onValue, set, push, onDisconnect, onChildAdded, query, orderByChild, limitToLast } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
-
     'use strict';
-    var config = (window.CRYSTAL_CONFIG && typeof window.CRYSTAL_CONFIG==='object') ? window.CRYSTAL_CONFIG : {};
-    var fb = config.firebase || {};
-    var configured = !!(fb.apiKey && fb.authDomain && fb.databaseURL && fb.projectId && fb.enabled!==false);
-
-    if (!configured) {
-      console.info('[CRYSTAL.NET] Firebase не настроен. Офлайн-режим.');
-    } else {
-      try {
-        var app = initializeApp(fb);
-        var auth = getAuth(app);
-        var db = getDatabase(app);
-        var currentUid = null;
-        var currentNick = '';
-        window.Online.real = true;
-        window.Online.uidByNick = {};
-
-        function refreshPresence() {
-          if (!currentUid) return;
-          var r = ref(db,'online/'+currentUid);
-          set(r,{ name:currentNick, lastSeen:Date.now() });
-          onDisconnect(r).remove();
-        }
-
-        function initPresence() {
-          setInterval(refreshPresence,20000);
-          onValue(ref(db,'online'),function(snap){
-            document.getElementById('online-count').textContent=String(snap.numChildren());
-            var cl=document.getElementById('chat-online');if(cl)cl.textContent='🟢 '+snap.numChildren()+' в сети';
-          });
-        }
-
-        function initChat() {
-          onChildAdded(query(ref(db,'messages'),limitToLast(60)),function(snap){
-            var m=snap.val();
-            if(!m||!m.text) return;
-            addChatMessage(m.name||'Гость',m.text,m.uid===currentUid);
-          });
-        }
-        window.Online.onSendPlayerChat = function(text){
-          if(!currentUid) return;
-          push(ref(db,'messages'),{ name:currentNick, uid:currentUid, text:text, ts:Date.now() });
-        };
-
-        function initLeaderboard() {
-          onValue(query(ref(db,'players'),orderByChild('balance'),limitToLast(10)),function(snap){
-            var box=document.getElementById('leaderboard');if(!box)return;
-          });
-        }
-        window.Online.sendPlayerStats = function(stats){
-          if(!currentUid) return;
-          set(ref(db,'players/'+currentUid),{ name:currentNick, balance:Math.floor(stats.balance||0), updatedAt:Date.now() });
-          set(ref(db,'online/'+currentUid),{ name:currentNick, lastSeen:Date.now(), balance:Math.floor(stats.balance||0) });
-        };
-
-        onAuthStateChanged(auth,function(user){
-          if(user){
-            currentUid=user.uid;
-            var saved='';
-            try{ saved=localStorage.getItem('crystal-net-nick')||''; }catch(e){}
-            currentNick=user.displayName||saved||('Player_'+Math.floor(1000+Math.random()*9000));
-            window.Online.currentNick=currentNick;
-            refreshPresence();
-            initPresence();
-            initChat();
-            hideLoginWall();
-          } else {
-            currentUid=null; currentNick='';
-          }
-        });
-      } catch(err) {
-        window.Online.real=false;
-        console.error('[CRYSTAL.NET] Firebase init failed:', err);
-      }
+    var config=(window.CRYSTAL_CONFIG&&typeof window.CRYSTAL_CONFIG==='object')?window.CRYSTAL_CONFIG:{};
+    var fb=config.firebase||{};
+    var configured=!!(fb.apiKey&&fb.authDomain&&fb.databaseURL&&fb.projectId&&fb.enabled!==false);
+    if(!configured){console.info('[CRYSTAL.NET] Firebase не настроен.');}else{
+      try{
+        var app=initializeApp(fb);
+        var auth=getAuth(app);
+        var db=getDatabase(app);
+        var currentUid=null;
+        var currentNick='';
+        window.Online.real=true;
+        function refreshPresence(){if(!currentUid)return;var r=ref(db,'online/'+currentUid);set(r,{name:currentNick,lastSeen:Date.now()});onDisconnect(r).remove();}
+        function initChat(){onChildAdded(query(ref(db,'messages'),limitToLast(50)),function(snap){var m=snap.val();if(!m||!m.text)return;addChatMessage(m.name||'Гость',m.text,m.uid===currentUid);});}
+        window.Online.onSendPlayerChat=function(text){if(!currentUid)return;push(ref(db,'messages'),{name:currentNick,uid:currentUid,text:text,ts:Date.now()});};
+        window.Online.sendPlayerStats=function(stats){if(!currentUid)return;set(ref(db,'players/'+currentUid),{name:currentNick,balance:Math.floor(stats.balance||0),updatedAt:Date.now()});set(ref(db,'online/'+currentUid),{name:currentNick,lastSeen:Date.now(),balance:Math.floor(stats.balance||0)});};
+        onAuthStateChanged(auth,function(user){if(user){currentUid=user.uid;var saved='';try{saved=localStorage.getItem('crystal-net-nick')||'';}catch(e){}currentNick=user.displayName||saved||('Player_'+Math.floor(1000+Math.random()*9000));window.Online.currentNick=currentNick;refreshPresence();initChat();hideLoginWall();}else{currentUid=null;currentNick='';}});
+      }catch(err){window.Online.real=false;console.error('[CRYSTAL.NET] Firebase init failed:',err);}
     }
   </script>
 </body>
