@@ -228,6 +228,33 @@ body.hyperdrive .col-left,body.hyperdrive .col-top{animation:hyperFlash .5s ease
 /* SVG-иконки */
 .svg-ic{display:inline-block;vertical-align:middle;filter:drop-shadow(0 0 4px currentColor)}
 
+/* ==== ЗАСТАВКА ПОДКЛЮЧЕНИЯ ==== */
+.boot-splash{position:fixed;inset:0;z-index:1200;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 40%,#120a28 0%,#05030c 80%);transition:opacity .8s,visibility .8s}
+.boot-splash.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.boot-inner{text-align:center;padding:30px}
+.boot-logo{font-family:'Orbitron',monospace;font-weight:900;font-size:40px;letter-spacing:3px;background:linear-gradient(90deg,var(--cyan),var(--magenta));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:logoPulse 2.6s ease-in-out infinite;margin-bottom:20px}
+.boot-sub{color:var(--muted);font-size:14px;margin-bottom:30px;letter-spacing:1px}
+.boot-btn{border:none;border-radius:14px;padding:16px 44px;font-family:'Orbitron',monospace;font-weight:900;font-size:16px;letter-spacing:2px;cursor:pointer;background:linear-gradient(135deg,var(--cyan),var(--magenta));color:#fff;box-shadow:0 0 40px rgba(0,240,255,.5);transition:transform .2s,box-shadow .2s}
+.boot-btn:hover{transform:scale(1.05);box-shadow:0 0 60px rgba(255,0,127,.6)}
+
+/* ==== КАТСЦЕНА-ЛОР ==== */
+.intro-screen{position:fixed;inset:0;z-index:1300;display:flex;align-items:center;justify-content:center;background:#000;opacity:0;visibility:hidden;transition:opacity 1s ease,visibility 1s}
+.intro-screen.show{opacity:1;visibility:visible}
+.intro-screen.fade-out{opacity:0}
+.intro-text{max-width:640px;padding:0 40px;font-family:'Orbitron',monospace;font-weight:700;font-size:22px;line-height:1.8;color:var(--cyan);text-shadow:0 0 20px rgba(0,240,255,.5);white-space:pre-wrap;min-height:200px}
+
+/* ==== БЛОКИРОВКА ТУТОРИАЛА ==== */
+.nav-btn.locked{opacity:.35;pointer-events:none;cursor:not-allowed}
+.tab-btn.locked{opacity:.35;pointer-events:none;cursor:not-allowed}
+body.tutorial-lock .nav-btn:not(.unlocked){opacity:.35;pointer-events:none}
+body.tutorial-lock .tab-btn:not(.unlocked){opacity:.35;pointer-events:none}
+body.tutorial-lock .col-center .panel{opacity:.5}
+/* Подсказка шага туториала */
+.tutorial-step-banner{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:400;background:rgba(20,15,40,.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--cyan);border-radius:12px;padding:12px 20px;font-size:13px;font-weight:700;color:var(--text);text-align:center;max-width:520px;box-shadow:0 0 30px rgba(0,240,255,.3);display:none}
+.tutorial-step-banner.show{display:block}
+.ad-bubble.panic{animation:adPanic .5s ease-in-out infinite}
+@keyframes adPanic{0%,100%{filter:brightness(1)}50%{filter:brightness(1.8) saturate(2)}}
+
 /* ==== МОБИЛЬНАЯ АДАПТАЦИЯ ==== */
 @media(max-width:900px){
   #app{grid-template-columns:1fr;overflow-y:auto;display:flex;flex-direction:column}
@@ -245,6 +272,23 @@ body.hyperdrive .col-left,body.hyperdrive .col-top{animation:hyperFlash .5s ease
 </style>
 </head>
 <body>
+
+  <!-- ЗАСТАВКА ПОДКЛЮЧЕНИЯ -->
+  <div id="boot-splash" class="boot-splash">
+    <div class="boot-inner">
+      <div class="boot-logo">[CRYSTAL.NET]</div>
+      <div class="boot-sub">КВАНТОВАЯ СЕТЬ · ГОД 2142 · СИГНАЛ ОБНАРУЖЕН</div>
+      <button class="boot-btn" id="boot-connect">ПОДКЛЮЧИТЬСЯ К СЕТИ</button>
+    </div>
+  </div>
+
+  <!-- КАТСЦЕНА-ПРЕДЫСТОРИЯ -->
+  <div id="intro-screen" class="intro-screen">
+    <div class="intro-text" id="intro-text"></div>
+  </div>
+
+  <!-- БАННЕР ШАГА ТУТОРИАЛА -->
+  <div class="tutorial-step-banner" id="tutorial-banner"></div>
 
   <!-- ВХОД -->
   <div id="login-wall" class="login-wall">
@@ -428,7 +472,7 @@ body.hyperdrive .col-left,body.hyperdrive .col-top{animation:hyperFlash .5s ease
 var SAVE_KEY='crystal-net-save-v5';
 var PASSIVE_TICK_MS=100;
 var SAVE_INTERVAL_MS=5000;
-var GAME_VERSION='5.0.0';
+var GAME_VERSION='5.1.0';
 
 var SVG_ICONS={
   gem:'<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20"/><path d="M12 21L8 9"/><path d="M12 21l4-12"/>',
@@ -583,12 +627,18 @@ function playSound(name){if(!audioCtx||!soundEnabled)return;switch(name){
 
 /* ==== ИИ-АССИСТЕНТ: отдельный аудиотрек из папки audio/assistant/ ==== */
 var ASSISTANT_PLAYLIST={
-  welcome:{file:'audio/assistant/welcome.mp3',text:'Приветствую! Я твой ИИ-ассистент. Кликни по Кристаллу 10 раз!'},
-  go_to_shop:{file:'audio/assistant/go_to_shop.mp3',text:'Отлично! Энергия пошла. Теперь открой вкладку Рынок и купи первый авто-майнер'},
-  tutorial_done:{file:'audio/assistant/tutorial_done.mp3',text:'Система автоматизирована! Я буду следить за прогрессом'},
-  idle_warning:{file:'audio/assistant/idle_warning.mp3',text:'Эй, оператор! Кристалл сам себя не добудет, поднажми!'},
-  rich:{file:'audio/assistant/rich.mp3',text:'Ого, отличный баланс! Наша кристальная империя растет!'}
+  intro:{file:'audio/assistant/intro.mp3',text:'Год 2142. Ресурсы Земли исчерпаны. Единственный источник выживания — Квантовые Кристаллы. Матрица запущена...'},
+  welcome:{file:'audio/assistant/welcome.mp3',text:'Приветствую, оператор! Я твой бортовой ассистент. Системы запущены, но нам критически не хватает энергии. Кликни по главному Кристаллу десять раз, чтобы активировать генератор!'},
+  go_to_shop:{file:'audio/assistant/go_to_shop.mp3',text:'Отличная работа, ядро стабилизировано! Энергия пошла. Теперь нам нужна автоматизация. Открой вкладку Рынок и найми нашего первого Дрона-майнера'},
+  tutorial_done:{file:'audio/assistant/tutorial_done.mp3',text:'Система полностью автоматизирована! Протоколы обучения завершены. Теперь ты готов к масштабной добыче. Я буду парить рядом и следить за твоим прогрессом. Удачи!'},
+  anomaly:{file:'audio/assistant/anomaly.mp3',text:'Внимание! Обнаружена пространственная аномалия! Срочно кликни по ней, пока она не исчезла!'},
+  hyperdrive:{file:'audio/assistant/hyperdrive.mp3',text:'Реактор перегружен! Гипер-Драйв активирован! Вся добыча ускорена в пять раз!'},
+  rich:{file:'audio/assistant/rich.mp3',text:'Ого! Мои датчики фиксируют колоссальный приток ресурсов! Наша кристальная империя растет!'},
+  idle_1:{file:'audio/assistant/idle_1.mp3',text:'Эй, оператор! Кристалл сам себя не добудет, поднажми!'},
+  idle_2:{file:'audio/assistant/idle_2.mp3',text:'Системы в режиме ожидания. Кристалл скучает по твоим кликам!'},
+  idle_3:{file:'audio/assistant/idle_3.mp3',text:'Датчики фиксируют затишье. Время поднять уровень добычи, капитан!'}
 };
+var IDLE_FILES=['idle_1','idle_2','idle_3'];
 var assistantAudio=null; /* активный элемент Audio из папки audio/assistant/ */
 var assistantBubbleTimer=null;
 function assistantSpeak(key){
@@ -617,18 +667,151 @@ function assistantAlert(text){
   var bubble=document.getElementById('ad-bubble');
   if(bubble){bubble.classList.add('visible');bubble.classList.add('alert');bubble.textContent=text;setTimeout(function(){bubble.classList.remove('visible');},3000);}
 }
-/* Туториал */
-var idleWarningTimer=null;
+/* Эмбиент-музыка из audio/space_ambient.mp3 */
+var ambientAudio=null;
+function startAmbient(){if(ambientAudio)return;ambientAudio=new Audio('audio/space_ambient.mp3');ambientAudio.loop=true;ambientAudio.volume=0.2;if(soundEnabled){ambientAudio.play().catch(function(){/* файл может отсутствовать */});}}
+
+/* ==== ЗАСТАВКА, КАТСЦЕНА И ТУТОРИАЛ ==== */
+var tutorialCompleted=false;
+var tutorialLocked=false;
+var richPlayedSession=false;
+
+/* Поток старта: заставка -> (если нет сейва) катсцена -> туториал */
+function startBootFlow(){
+  var splash=document.getElementById('boot-splash');
+  splash.classList.add('hidden');
+  startAmbient();
+  if(tutorialCompleted){
+    /* Опытный игрок: просто входим, туториал не запускаем */
+    applyTutorialLock(false);
+    return;
+  }
+  startIntroCutscene();
+}
+function startIntroCutscene(){
+  var screen=document.getElementById('intro-screen');
+  var textEl=document.getElementById('intro-text');
+  screen.classList.add('show');
+  var text=ASSISTANT_PLAYLIST.intro.text;
+  /* Печатная машинка для лора */
+  var i=0;
+  textEl.textContent='';
+  var timer=setInterval(function(){
+    i++;
+    textEl.textContent=text.slice(0,i);
+    if(i>=text.length){clearInterval(timer);/* после текста запускаем туториал */setTimeout(endIntroCutscene,2200);}
+  },35);
+  /* Параллельно — озвучка лора */
+  playAssistantFile('intro');
+}
+function endIntroCutscene(){
+  var screen=document.getElementById('intro-screen');
+  screen.classList.add('fade-out');
+  setTimeout(function(){
+    screen.classList.remove('show');
+    screen.classList.remove('fade-out');
+    /* Камера делает прилет — включить кристалл */
+    setView('crystal');
+    startTutorial();
+  },1000);
+}
+/* Воспроизведение конкретного файла ассистента без баббла (для лора) */
+function playAssistantFile(key){
+  var entry=ASSISTANT_PLAYLIST[key];
+  if(!entry)return;
+  if(assistantAudio){try{assistantAudio.pause();assistantAudio.currentTime=0;}catch(e){}}
+  assistantAudio=new Audio(entry.file);
+  assistantAudio.volume=0.8;
+  if(soundEnabled){assistantAudio.play().catch(function(){});}
+}
+/* Полный вызов реплики: баббл + текст + звук */
+function assistantSpeak(key){
+  var entry=ASSISTANT_PLAYLIST[key];
+  if(!entry)return;
+  if(assistantAudio){try{assistantAudio.pause();assistantAudio.currentTime=0;}catch(e){}}
+  assistantAudio=new Audio(entry.file);
+  assistantAudio.volume=0.8;
+  if(soundEnabled){assistantAudio.play().catch(function(){});}
+  var bubble=document.getElementById('ad-bubble');
+  if(bubble){
+    bubble.classList.add('visible');
+    bubble.classList.remove('alert');
+    bubble.textContent='';
+    var i=0;
+    if(assistantBubbleTimer)clearInterval(assistantBubbleTimer);
+    assistantBubbleTimer=setInterval(function(){
+      i++;
+      bubble.textContent=entry.text.slice(0,i);
+      if(i>=entry.text.length){clearInterval(assistantBubbleTimer);setTimeout(function(){bubble.classList.remove('visible');},3000);}
+    },25);
+  }
+}
+
+/* ==== ЗАСКРИПТОВАННЫЙ ТУТОРИАЛ (3 шага) ==== */
+function applyTutorialLock(lock,unlockView){
+  tutorialLocked=lock;
+  document.body.classList.toggle('tutorial-lock',lock);
+  document.querySelectorAll('.nav-btn').forEach(function(b){
+    var target=b.getAttribute('data-target');
+    b.classList.toggle('unlocked',!lock||target===unlockView||target==='crystal');
+  });
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.toggle('unlocked',!lock);});
+}
+function showTutorialBanner(text){
+  var b=document.getElementById('tutorial-banner');
+  if(b){b.textContent=text;b.classList.add('show');}
+}
+function hideTutorialBanner(){var b=document.getElementById('tutorial-banner');if(b)b.classList.remove('show');}
+function startTutorial(){
+  tutorialCompleted=false;
+  gameState.tutorialStep=0;
+  /* ШАГ 1: блокируем всё, активен только кристалл */
+  applyTutorialLock(true,'crystal');
+  setView('crystal');
+  showTutorialBanner('Кликни по Кристаллу 10 раз, чтобы активировать генератор');
+  setTimeout(function(){assistantSpeak('welcome');},600);
+}
+function advanceTutorialToShop(){
+  gameState.tutorialStep=1;
+  /* Разблокируем только Рынок */
+  applyTutorialLock(true,'market');
+  showTutorialBanner('Перейди на вкладку Рынок и купи первого Дрона-майнера');
+  assistantSpeak('go_to_shop');
+}
+function completeTutorial(){
+  gameState.tutorialStep=2;
+  tutorialCompleted=true;
+  /* Полная разблокировка */
+  applyTutorialLock(false);
+  hideTutorialBanner();
+  assistantSpeak('tutorial_done');
+  saveGame();
+}
+/* Проверка прогресса туториала вызывается после клика и после покупки */
 function runTutorial(){
-  if(gameState.tutorialStep===0&&gameState.totalClicks>=10){gameState.tutorialStep=1;assistantSpeak('go_to_shop');}
-  if(gameState.tutorialStep===1){var any=0;UPGRADE_DEFS.forEach(function(d){any+=gameState.upgrades[d.id].level;});if(any>0){gameState.tutorialStep=2;assistantSpeak('tutorial_done');}}
-  if(gameState.tutorialStep===2&&gameState.balance>=100000){gameState.tutorialStep=3;assistantSpeak('rich');}
+  if(tutorialCompleted)return;
+  if(gameState.tutorialStep===0&&gameState.totalClicks>=10){advanceTutorialToShop();return;}
+  if(gameState.tutorialStep===1){var any=0;UPGRADE_DEFS.forEach(function(d){any+=gameState.upgrades[d.id].level;});if(any>0){completeTutorial();}}
+}
+/* Блокировка навигации в рамках туториала */
+function guardedSetView(view){
+  if(tutorialLocked){
+    if(view==='crystal'){setView('crystal');return;}
+    if(gameState.tutorialStep===1&&view==='market'){setView('market');return;}
+    showTutorialBanner('Пока доступно только '+(gameState.tutorialStep===1?'Рынок':'Кристалл'));
+    return;
+  }
+  setView(view);
 }
 function setupIdleWarning(){
   setInterval(function(){
-    if(gameState.totalClicks>0&&gameState.tutorialStep<2){
-      if(Date.now()-lastActivityTime>40000){
-        assistantSpeak('idle_warning');
+    if(tutorialCompleted&&gameState.totalClicks>0){
+      if(Date.now()-lastActivityTime>40000&&activeView==='crystal'){
+        var key=IDLE_FILES[Math.floor(Math.random()*IDLE_FILES.length)];
+        assistantSpeak(key);
+        var bubble=document.getElementById('ad-bubble');
+        if(bubble)bubble.classList.add('panic');
+        setTimeout(function(){if(bubble)bubble.classList.remove('panic');},4000);
         lastActivityTime=Date.now();
       }
     }
@@ -877,7 +1060,7 @@ function setView(view){
   if(view==='restart')renderPrestige();
   if(view==='versions')renderChangelog();
 }
-function bindNav(){document.querySelectorAll('.nav-btn').forEach(function(b){b.addEventListener('click',function(){setView(b.getAttribute('data-target'));});});}
+function bindNav(){document.querySelectorAll('.nav-btn').forEach(function(b){b.addEventListener('click',function(){guardedSetView(b.getAttribute('data-target'));});});}
 
 /* ==== Галактические новости ==== */
 var newsIdx=0;
@@ -900,6 +1083,8 @@ function spawnAnomaly(){
   var y=safeYmin+Math.random()*(safeYmax-safeYmin);
   a.style.left=x+'px';a.style.top=y+'px';
   a.classList.add('active');
+  /* Предупреждение ассистента об аномалии */
+  if(tutorialCompleted){assistantSpeak('anomaly');}
   var collected=false;
   a.onclick=function(){if(collected)return;collected=true;a.classList.remove('active');activateHyperdrive();scheduleAnomaly();};
   var t0=Date.now();
@@ -919,8 +1104,7 @@ function activateHyperdrive(){
   hyperdriveActive=true;recomputeDerived();
   document.body.classList.add('hyperdrive');
   playSound('hyper');
-  var bubble=document.getElementById('ad-bubble');
-  if(bubble){bubble.classList.add('visible');bubble.classList.add('alert');bubble.textContent='ВЖЖ-ВЖЖ! ГИПЕР-ДРАЙВ x5!';setTimeout(function(){bubble.classList.remove('visible');},2500);}
+  if(tutorialCompleted){assistantSpeak('hyperdrive');}
   if(hyperdriveTimer)clearTimeout(hyperdriveTimer);
   hyperdriveTimer=setTimeout(function(){hyperdriveActive=false;recomputeDerived();document.body.classList.remove('hyperdrive');refreshUI();},15000);
   refreshUI();
@@ -1015,9 +1199,9 @@ function bindLoginWall(){var loginBtn=document.getElementById('login-btn'),regBt
 function enforceLoginGate(){var a=getLocalAccount();if(a){window.Online.signedIn=true;currentNick=a.username;hideLoginWall();}else showLoginWall();}
 
 /* ==== СОХРАНЕНИЕ ==== */
-function saveGame(){var data={balance:gameState.balance,totalEarned:gameState.totalEarned,totalClicks:gameState.totalClicks,playTime:gameState.playTime,upgrades:gameState.upgrades,ownedSkins:gameState.ownedSkins,activeSkin:gameState.activeSkin,achievements:gameState.achievements,chatHistory:gameState.chatHistory,resources:gameState.resources,superDrones:gameState.superDrones,darkMatter:gameState.darkMatter,dmClick:gameState.dmClick,dmCps:gameState.dmCps,openedContainers:gameState.openedContainers,bestCombo:gameState.bestCombo,level:gameState.level,xp:gameState.xp,lastDailyBonus:gameState.lastDailyBonus,totalBonuses:gameState.totalBonuses,tutorialStep:gameState.tutorialStep,lastSeen:Date.now()};try{localStorage.setItem(SAVE_KEY,JSON.stringify(data));}catch(e){}}
-function loadGame(){var raw=null;try{raw=localStorage.getItem(SAVE_KEY);}catch(e){raw=null;}if(!raw)return;var d=null;try{d=JSON.parse(raw);}catch(e){d=null;}if(!d)return;gameState.balance=typeof d.balance==='number'?d.balance:0;gameState.totalEarned=typeof d.totalEarned==='number'?d.totalEarned:0;gameState.totalClicks=typeof d.totalClicks==='number'?d.totalClicks:0;gameState.playTime=typeof d.playTime==='number'?d.playTime:0;if(d.upgrades){var fr=freshUpgrades();Object.keys(fr).forEach(function(id){if(d.upgrades[id]&&typeof d.upgrades[id].level==='number')fr[id].level=d.upgrades[id].level;});gameState.upgrades=fr;}if(Array.isArray(d.ownedSkins)&&d.ownedSkins.length){gameState.ownedSkins=d.ownedSkins.filter(function(id){return SKINS[id];});if(gameState.ownedSkins.indexOf('default')===-1)gameState.ownedSkins.push('default');gameState.activeSkin=SKINS[d.activeSkin]?d.activeSkin:'default';}if(d.achievements){var fa=freshAchievements();Object.keys(fa).forEach(function(id){if(d.achievements[id])fa[id].unlocked=!!d.achievements[id].unlocked;});gameState.achievements=fa;}if(Array.isArray(d.chatHistory))gameState.chatHistory=d.chatHistory.filter(function(m){return typeof m==='string';}).slice(-50);if(d.resources)gameState.resources={alloy:d.resources.alloy||0,chip:d.resources.chip||0,core:d.resources.core||0};gameState.superDrones=typeof d.superDrones==='number'?d.superDrones:0;gameState.darkMatter=typeof d.darkMatter==='number'?d.darkMatter:0;gameState.dmClick=typeof d.dmClick==='number'?d.dmClick:0;gameState.dmCps=typeof d.dmCps==='number'?d.dmCps:0;gameState.openedContainers=typeof d.openedContainers==='number'?d.openedContainers:0;gameState.bestCombo=typeof d.bestCombo==='number'?d.bestCombo:0;gameState.level=typeof d.level==='number'?d.level:1;gameState.xp=typeof d.xp==='number'?d.xp:0;gameState.lastDailyBonus=d.lastDailyBonus||'';gameState.totalBonuses=typeof d.totalBonuses==='number'?d.totalBonuses:0;gameState.tutorialStep=typeof d.tutorialStep==='number'?d.tutorialStep:0;recomputeDerived();if(typeof d.lastSeen==='number'){var away=Math.max(0,(Date.now()-d.lastSeen)/1000);if(away>60){var gain=Math.max(derived.cps*away*0.5,away*0.1);if(gain>0){gameState.balance+=gain;gameState.totalEarned+=gain;setTimeout(function(){showToast(svgIcon('spark',24),'Офлайн-доход','+'+formatNumber(gain)+' 💎');},800);}}}}
-function resetProgress(){if(!confirm('Сбросить прогресс?'))return;localStorage.removeItem(SAVE_KEY);gameState.balance=0;gameState.totalEarned=0;gameState.totalClicks=0;gameState.playTime=0;gameState.upgrades=freshUpgrades();gameState.ownedSkins=['default'];gameState.activeSkin='default';gameState.achievements=freshAchievements();gameState.chatHistory=[];gameState.resources={alloy:0,chip:0,core:0};gameState.superDrones=0;gameState.darkMatter=0;gameState.dmClick=0;gameState.dmCps=0;gameState.openedContainers=0;gameState.level=1;gameState.xp=0;gameState.bestCombo=0;gameState.totalBonuses=0;gameState.tutorialStep=0;recomputeDerived();applySkin();refreshOrbitObjects();refreshUI();renderShop();renderLab();renderPrestige();renderAchievements();renderSkinsCollection();}
+function saveGame(){var data={balance:gameState.balance,totalEarned:gameState.totalEarned,totalClicks:gameState.totalClicks,playTime:gameState.playTime,upgrades:gameState.upgrades,ownedSkins:gameState.ownedSkins,activeSkin:gameState.activeSkin,achievements:gameState.achievements,chatHistory:gameState.chatHistory,resources:gameState.resources,superDrones:gameState.superDrones,darkMatter:gameState.darkMatter,dmClick:gameState.dmClick,dmCps:gameState.dmCps,openedContainers:gameState.openedContainers,bestCombo:gameState.bestCombo,level:gameState.level,xp:gameState.xp,lastDailyBonus:gameState.lastDailyBonus,totalBonuses:gameState.totalBonuses,tutorialStep:gameState.tutorialStep,tutorialCompleted:tutorialCompleted,lastSeen:Date.now()};try{localStorage.setItem(SAVE_KEY,JSON.stringify(data));}catch(e){}}
+function loadGame(){var raw=null;try{raw=localStorage.getItem(SAVE_KEY);}catch(e){raw=null;}if(!raw)return;var d=null;try{d=JSON.parse(raw);}catch(e){d=null;}if(!d)return;gameState.balance=typeof d.balance==='number'?d.balance:0;gameState.totalEarned=typeof d.totalEarned==='number'?d.totalEarned:0;gameState.totalClicks=typeof d.totalClicks==='number'?d.totalClicks:0;gameState.playTime=typeof d.playTime==='number'?d.playTime:0;if(d.upgrades){var fr=freshUpgrades();Object.keys(fr).forEach(function(id){if(d.upgrades[id]&&typeof d.upgrades[id].level==='number')fr[id].level=d.upgrades[id].level;});gameState.upgrades=fr;}if(Array.isArray(d.ownedSkins)&&d.ownedSkins.length){gameState.ownedSkins=d.ownedSkins.filter(function(id){return SKINS[id];});if(gameState.ownedSkins.indexOf('default')===-1)gameState.ownedSkins.push('default');gameState.activeSkin=SKINS[d.activeSkin]?d.activeSkin:'default';}if(d.achievements){var fa=freshAchievements();Object.keys(fa).forEach(function(id){if(d.achievements[id])fa[id].unlocked=!!d.achievements[id].unlocked;});gameState.achievements=fa;}if(Array.isArray(d.chatHistory))gameState.chatHistory=d.chatHistory.filter(function(m){return typeof m==='string';}).slice(-50);if(d.resources)gameState.resources={alloy:d.resources.alloy||0,chip:d.resources.chip||0,core:d.resources.core||0};gameState.superDrones=typeof d.superDrones==='number'?d.superDrones:0;gameState.darkMatter=typeof d.darkMatter==='number'?d.darkMatter:0;gameState.dmClick=typeof d.dmClick==='number'?d.dmClick:0;gameState.dmCps=typeof d.dmCps==='number'?d.dmCps:0;gameState.openedContainers=typeof d.openedContainers==='number'?d.openedContainers:0;gameState.bestCombo=typeof d.bestCombo==='number'?d.bestCombo:0;gameState.level=typeof d.level==='number'?d.level:1;gameState.xp=typeof d.xp==='number'?d.xp:0;gameState.lastDailyBonus=d.lastDailyBonus||'';gameState.totalBonuses=typeof d.totalBonuses==='number'?d.totalBonuses:0;gameState.tutorialStep=typeof d.tutorialStep==='number'?d.tutorialStep:0;tutorialCompleted=!!d.tutorialCompleted;recomputeDerived();if(typeof d.lastSeen==='number'){var away=Math.max(0,(Date.now()-d.lastSeen)/1000);if(away>60){var gain=Math.max(derived.cps*away*0.5,away*0.1);if(gain>0){gameState.balance+=gain;gameState.totalEarned+=gain;setTimeout(function(){showToast(svgIcon('spark',24),'Офлайн-доход','+'+formatNumber(gain)+' 💎');},800);}}}}
+function resetProgress(){if(!confirm('Сбросить прогресс?'))return;localStorage.removeItem(SAVE_KEY);gameState.balance=0;gameState.totalEarned=0;gameState.totalClicks=0;gameState.playTime=0;gameState.upgrades=freshUpgrades();gameState.ownedSkins=['default'];gameState.activeSkin='default';gameState.achievements=freshAchievements();gameState.chatHistory=[];gameState.resources={alloy:0,chip:0,core:0};gameState.superDrones=0;gameState.darkMatter=0;gameState.dmClick=0;gameState.dmCps=0;gameState.openedContainers=0;gameState.level=1;gameState.xp=0;gameState.bestCombo=0;gameState.totalBonuses=0;gameState.tutorialStep=0;tutorialCompleted=false;recomputeDerived();applySkin();refreshOrbitObjects();refreshUI();renderShop();renderLab();renderPrestige();renderAchievements();renderSkinsCollection();}
 function wipeEverything(){if(!confirm('ПОЛНЫЙ ВАЙП: прогресс и аккаунт. Продолжить?'))return;['crystal-net-save-v5','crystal-net-session','crystal-net-accounts'].forEach(function(k){try{localStorage.removeItem(k);}catch(e){}});resetProgress();window.Online.signedIn=false;currentNick='';showLoginWall();}
 
 /* ==== UI ==== */
@@ -1095,8 +1279,13 @@ function init(){
   setInterval(rotateNews,10000);
   setupIdleWarning();
 
-  /* Туториал старт */
-  setTimeout(function(){if(gameState.tutorialStep===0)assistantSpeak('welcome');},1500);
+  /* Проверка "богатства" — один раз за сессию */
+  setInterval(function(){
+    if(!richPlayedSession&&tutorialCompleted&&gameState.balance>=1000000){richPlayedSession=true;assistantSpeak('rich');}
+  },5000);
+
+  /* Заставка-подключение и поток катсцены/туториала */
+  document.getElementById('boot-connect').addEventListener('click',startBootFlow);
 
   renderShop();renderLab();renderPrestige();renderAchievements();renderSkinsCollection();renderChangelog();
   updateLevelUI();updateComboUI();refreshUI();
