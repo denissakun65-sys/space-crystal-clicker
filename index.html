@@ -353,7 +353,9 @@ body.tutorial-lock .col-center .panel{opacity:.5}
           <button class="tab-btn" data-tab="tab-containers" data-view="containers">Контейнеры</button>
           <button class="tab-btn" data-tab="tab-versions" data-view="versions">Версии</button>
           <button class="tab-btn" data-tab="tab-restart" data-view="restart">Рестарт</button>
+          <button class="tab-btn" data-tab="tab-locations" data-view="locations">🪐 Локации</button>
           <button class="tab-btn" data-view="market" style="border-color:rgba(0,240,255,.5)">🛒 Рынок</button>
+          <button class="tab-btn" data-tab="tab-journal" data-view="journal">📚 Журнал</button>
         </div>
 
         <!-- Вкладка Лаборатория -->
@@ -372,11 +374,18 @@ body.tutorial-lock .col-center .panel{opacity:.5}
               <div class="ci-cost">Собрать Супер-Дрона<br>(10 Сплав · 8 Микросхем · 5 Ядер)</div>
               <button class="craft-btn" id="craft-super">Собрать</button>
             </div>
-            <div style="font-weight:800;margin-top:10px;margin-bottom:6px;font-size:13px">Статистика</div>
+            <div style="font-weight:800;margin-top:10px;margin-bottom:6px;font-size:13px">📊 Статистика</div>
+            <div class="stat-row"><span class="k">Уровень</span><span class="v" id="stat-level">1</span></div>
             <div class="stat-row"><span class="k">Всего кликов</span><span class="v" id="stat-clicks">0</span></div>
-            <div class="stat-row"><span class="k">Заработано</span><span class="v" id="stat-earned">0 💎</span></div>
+            <div class="stat-row"><span class="k">Критических ударов</span><span class="v" id="stat-crits">0</span></div>
+            <div class="stat-row"><span class="k">Рекорд комбо</span><span class="v" id="stat-combo">0</span></div>
+            <div class="stat-row"><span class="k">Заработано всего</span><span class="v" id="stat-earned">0 💎</span></div>
+            <div class="stat-row"><span class="k">Потрачено всего</span><span class="v" id="stat-spent">0 💎</span></div>
             <div class="stat-row"><span class="k">Время в игре</span><span class="v" id="stat-time">0 сек</span></div>
-            <div class="stat-row"><span class="k">Множитель</span><span class="v" id="stat-mult">x1</span></div>
+            <div class="stat-row"><span class="k">Множитель дохода</span><span class="v" id="stat-mult">x1</span></div>
+            <div class="stat-row"><span class="k">Бонус-кристаллы</span><span class="v" id="stat-bonus">0</span></div>
+            <div class="stat-row"><span class="k">Контейнеры открыто</span><span class="v" id="stat-boxes">0</span></div>
+            <div class="stat-row"><span class="k">Перерождений</span><span class="v" id="stat-prestiges">0</span></div>
             <button class="reset-btn" id="reset-btn">Сбросить прогресс</button>
             <button class="reset-btn" id="wipe-btn" style="background:rgba(255,90,90,.2)">Полный вайп</button>
             <div style="font-weight:800;margin-top:12px;margin-bottom:6px;font-size:13px">Достижения</div>
@@ -417,6 +426,25 @@ body.tutorial-lock .col-center .panel{opacity:.5}
             <div class="panel-title">Магазин Тёмной Материи</div>
             <div class="dm-shop-item"><div>⚡</div><div class="dm-info"><b>Усиление клика</b><br>+25% к силе клика · ур. <span id="dm-click-lvl">0</span></div><button class="dm-btn" id="dm-click-btn">Купить (1 ТМ)</button></div>
             <div class="dm-shop-item"><div>💠</div><div class="dm-info"><b>Усиление пассива</b><br>+25% к CPS · ур. <span id="dm-cps-lvl">0</span></div><button class="dm-btn" id="dm-cps-btn">Купить (1 ТМ)</button></div>
+          </div>
+        </div>
+
+        <!-- Вкладка Локации -->
+        <div class="tab-panel" id="tab-locations">
+          <div class="panel">
+            <div class="panel-title">🪐 Локации</div>
+            <div class="panel-sub">Открывай новые планеты — каждая даёт постоянный множитель дохода и новую валюту — Энергию.</div>
+            <div style="font-weight:900;font-size:16px;text-align:center;margin-bottom:10px;color:var(--cyan)">⚡ Энергия: <span id="energy-count">0</span></div>
+            <div id="location-list"></div>
+          </div>
+        </div>
+
+        <!-- Вкладка Журнал механик -->
+        <div class="tab-panel" id="tab-journal">
+          <div class="panel">
+            <div class="panel-title">📚 Журнал обучения механикам</div>
+            <div class="panel-sub">Краткий путеводитель по всем системам игры.</div>
+            <div id="journal-box"></div>
           </div>
         </div>
       </div>
@@ -468,7 +496,7 @@ body.tutorial-lock .col-center .panel{opacity:.5}
 var SAVE_KEY='crystal-net-save-v5';
 var PASSIVE_TICK_MS=100;
 var SAVE_INTERVAL_MS=5000;
-var GAME_VERSION='5.2.0';
+var GAME_VERSION='5.3.0';
 
 var SVG_ICONS={
   gem:'<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20"/><path d="M12 21L8 9"/><path d="M12 21l4-12"/>',
@@ -545,9 +573,20 @@ var gameState={
   balance:0,totalEarned:0,totalClicks:0,playTime:0,upgrades:freshUpgrades(),
   ownedSkins:['default'],activeSkin:'default',achievements:freshAchievements(),chatHistory:[],
   resources:{alloy:0,chip:0,core:0},superDrones:0,darkMatter:0,dmClick:0,dmCps:0,
-  openedContainers:0,bestCombo:0,level:1,xp:0,lastDailyBonus:'',totalBonuses:0,tutorialStep:0
+  openedContainers:0,bestCombo:0,level:1,xp:0,lastDailyBonus:'',totalBonuses:0,tutorialStep:0,
+  crits:0,totalSpent:0,prestiges:0,energy:0,locationIndex:0
 };
-var derived={clickPower:1,skinMult:1,levelMult:1,hyperMult:1,cps:0};
+var derived={clickPower:1,skinMult:1,levelMult:1,hyperMult:1,cps:0,locationMult:1};
+
+/* Локации: планеты, открываемые за Энергию. Каждая даёт множитель дохода. */
+var LOCATIONS=[
+  {id:'earth',name:'Земля',icon:'🌍',desc:'Родная планета. Точка старта.',cost:0,mult:1,energyReward:0},
+  {id:'mars',name:'Марс',icon:'🔴',desc:'Красная пустошь, богатая кристаллами.',cost:100,mult:1.5,energyReward:50},
+  {id:'venus',name:'Венера',icon:'🟠',desc:'Раскалённые печи и плотный туман.',cost:1000,mult:2.5,energyReward:150},
+  {id:'jupiter',name:'Юпитер',icon:'🟤',desc:'Газовый гигант с бурями Энергии.',cost:10000,mult:4,energyReward:400},
+  {id:'neptune',name:'Нептун',icon:'🔵',desc:'Ледяной край сектора.',cost:100000,mult:6.5,energyReward:1000},
+  {id:'blackhole',name:'Чёрная Дыра',icon:'⚫',desc:'Финальный рубеж, где рождается Тёмная Материя.',cost:1000000,mult:10,energyReward:2500}
+];
 var comboState={count:0,mult:1,timer:null};
 var activeView='crystal';
 var currentNick='';
@@ -573,8 +612,11 @@ function recomputeDerived(){
   var dmClickMult=1+gameState.dmClick*0.25;
   var dmCpsMult=1+gameState.dmCps*0.25;
   derived.hyperMult=hyperdriveActive?5:1;
-  derived.clickPower=clickBase*skin.mult*derived.levelMult*dmClickMult*derived.hyperMult;
-  derived.cps=cpsBase*skin.mult*derived.levelMult*dmCpsMult*derived.hyperMult;
+  /* Множитель от текущей локации */
+  var loc=LOCATIONS[Math.min(gameState.locationIndex,LOCATIONS.length-1)]||LOCATIONS[0];
+  derived.locationMult=loc?loc.mult:1;
+  derived.clickPower=clickBase*skin.mult*derived.levelMult*dmClickMult*derived.hyperMult*derived.locationMult;
+  derived.cps=cpsBase*skin.mult*derived.levelMult*dmCpsMult*derived.hyperMult*derived.locationMult;
 }
 function getComboMult(){return 1+comboState.count*0.01;}
 
@@ -585,7 +627,7 @@ function registerClick(){
   var critChance=Math.min(0.2,0.03+gameState.level*0.008);
   var isCrit=Math.random()<critChance;
   var gain=Math.round(derived.clickPower*comboState.mult);
-  if(isCrit)gain*=8;
+  if(isCrit){gain*=8;gameState.crits++;}
   gameState.balance+=gain;gameState.totalEarned+=gain;gameState.totalClicks++;
   var xpGain=1+Math.floor(comboState.count/10)+(isCrit?5:0);
   addXp(xpGain);
@@ -1069,7 +1111,7 @@ function purchaseUpgrade(id){
   if(!def)return;
   var cost=getUpgradeCost(def);
   if(gameState.balance<cost){speak('noFunds');showToast(svgIcon('zap',24),'Недостаточно','Нужно '+formatNumber(cost)+' 💎');return;}
-  gameState.balance-=cost;gameState.upgrades[id].level++;
+  gameState.balance-=cost;gameState.upgrades[id].level++;gameState.totalSpent+=cost;
   recomputeDerived();refreshUI();renderShop();checkAchievements();
   playSound('buy');refreshOrbitObjects();
   speak('successBuy');
@@ -1103,6 +1145,8 @@ function setView(view){
   if(view==='containers')renderSkinsCollection();
   if(view==='restart')renderPrestige();
   if(view==='versions')renderChangelog();
+  if(view==='locations')renderLocations();
+  if(view==='journal')renderJournal();
 }
 function bindNav(){document.querySelectorAll('.nav-btn').forEach(function(b){b.addEventListener('click',function(){guardedSetView(b.getAttribute('data-target'));});});}
 
@@ -1202,13 +1246,67 @@ function craftSuperDrone(){
   playSound('level');
   showToast(svgIcon('drone',24),'Супер-Дрон собран!','+50 CPS');
 }
-function renderStats(){document.getElementById('stat-clicks').textContent=formatNumber(gameState.totalClicks);document.getElementById('stat-earned').textContent=formatBalance(gameState.totalEarned);document.getElementById('stat-time').textContent=formatTime(gameState.playTime);document.getElementById('stat-mult').textContent='x'+(derived.skinMult*derived.levelMult*(1+gameState.dmClick*0.25)*(1+gameState.dmCps*0.25)).toFixed(2);}
+function renderStats(){
+  document.getElementById('stat-level').textContent=gameState.level;
+  document.getElementById('stat-clicks').textContent=formatNumber(gameState.totalClicks);
+  document.getElementById('stat-crits').textContent=formatNumber(gameState.crits);
+  document.getElementById('stat-combo').textContent=formatNumber(gameState.bestCombo);
+  document.getElementById('stat-earned').textContent=formatBalance(gameState.totalEarned);
+  document.getElementById('stat-spent').textContent=formatBalance(gameState.totalSpent);
+  document.getElementById('stat-time').textContent=formatTime(gameState.playTime);
+  document.getElementById('stat-mult').textContent='x'+(derived.skinMult*derived.levelMult*(1+gameState.dmClick*0.25)*(1+gameState.dmCps*0.25)*derived.locationMult).toFixed(2);
+  document.getElementById('stat-bonus').textContent=formatNumber(gameState.totalBonuses);
+  document.getElementById('stat-boxes').textContent=formatNumber(gameState.openedContainers);
+  document.getElementById('stat-prestiges').textContent=formatNumber(gameState.prestiges);
+}
+function renderLocations(){
+  var box=document.getElementById('location-list');
+  var energy=document.getElementById('energy-count');
+  if(energy)energy.textContent=formatNumber(gameState.energy);
+  if(!box)return;
+  box.innerHTML='';
+  LOCATIONS.forEach(function(loc,idx){
+    var owned=idx<=gameState.locationIndex;
+    var active=gameState.locationIndex===idx;
+    var cost=loc.cost;
+    var affordable=gameState.energy>=cost;
+    var div=document.createElement('div');
+    div.className='dm-shop-item';
+    div.style.borderColor=active?'rgba(0,240,255,.5)':'var(--gb)';
+    div.innerHTML='<div style="font-size:20px">'+loc.icon+'</div><div class="dm-info"><b>'+loc.name+'</b><br>'+loc.desc+'<br>Множитель x'+loc.mult+(loc.energyReward?' · награда ⚡'+loc.energyReward:'')+'</div>';
+    if(owned){
+      var st=document.createElement('span');
+      st.style.fontWeight='900';st.style.color=active?'var(--good)':'var(--muted)';
+      st.textContent=active?'● активна':'открыта';
+      div.appendChild(st);
+    }else{
+      var btn=document.createElement('button');
+      btn.className='dm-btn';btn.textContent='Открыть (⚡'+formatNumber(cost)+')';
+      btn.disabled=!affordable;
+      if(affordable){btn.addEventListener('click',function(){unlockLocation(idx);});}
+      div.appendChild(btn);
+    }
+    box.appendChild(div);
+  });
+}
+function unlockLocation(idx){
+  var loc=LOCATIONS[idx];
+  if(!loc)return;
+  if(idx>gameState.locationIndex+1){showToast(svgIcon('zap',24),'Сначала','Откройте предыдущие локации');return;}
+  if(gameState.energy<loc.cost){showToast(svgIcon('zap',24),'Нет Энергии','Нужно ⚡'+formatNumber(loc.cost));return;}
+  gameState.energy-=loc.cost;
+  gameState.locationIndex=idx;
+  gameState.energy+=loc.energyReward;
+  recomputeDerived();renderLocations();refreshUI();
+  playSound('level');
+  showToast(loc.icon,'Локация открыта!','Доход x'+loc.mult+(loc.energyReward?' · +⚡'+loc.energyReward:''));
+}
 
 /* ==== ПРЕСТИЖ ==== */
 function performPrestige(){
   if(gameState.balance<10000000){showToast(svgIcon('zap',24),'Мало','Нужно 10 000 000 💎');return;}
   if(!confirm('Переродиться?\nСбросить баланс и апгрейды за 1 Тёмную Материю?'))return;
-  gameState.darkMatter++;
+  gameState.darkMatter++;gameState.prestiges++;
   gameState.balance=0;gameState.totalEarned=0;gameState.totalClicks=0;
   gameState.upgrades=freshUpgrades();
   gameState.resources={alloy:0,chip:0,core:0};gameState.superDrones=0;
@@ -1225,6 +1323,30 @@ function checkAchievements(){var changed=false;ACHIEVEMENTS.forEach(function(ac)
 
 /* ==== ВЕРСИИ (timeline) ==== */
 function renderChangelog(){var box=document.getElementById('changelog-box');if(!box)return;var versions=[{v:'v1.4.0',date:'2026-08-03',title:'Финал',items:['3-колоночный каркас','ИИ-ассистент с озвучкой','Кинематика ухода кристалла']},{v:'v1.3.0',date:'2026-08-02',title:'Эволюция',items:['Квантовые Контейнеры','Крафт в Лаборатории','Режим Престижа','Космические Аномалии']},{v:'v1.2.0',date:'2026-08-01',title:'Орбитальный Рой',items:['Дроны летают по 3D-орбитам вокруг Кристалла']},{v:'v1.1.0',date:'2026-07-31',title:'Обновление Рынка',items:['3D-Робот-Продавец','Ретро-озвучка Web Audio','Динамические эмоции']},{v:'v1.0.0',date:'2026-07-30',title:'Релиз',items:['Запуск ядра [CRYSTAL.NET]','3D-кристалл','LocalStorage сохранения']}];var html='<div class="clg-timeline">';versions.forEach(function(ver){html+='<div class="clg-node"><div class="clg-marker"></div><div class="clg-card"><div class="clg-head"><span class="clg-tag">'+ver.v+'</span><span class="clg-date">'+ver.date+'</span></div><div class="clg-title">'+ver.title+'</div><ul class="clg-list">';ver.items.forEach(function(it){html+='<li>'+it+'</li>';});html+='</ul></div></div>';});html+='</div>';box.innerHTML=html;}
+
+/* ==== ЖУРНАЛ МЕХАНИК ==== */
+function renderJournal(){
+  var box=document.getElementById('journal-box');
+  if(!box)return;
+  var sections=[
+    {icon:'💎',title:'Кристалл и доход',items:['Кликай по 3D-кристаллу — каждый клик даёт кристаллы.','Криты (шанс растёт с уровнем) дают x8.','Комбо растёт от частых кликов — до x1.0+.','Пассивный доход (CPS) капает каждые 100мс.']},
+    {icon:'🛒',title:'Рынок (авто-майнеры)',items:['6 авто-кликеров увеличивают силу клика или CPS.','Цена растёт экспоненциально: Цена = База × 1.15^уровень.','Каждый купленный дрон/бур/фабрика летает спутником вокруг кристалла.']},
+    {icon:'📦',title:'Контейнеры',items:['Лутбоксы за 5 000 💎.','Выпадает скин для кристалла (от Обычного до Секретного 1%).','Скины меняют цвет/материал 3D-модели и множитель дохода.']},
+    {icon:'🛠️',title:'Лаборатория (крафт)',items:['При кликах (5% шанс) выпадают Сплав, Микросхемы, Энерго-ядра.','Собирай Супер-Дронов — они дают +50 CPS каждый.']},
+    {icon:'🪐',title:'Локации',items:['Открывай планеты за Энергию — каждая даёт множитель дохода.','Энергия начисляется при открытии новых локаций.']},
+    {icon:'🔄',title:'Рестарт (престиж)',items:['При 10 000 000 💎 можно переродиться за 1 Тёмную Материю.','Тёмная Материя покупает вечные множители клика/CPS.']},
+    {icon:'🌀',title:'Аномалии и Гипер-Драйв',items:['Раз в 2-3 минуты появляется бирюзовая аномалия.','Кликни по ней — Гипер-Драйв даст x5 к доходу на 15 секунд.']},
+    {icon:'🤖',title:'ИИ-помощник АРГУС',items:['АРГУС обучает новичков, предупреждает об аномалиях.','При бездействии подбадривает озвучкой из папки audio/.']}
+  ];
+  var html='';
+  sections.forEach(function(sec){
+    html+='<div style="background:rgba(255,255,255,.04);border:1px solid var(--gb);border-radius:12px;padding:12px;margin-bottom:10px">'+
+      '<div style="font-weight:900;margin-bottom:6px">'+sec.icon+' '+sec.title+'</div><ul style="margin-left:16px;font-size:12px;color:var(--text)">';
+    sec.items.forEach(function(it){html+='<li style="margin-bottom:3px">'+it+'</li>';});
+    html+='</ul></div>';
+  });
+  box.innerHTML=html;
+}
 
 /* ==== ЧАТ ==== */
 function addChatMessage(nick,text,isPlayer,opts){opts=opts||{};var log=document.getElementById('chat-log');if(!log)return;var vendor=!!opts.vendor;var el=document.createElement('div');el.className='chat-msg'+(isPlayer?' you':'')+(vendor?' vendor':'');el.innerHTML='<div class="m-nick"></div><div class="m-text"></div>';el.querySelector('.m-nick').textContent=nick;el.querySelector('.m-text').textContent=text;log.appendChild(el);while(log.children.length>50)log.removeChild(log.firstChild);log.scrollTop=log.scrollHeight;}
@@ -1243,9 +1365,9 @@ function bindLoginWall(){var loginBtn=document.getElementById('login-btn'),regBt
 function enforceLoginGate(){var a=getLocalAccount();if(a){window.Online.signedIn=true;currentNick=a.username;hideLoginWall();}else showLoginWall();}
 
 /* ==== СОХРАНЕНИЕ ==== */
-function saveGame(){var data={balance:gameState.balance,totalEarned:gameState.totalEarned,totalClicks:gameState.totalClicks,playTime:gameState.playTime,upgrades:gameState.upgrades,ownedSkins:gameState.ownedSkins,activeSkin:gameState.activeSkin,achievements:gameState.achievements,chatHistory:gameState.chatHistory,resources:gameState.resources,superDrones:gameState.superDrones,darkMatter:gameState.darkMatter,dmClick:gameState.dmClick,dmCps:gameState.dmCps,openedContainers:gameState.openedContainers,bestCombo:gameState.bestCombo,level:gameState.level,xp:gameState.xp,lastDailyBonus:gameState.lastDailyBonus,totalBonuses:gameState.totalBonuses,tutorialStep:gameState.tutorialStep,tutorialCompleted:tutorialCompleted,lastSeen:Date.now()};try{localStorage.setItem(SAVE_KEY,JSON.stringify(data));}catch(e){}}
-function loadGame(){var raw=null;try{raw=localStorage.getItem(SAVE_KEY);}catch(e){raw=null;}if(!raw)return;var d=null;try{d=JSON.parse(raw);}catch(e){d=null;}if(!d)return;gameState.balance=typeof d.balance==='number'?d.balance:0;gameState.totalEarned=typeof d.totalEarned==='number'?d.totalEarned:0;gameState.totalClicks=typeof d.totalClicks==='number'?d.totalClicks:0;gameState.playTime=typeof d.playTime==='number'?d.playTime:0;if(d.upgrades){var fr=freshUpgrades();Object.keys(fr).forEach(function(id){if(d.upgrades[id]&&typeof d.upgrades[id].level==='number')fr[id].level=d.upgrades[id].level;});gameState.upgrades=fr;}if(Array.isArray(d.ownedSkins)&&d.ownedSkins.length){gameState.ownedSkins=d.ownedSkins.filter(function(id){return SKINS[id];});if(gameState.ownedSkins.indexOf('default')===-1)gameState.ownedSkins.push('default');gameState.activeSkin=SKINS[d.activeSkin]?d.activeSkin:'default';}if(d.achievements){var fa=freshAchievements();Object.keys(fa).forEach(function(id){if(d.achievements[id])fa[id].unlocked=!!d.achievements[id].unlocked;});gameState.achievements=fa;}if(Array.isArray(d.chatHistory))gameState.chatHistory=d.chatHistory.filter(function(m){return typeof m==='string';}).slice(-50);if(d.resources)gameState.resources={alloy:d.resources.alloy||0,chip:d.resources.chip||0,core:d.resources.core||0};gameState.superDrones=typeof d.superDrones==='number'?d.superDrones:0;gameState.darkMatter=typeof d.darkMatter==='number'?d.darkMatter:0;gameState.dmClick=typeof d.dmClick==='number'?d.dmClick:0;gameState.dmCps=typeof d.dmCps==='number'?d.dmCps:0;gameState.openedContainers=typeof d.openedContainers==='number'?d.openedContainers:0;gameState.bestCombo=typeof d.bestCombo==='number'?d.bestCombo:0;gameState.level=typeof d.level==='number'?d.level:1;gameState.xp=typeof d.xp==='number'?d.xp:0;gameState.lastDailyBonus=d.lastDailyBonus||'';gameState.totalBonuses=typeof d.totalBonuses==='number'?d.totalBonuses:0;gameState.tutorialStep=typeof d.tutorialStep==='number'?d.tutorialStep:0;tutorialCompleted=!!d.tutorialCompleted;recomputeDerived();if(typeof d.lastSeen==='number'){var away=Math.max(0,(Date.now()-d.lastSeen)/1000);if(away>60){var gain=Math.max(derived.cps*away*0.5,away*0.1);if(gain>0){gameState.balance+=gain;gameState.totalEarned+=gain;setTimeout(function(){showToast(svgIcon('spark',24),'Офлайн-доход','+'+formatNumber(gain)+' 💎');},800);}}}}
-function resetProgress(){if(!confirm('Сбросить прогресс?'))return;localStorage.removeItem(SAVE_KEY);gameState.balance=0;gameState.totalEarned=0;gameState.totalClicks=0;gameState.playTime=0;gameState.upgrades=freshUpgrades();gameState.ownedSkins=['default'];gameState.activeSkin='default';gameState.achievements=freshAchievements();gameState.chatHistory=[];gameState.resources={alloy:0,chip:0,core:0};gameState.superDrones=0;gameState.darkMatter=0;gameState.dmClick=0;gameState.dmCps=0;gameState.openedContainers=0;gameState.level=1;gameState.xp=0;gameState.bestCombo=0;gameState.totalBonuses=0;gameState.tutorialStep=0;tutorialCompleted=false;recomputeDerived();applySkin();refreshOrbitObjects();refreshUI();renderShop();renderLab();renderPrestige();renderAchievements();renderSkinsCollection();}
+function saveGame(){var data={balance:gameState.balance,totalEarned:gameState.totalEarned,totalClicks:gameState.totalClicks,playTime:gameState.playTime,upgrades:gameState.upgrades,ownedSkins:gameState.ownedSkins,activeSkin:gameState.activeSkin,achievements:gameState.achievements,chatHistory:gameState.chatHistory,resources:gameState.resources,superDrones:gameState.superDrones,darkMatter:gameState.darkMatter,dmClick:gameState.dmClick,dmCps:gameState.dmCps,openedContainers:gameState.openedContainers,bestCombo:gameState.bestCombo,level:gameState.level,xp:gameState.xp,lastDailyBonus:gameState.lastDailyBonus,totalBonuses:gameState.totalBonuses,tutorialStep:gameState.tutorialStep,tutorialCompleted:tutorialCompleted,crits:gameState.crits,totalSpent:gameState.totalSpent,prestiges:gameState.prestiges,energy:gameState.energy,locationIndex:gameState.locationIndex,lastSeen:Date.now()};try{localStorage.setItem(SAVE_KEY,JSON.stringify(data));}catch(e){}}
+function loadGame(){var raw=null;try{raw=localStorage.getItem(SAVE_KEY);}catch(e){raw=null;}if(!raw)return;var d=null;try{d=JSON.parse(raw);}catch(e){d=null;}if(!d)return;gameState.balance=typeof d.balance==='number'?d.balance:0;gameState.totalEarned=typeof d.totalEarned==='number'?d.totalEarned:0;gameState.totalClicks=typeof d.totalClicks==='number'?d.totalClicks:0;gameState.playTime=typeof d.playTime==='number'?d.playTime:0;if(d.upgrades){var fr=freshUpgrades();Object.keys(fr).forEach(function(id){if(d.upgrades[id]&&typeof d.upgrades[id].level==='number')fr[id].level=d.upgrades[id].level;});gameState.upgrades=fr;}if(Array.isArray(d.ownedSkins)&&d.ownedSkins.length){gameState.ownedSkins=d.ownedSkins.filter(function(id){return SKINS[id];});if(gameState.ownedSkins.indexOf('default')===-1)gameState.ownedSkins.push('default');gameState.activeSkin=SKINS[d.activeSkin]?d.activeSkin:'default';}if(d.achievements){var fa=freshAchievements();Object.keys(fa).forEach(function(id){if(d.achievements[id])fa[id].unlocked=!!d.achievements[id].unlocked;});gameState.achievements=fa;}if(Array.isArray(d.chatHistory))gameState.chatHistory=d.chatHistory.filter(function(m){return typeof m==='string';}).slice(-50);if(d.resources)gameState.resources={alloy:d.resources.alloy||0,chip:d.resources.chip||0,core:d.resources.core||0};gameState.superDrones=typeof d.superDrones==='number'?d.superDrones:0;gameState.darkMatter=typeof d.darkMatter==='number'?d.darkMatter:0;gameState.dmClick=typeof d.dmClick==='number'?d.dmClick:0;gameState.dmCps=typeof d.dmCps==='number'?d.dmCps:0;gameState.openedContainers=typeof d.openedContainers==='number'?d.openedContainers:0;gameState.bestCombo=typeof d.bestCombo==='number'?d.bestCombo:0;gameState.level=typeof d.level==='number'?d.level:1;gameState.xp=typeof d.xp==='number'?d.xp:0;gameState.lastDailyBonus=d.lastDailyBonus||'';gameState.totalBonuses=typeof d.totalBonuses==='number'?d.totalBonuses:0;gameState.tutorialStep=typeof d.tutorialStep==='number'?d.tutorialStep:0;tutorialCompleted=!!d.tutorialCompleted;gameState.crits=typeof d.crits==='number'?d.crits:0;gameState.totalSpent=typeof d.totalSpent==='number'?d.totalSpent:0;gameState.prestiges=typeof d.prestiges==='number'?d.prestiges:0;gameState.energy=typeof d.energy==='number'?d.energy:0;gameState.locationIndex=typeof d.locationIndex==='number'?d.locationIndex:0;recomputeDerived();if(typeof d.lastSeen==='number'){var away=Math.max(0,(Date.now()-d.lastSeen)/1000);if(away>60){var gain=Math.max(derived.cps*away*0.5,away*0.1);if(gain>0){gameState.balance+=gain;gameState.totalEarned+=gain;setTimeout(function(){showToast(svgIcon('spark',24),'Офлайн-доход','+'+formatNumber(gain)+' 💎');},800);}}}}
+function resetProgress(){if(!confirm('Сбросить прогресс?'))return;localStorage.removeItem(SAVE_KEY);gameState.balance=0;gameState.totalEarned=0;gameState.totalClicks=0;gameState.playTime=0;gameState.upgrades=freshUpgrades();gameState.ownedSkins=['default'];gameState.activeSkin='default';gameState.achievements=freshAchievements();gameState.chatHistory=[];gameState.resources={alloy:0,chip:0,core:0};gameState.superDrones=0;gameState.darkMatter=0;gameState.dmClick=0;gameState.dmCps=0;gameState.openedContainers=0;gameState.level=1;gameState.xp=0;gameState.bestCombo=0;gameState.totalBonuses=0;gameState.tutorialStep=0;tutorialCompleted=false;gameState.crits=0;gameState.totalSpent=0;gameState.prestiges=0;gameState.energy=0;gameState.locationIndex=0;recomputeDerived();applySkin();refreshOrbitObjects();refreshUI();renderShop();renderLab();renderPrestige();renderAchievements();renderSkinsCollection();}
 function wipeEverything(){if(!confirm('ПОЛНЫЙ ВАЙП: прогресс и аккаунт. Продолжить?'))return;['crystal-net-save-v5','crystal-net-session','crystal-net-accounts'].forEach(function(k){try{localStorage.removeItem(k);}catch(e){}});resetProgress();window.Online.signedIn=false;currentNick='';showLoginWall();}
 
 /* ==== UI ==== */
@@ -1331,7 +1453,7 @@ function init(){
   /* Заставка-подключение и поток катсцены/туториала */
   document.getElementById('boot-connect').addEventListener('click',startBootFlow);
 
-  renderShop();renderLab();renderPrestige();renderAchievements();renderSkinsCollection();renderChangelog();
+  renderShop();renderLab();renderPrestige();renderAchievements();renderSkinsCollection();renderChangelog();renderLocations();renderJournal();
   updateLevelUI();updateComboUI();refreshUI();
   animateCrystal();
   animateMerchant();
