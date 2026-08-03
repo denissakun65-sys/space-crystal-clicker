@@ -1039,6 +1039,44 @@
     100% { opacity: 0; transform: translate(-50%,-180%) scale(1.3); }
   }
 
+  /* Пузырь речи 3D-продавца */
+  .vendor-bubble {
+    position: fixed;
+    top: 22%;
+    right: 22%;
+    max-width: 260px;
+    padding: 14px 18px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(0, 240, 255, 0.4);
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 700;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 240, 255, 0.3);
+    z-index: 80;
+    opacity: 0;
+    transform: translateY(12px) scale(0.9);
+    pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s;
+  }
+
+  .vendor-bubble.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .vendor-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    left: 30px;
+    border: 12px solid transparent;
+    border-top-color: rgba(0, 240, 255, 0.4);
+    border-bottom: 0;
+  }
+
   /* ---------- Shop ---------- */
   #shop-grid {
     display: grid;
@@ -1756,6 +1794,10 @@
 
   <!-- Page 2: Market -->
   <section id="page-market" class="page">
+    <!-- Пузырь речи 3D-продавца -->
+    <div class="vendor-bubble" id="vendor-bubble">
+      <span id="vendor-bubble-text"></span>
+    </div>
     <div class="page-scroll">
       <div class="panel">
         <div class="page-title"><span class="title-ic" data-ic="cart"></span>Рынок</div>
@@ -1886,7 +1928,7 @@
     var SAVE_KEY = 'crystal-net-save-v1';
     var PASSIVE_TICK_MS = 100;
     var SAVE_INTERVAL_MS = 5000;
-    var GAME_VERSION = '1.7.0';
+    var GAME_VERSION = '1.8.0';
 
     /* ---------- Библиотека кастомных SVG-иконок ---------- */
     var SVG_ICONS = {
@@ -2458,6 +2500,19 @@
       if (audioCtx && audioCtx.state === 'suspended') {
         audioCtx.resume();
       }
+      // При возврате контекста из паузы — возобновляем музыку
+      if (audioCtx && !audioCtx._resumeBound) {
+        audioCtx._resumeBound = true;
+        audioCtx.onstatechange = function () {
+          if (audioCtx.state === 'running' && musicState.currentZone && !musicState.playing) {
+            startZoneMusic(musicState.currentZone);
+          }
+        };
+      }
+      // Если музыка должна играть, но контекст был на паузе — перезапускаем
+      if (audioCtx && musicState.currentZone && !musicState.playing) {
+        startZoneMusic(musicState.currentZone);
+      }
     }
 
     function toggleSound() {
@@ -2512,14 +2567,16 @@
 
     /* ---------- Фоновая музыка (магазин и др.) через Web Audio ---------- */
     var musicState = { playing: false, timer: null, step: 0, currentZone: '' };
+    var musicMasterGain = null;
 
-    // Простая синтезаторная арпеджио-петля
+    // Синтезаторная арпеджио-петля (планировщик с lookahead, без щелчков)
     var MUSIC_ZONES = {
-      market: { bpm: 96, notes: [261.6, 329.6, 392.0, 523.3, 392.0, 329.6, 293.7, 329.6] },
-      lab:    { bpm: 78, notes: [220.0, 277.2, 329.6, 415.3, 329.6, 277.2, 246.9, 277.2] },
-      net:    { bpm: 88, notes: [196.0, 246.9, 293.7, 392.0, 293.7, 246.9, 220.0, 246.9] }
+      market: { bpm: 100, notes: [261.6, 329.6, 392.0, 523.3, 392.0, 329.6, 293.7, 329.6] },
+      lab:    { bpm: 78,  notes: [220.0, 277.2, 329.6, 415.3, 329.6, 277.2, 246.9, 277.2] },
+      net:    { bpm: 88,  notes: [196.0, 246.9, 293.7, 392.0, 293.7, 246.9, 220.0, 246.9] }
     };
 
+    // Планировщик музыки: заранее выстраивает ноты по времени контекста
     function startZoneMusic(zone) {
       if (!audioCtx || !soundEnabled) {
         return;
@@ -2532,24 +2589,63 @@
       if (!cfg) {
         return;
       }
+      // Мастер-гейн музыки (не зависит от громкости эффектов)
+      if (!musicMasterGain) {
+        musicMasterGain = audioCtx.createGain();
+        musicMasterGain.gain.value = 0.5;
+        musicMasterGain.connect(audioCtx.destination);
+      }
       musicState.playing = true;
       musicState.currentZone = zone;
       musicState.step = 0;
-      var interval = 60000 / cfg.bpm / 2; // восьмые
-      musicState.timer = setInterval(function () {
-        var note = cfg.notes[musicState.step % cfg.notes.length];
-        playTone(note, interval * 0.85, 'triangle', 0.07);
-        // тихая басовая нота каждую половину
-        if (musicState.step % 4 === 0) {
-          playTone(note / 2, interval * 0.9, 'sine', 0.05);
+      var stepDur = 60 / cfg.bpm / 2; // длительность восьмой в секундах
+      var nextTime = audioCtx.currentTime + 0.05;
+      var lookahead = 0;
+
+      function schedule() {
+        if (!musicState.playing || musicState.currentZone !== zone) {
+          return;
         }
-        musicState.step++;
-      }, interval);
+        // Заранее планируем ноты на lookahead вперёд (плавно, без задержек)
+        while (nextTime < audioCtx.currentTime + 0.6) {
+          var idx = musicState.step % cfg.notes.length;
+          var note = cfg.notes[idx];
+          scheduleMusicNote(note, nextTime, stepDur * 0.9, 0.12);
+          if (musicState.step % 4 === 0) {
+            scheduleMusicNote(note / 2, nextTime, stepDur * 0.95, 0.08);
+          }
+          nextTime += stepDur;
+          musicState.step++;
+        }
+        lookahead = setTimeout(schedule, 120);
+      }
+      schedule();
+      musicState.timer = lookahead;
+    }
+
+    function scheduleMusicNote(freq, t, dur, vol) {
+      if (!audioCtx || !musicMasterGain) {
+        return;
+      }
+      try {
+        var osc = audioCtx.createOscillator();
+        var g = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, t);
+        // Огибающая: быстрый атака + плавный спад — убирает щелчки
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(vol, t + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        osc.connect(g);
+        g.connect(musicMasterGain);
+        osc.start(t);
+        osc.stop(t + dur + 0.05);
+      } catch (e) { /* ignore */ }
     }
 
     function stopMusic() {
       if (musicState.timer) {
-        clearInterval(musicState.timer);
+        clearTimeout(musicState.timer);
         musicState.timer = null;
       }
       musicState.playing = false;
@@ -2743,6 +2839,7 @@
 
       createStars();
       createCrystal();
+      createVendor();
     }
 
     function createStars() {
@@ -2831,17 +2928,122 @@
       }
     }
 
-    function applySkin() {
-      var skin = SKINS[gameState.activeSkin] || SKINS.default;
-      crystalMaterial.color.setHex(skin.color);
-      crystalMaterial.emissive.setHex(skin.emissive);
-      crystalMaterial.metalness = skin.metalness;
-      crystalMaterial.roughness = skin.roughness;
-      crystalLight.color.setHex(skin.glow);
-      crystalLight.intensity = 1.6;
-      if (crystalGroup.userData.core) {
-        crystalGroup.userData.core.material.color.setHex(skin.glow);
+    /* ----------------------------------------------------------------
+       7b. 3D-ПРОДАВЕЦ (для магазина)
+       ---------------------------------------------------------------- */
+    var vendorGroup = null;
+    var vendorMouth = null;
+    var vendorArm = null;
+
+    // Реплики продавца (появляются с озвучкой)
+    var VENDOR_LINES = [
+      'Добро пожаловать на рынок!',
+      'Кристаллы сегодня в цене!',
+      'Купите апгрейд — и доход взлетит!',
+      'Удачных сделок, торговец!',
+      'Не забудьте заглянуть в лабораторию!'
+    ];
+
+    function createVendor() {
+      vendorGroup = new THREE.Group();
+      vendorGroup.position.set(4.2, -0.2, 0);
+      scene.add(vendorGroup);
+
+      var metal = new THREE.MeshStandardMaterial({ color: 0x8f7bff, metalness: 0.9, roughness: 0.3, emissive: 0x2a1a66, emissiveIntensity: 0.4 });
+      var dark = new THREE.MeshStandardMaterial({ color: 0x3a3550, metalness: 0.6, roughness: 0.4 });
+
+      // Корпус (робот-торговец)
+      var body = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.9, 1.7, 16), metal);
+      body.position.y = 1.2;
+      vendorGroup.add(body);
+
+      // Голова
+      var head = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), metal);
+      head.position.y = 2.5;
+      vendorGroup.add(head);
+
+      // Глаза (светятся)
+      var eyeMat = new THREE.MeshBasicMaterial({ color: 0x38f0ff });
+      var eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 8), eyeMat);
+      eyeL.position.set(-0.2, 2.6, 0.4);
+      var eyeR = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 8), eyeMat);
+      eyeR.position.set(0.2, 2.6, 0.4);
+      vendorGroup.add(eyeL);
+      vendorGroup.add(eyeR);
+
+      // Рот (анимируется при разговоре)
+      vendorMouth = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.05, 0.1), dark);
+      vendorMouth.position.set(0, 2.3, 0.4);
+      vendorGroup.add(vendorMouth);
+
+      // Антенна
+      var antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.5), dark);
+      antenna.position.y = 3.0;
+      vendorGroup.add(antenna);
+      var antennaTip = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), eyeMat);
+      antennaTip.position.y = 3.25;
+      vendorGroup.add(antennaTip);
+
+      // Рука (для жестов)
+      vendorArm = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.9, 8), dark);
+      vendorArm.position.set(0.9, 1.4, 0);
+      vendorArm.rotation.z = -0.5;
+      vendorGroup.add(vendorArm);
+
+      vendorGroup.userData.mouth = vendorMouth;
+      vendorGroup.userData.arm = vendorArm;
+    }
+
+    // Речь продавца: Web Speech API (озвучка) + текст по буквам в пузыре
+    function vendorSpeak(text) {
+      // Синтез речи
+      if (soundEnabled && window.speechSynthesis) {
+        try {
+          window.speechSynthesis.cancel();
+          var utter = new SpeechSynthesisUtterance(text);
+          utter.lang = 'ru-RU';
+          utter.rate = 1.05;
+          utter.pitch = 1.1;
+          window.speechSynthesis.speak(utter);
+        } catch (e) { /* ignore */ }
       }
+      // Пузырь с текстом по буквам
+      var bubble = document.getElementById('vendor-bubble');
+      var bubbleText = document.getElementById('vendor-bubble-text');
+      if (bubble && bubbleText) {
+        bubble.classList.add('visible');
+        bubbleText.textContent = '';
+        var i = 0;
+        clearInterval(bubble._t);
+        bubble._t = setInterval(function () {
+          i++;
+          bubbleText.textContent = text.slice(0, i);
+          if (vendorMouth) {
+            vendorMouth.scale.y = 1 + Math.abs(Math.sin(i * 0.5));
+          }
+          if (i >= text.length) {
+            clearInterval(bubble._t);
+            if (vendorMouth) {
+              vendorMouth.scale.y = 1;
+            }
+            setTimeout(function () { bubble.classList.remove('visible'); }, 1200);
+          }
+        }, 60);
+      }
+    }
+
+    // Циклические реплики продавца
+    var vendorLineIndex = 0;
+    function scheduleVendorSpeak() {
+      var delay = 12000 + Math.random() * 8000;
+      setTimeout(function () {
+        if (activePage === 'page-market') {
+          vendorSpeak(VENDOR_LINES[vendorLineIndex % VENDOR_LINES.length]);
+          vendorLineIndex++;
+          playSound('toast');
+        }
+        scheduleVendorSpeak();
+      }, delay);
     }
 
     /* ----------------------------------------------------------------
@@ -3026,12 +3228,26 @@
 
       updateParticles(dt);
 
+      // Анимация продавца (покачивание, жесты руки)
+      if (vendorGroup) {
+        vendorGroup.position.y = -0.2 + Math.sin(time * 1.4) * 0.1;
+        if (vendorArm) {
+          vendorArm.rotation.z = -0.5 + Math.sin(time * 1.1) * 0.25;
+        }
+      }
+
       var targetZ = onHomePage ? 6 : 13.5;
       var targetY = onHomePage ? 0.4 : 1.4;
       camera.position.z += (targetZ - camera.position.z) * dt * 3;
       camera.position.y += (targetY - camera.position.y) * dt * 3;
       var crystalTargetScale = onHomePage ? 1 : 0.55;
       crystalGroup.scale.lerp(new THREE.Vector3(crystalTargetScale, crystalTargetScale, crystalTargetScale), dt * 4);
+      // Продавец виден только в магазине (на других страницах уезжает вправо)
+      if (vendorGroup) {
+        var vendorTargetX = (activePage === 'page-market') ? 4.2 : 9;
+        vendorGroup.position.x += (vendorTargetX - vendorGroup.position.x) * dt * 3;
+        vendorGroup.visible = (activePage === 'page-market');
+      }
       camera.lookAt(0, 0, 0);
 
       renderer.render(scene, camera);
@@ -3341,6 +3557,14 @@
         return;
       }
       var versions = [
+        { tag: '1.8.0', date: '2026-08-03', title: '3D-магазин с говорящим продавцом',
+          items: [
+            'Починена фоновая музыка: надёжный планировщик с lookahead, плавные огибающие без щелчков, авто-возобновление при паузе звука.',
+            'Добавлен 3D-продавец-робот в магазине: покачивается, жестикулирует, антенна со свечением.',
+            'Продавец говорит: озвучка через Web Speech API (голос) + текст появляется по буквам в пузыре речи.',
+            'Реплики продавца при входе в магазин и периодически, с анимацией рта.',
+            'Исправлен дублирующийся applySkin.'
+          ] },
         { tag: '1.7.0', date: '2026-08-03', title: 'Баланс, музыка и больше 3D',
           items: [
             'Крит переработан: базовый 3%, растёт с уровнем (до ~20%), низкий на старте.',
@@ -4103,6 +4327,12 @@
       if (pageId === 'page-market') {
         renderShop();
         startZoneMusic('market');
+        // Продавец приветствует при входе
+        setTimeout(function () {
+          if (activePage === 'page-market') {
+            vendorSpeak('Добро пожаловать на рынок!');
+          }
+        }, 600);
       } else if (pageId === 'page-net') {
         renderNetwork();
         startZoneMusic('net');
@@ -4687,6 +4917,7 @@
       // Ежедневный бонус + запуск золотых кристаллов
       setTimeout(checkDailyBonus, 600);
       scheduleNextGem();
+      scheduleVendorSpeak();
 
       // Периодическая отправка баланса в реальный лидерборд (Firebase)
       setInterval(function () {

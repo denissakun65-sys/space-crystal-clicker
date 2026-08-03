@@ -4,7 +4,20 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 проект придерживается [Semantic Versioning](https://semver.org/lang/ru/).
 
-Текущая версия: **1.7.0** · Онлайн: https://denissakun65-sys.github.io/space-crystal-clicker/
+Текущая версия: **1.8.0** · Онлайн: https://denissakun65-sys.github.io/space-crystal-clicker/
+
+---
+
+## [1.8.0] — 2026-08-03
+
+### 🎭 3D-магазин с говорящим продавцом
+- **3D-продавец-робот** в магазине: покачивается, жестикулирует рукой, антенна со свечением.
+- **Продавец говорит**: озвучка через Web Speech API (голос на русском) + текст, появляющийся по буквам в пузыре речи.
+- **Реплики** при входе в магазин и периодически, с анимацией рта во время речи.
+
+### 🔧 Исправлено
+- **Починена фоновая музыка**: надёжный планировщик с lookahead, плавные огибающие без щелчков, авто-возобновление при возврате звукового контекста из паузы.
+- Удалён дублирующийся `applySkin` (цвет орбитальных кристаллов теперь корректно обновляется под скин).
 
 ---
 
@@ -153,6 +166,7 @@
 - Реферальные ссылки.
 - Офлайн-доход с бонусом за премиум-скины.
 
+[1.8.0]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v1.8.0
 [1.7.0]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v1.7.0
 [1.6.0]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v1.6.0
 [1.5.0]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v1.5.0
