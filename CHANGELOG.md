@@ -325,3 +325,15 @@
 - Автосейв расширен на новые параметры.
 
 [5.3.0]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v5.3.0
+
+---
+
+## [5.3.1] — 2026-08-03
+
+### 🔊 Озвучка и звук
+- Тексты бабблов АРГУСА синхронизированы с новой озвучкой (welcome, go_to_shop, tutorial_done, rich, idle_warning).
+- **Скорость голоса озвучки увеличена** (playbackRate 1.25).
+- Созданы папки `audio/music/` и `audio/sfx/` для загрузки своих файлов.
+- **Поддержка SFX из файлов**: если в `audio/sfx/click.mp3` и т.д. лежит файл — играет он, иначе синтез Web Audio.
+
+[5.3.1]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v5.3.1

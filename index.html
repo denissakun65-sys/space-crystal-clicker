@@ -496,7 +496,7 @@ body.tutorial-lock .col-center .panel{opacity:.5}
 var SAVE_KEY='crystal-net-save-v5';
 var PASSIVE_TICK_MS=100;
 var SAVE_INTERVAL_MS=5000;
-var GAME_VERSION='5.3.0';
+var GAME_VERSION='5.3.1';
 
 var SVG_ICONS={
   gem:'<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20"/><path d="M12 21L8 9"/><path d="M12 21l4-12"/>',
@@ -653,7 +653,13 @@ var audioCtx=null;var soundEnabled=true;
 function ensureAudio(){if(!audioCtx){try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){audioCtx=null;}}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();}
 function playTone(freq,dur,type,vol){if(!audioCtx)return;try{var o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type||'sine';o.frequency.setValueAtTime(freq,audioCtx.currentTime);g.gain.setValueAtTime(vol||0.15,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+dur);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+dur);}catch(e){}}
 function robotBlip(){if(!audioCtx||!soundEnabled)return;try{var o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='square';var f=600+Math.random()*200;o.frequency.setValueAtTime(f,audioCtx.currentTime);o.frequency.exponentialRampToValueAtTime(f*1.3,audioCtx.currentTime+0.04);g.gain.setValueAtTime(0.04,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.05);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+0.06);}catch(e){}}
-function playSound(name){if(!audioCtx||!soundEnabled)return;switch(name){
+var sfxMap={click:'click',crit:'crit',level:'level',buy:'buy',gem:'buy',box:'box',hyper:'hyper'};
+function playSfxFile(name){if(!audioCtx||!soundEnabled)return;try{var a=new Audio('audio/sfx/'+name+'.mp3');a.volume=0.7;a.play().catch(function(){});}catch(e){}}
+function playSound(name){if(!audioCtx||!soundEnabled)return;
+  /* Если в audio/sfx/ есть готовый файл - играем его, иначе синтез */
+  var file=sfxMap[name];
+  if(file){playSfxFile(file);return;}
+  switch(name){
   case 'click':playTone(380+Math.random()*60,0.06,'sine',0.1);break;
   case 'crit':playTone(120,0.28,'sawtooth',0.16);playTone(880,0.25,'sine',0.1);break;
   case 'level':[523,659,784,1046].forEach(function(f,i){setTimeout(function(){playTone(f,0.18,'sine',0.16);},i*110);});break;
@@ -668,13 +674,13 @@ function playSound(name){if(!audioCtx||!soundEnabled)return;switch(name){
 var ASSISTANT_DIR='audio/assistant/';
 var ASSISTANT_PLAYLIST={
   intro:{file:ASSISTANT_DIR+'intro.mp3',text:'Год 2142. Ресурсы Земли исчерпаны. Единственный источник выживания — Квантовые Кристаллы. Матрица запущена...'},
-  welcome:{file:ASSISTANT_DIR+'welcome.mp3',text:'Системы запущены! Приветствую, оператор, меня зовут АРГУС, я твой бортовой ассистент. Наш сектор пуст, а реактор на нуле. Давай раскачаем эту глыбу! Кликни по Кристаллу десять раз, чтобы запустить первичный сбор энергии. Погнали!'},
-  go_to_shop:{file:ASSISTANT_DIR+'go_to_shop.mp3',text:'Отлично, искра пошла! Но кликать вручную — это прошлый век, мы тут империю строим. Стабильный поток энергии — ключ к успеху. Открывай вкладку Рынок справа и забирай нашего первого Дрона-майнера. Пора автоматизировать этот бизнес!'},
-  tutorial_done:{file:ASSISTANT_DIR+'tutorial_done.mp3',text:'Протоколы синхронизации завершены, дрон на орбите! Теперь система работает сама, а ты официально сертифицирован как космический магнат. Я остаюсь на связи и буду прикрывать тебя в этом секторе. Покажи им, на что способен [CRYSTAL.NET]!'},
+  welcome:{file:ASSISTANT_DIR+'welcome.mp3',text:'Инициализация ядра завершена. Приветствую, оператор! Я АРГУС — твой бортовой ассистент. Наш сектор пуст, а главный реактор на нуле. Давай раскачаем эту кристаллическую глыбу! Кликни по Кристаллу ровно десять раз, чтобы запустить первичный сбор энергии. Погнали!'},
+  go_to_shop:{file:ASSISTANT_DIR+'go_to_shop.mp3',text:'Отличная работа, искра пошла! Но кликать вручную — прошлый век, мы тут империю строим. Стабильный пассивный поток энергии — вот ключ к успеху. Открывай вкладку Рынок на центральной панели и найми нашего первого Дрона-майнера. Пора автоматизировать этот бизнес!'},
+  tutorial_done:{file:ASSISTANT_DIR+'tutorial_done.mp3',text:'Синхронизация выполнена, дрон выведен на орбиту! Системы работают автономно, а ты официально сертифицирован как космический магнат. Моё обучение завершено, но я остаюсь на связи и буду прикрывать тебя в этом секторе. Покажи галактике, на что способен проект [CRYSTAL.NET]!'},
   anomaly:{file:ASSISTANT_DIR+'anomaly.mp3',text:'Фиксирую мощный пространственный всплеск! Квантовая аномалия прямо по курсу! Лови её, оператор, пока она не дестабилизировалась! Живее!'},
   hyperdrive:{file:ASSISTANT_DIR+'hyperdrive.mp3',text:'Энергосети перегружены, это Гипер-Драйв! Множитель зашкаливает, выжимаем из Кристалла максимум! Кликай на все сто!'},
-  rich:{file:ASSISTANT_DIR+'rich.mp3',text:'Ого... Мои вычислительные модули в приятном шоке от твоего баланса! С такими запасами мы скоро сможем выкупить парочку небольших планет. Отличная работа!'},
-  idle_warning:{file:ASSISTANT_DIR+'idle_warning.mp3',text:'Эй, оператор! Приём! Ты там в анабиоз впал или просто любуешься моими крыльями? Кристалл остывает, а пассивный доход сам себя не увеличит. Хватит спать, за работу!'}
+  rich:{file:ASSISTANT_DIR+'rich.mp3',text:'Невероятно! Мои модули в шоке от количества нулей на твоем балансе. С такими запасами энергии мы скоро сможем выкупить парочку звездных систем. Отличная стратегия, оператор, продолжай в том же духе!'},
+  idle_warning:{file:ASSISTANT_DIR+'idle_warning.mp3',text:'Внимание, оператор! Приём! Ты там впал в анабиоз или просто медитируешь на мои крылья? Наш Кристалл начинает остывать, а пассивный доход сам себя не увеличит. Хватит спать, возвращайся к терминалу, нам нужны ресурсы!'}
 };
 var IDLE_FILES=['idle_warning'];
 var assistantAudio=null; /* активный элемент Audio */
@@ -739,6 +745,7 @@ function playAssistantFile(key){
   if(assistantAudio){try{assistantAudio.pause();assistantAudio.currentTime=0;}catch(e){}}
   assistantAudio=new Audio(entry.file);
   assistantAudio.volume=0.8;
+  assistantAudio.playbackRate=1.25;
   if(soundEnabled){assistantAudio.play().catch(function(){});}
 }
 /* Полный вызов реплики: баббл + текст + звук */
@@ -748,6 +755,7 @@ function assistantSpeak(key){
   if(assistantAudio){try{assistantAudio.pause();assistantAudio.currentTime=0;}catch(e){}}
   assistantAudio=new Audio(entry.file);
   assistantAudio.volume=0.8;
+  assistantAudio.playbackRate=1.25;
   if(soundEnabled){assistantAudio.play().catch(function(){});}
   var bubble=document.getElementById('ad-bubble');
   if(bubble){
