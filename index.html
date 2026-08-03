@@ -2489,15 +2489,20 @@
       var repoUrl = 'https://github.com/denissakun65-sys/space-crystal-clicker';
       var feedbackUrl = 'https://github.com/denissakun65-sys/space-crystal-clicker/issues/new';
       var changelogUrl = repoUrl + '/blob/main/CHANGELOG.md';
+      var cfgEmail = (window.CRYSTAL_CONFIG && window.CRYSTAL_CONFIG.contactEmail) ? window.CRYSTAL_CONFIG.contactEmail : '';
+      var contactEmail = cfgEmail || 'imrealzproject@gmail.com';
       box.innerHTML =
         '<div style="font-size:14px;color:var(--muted);margin-bottom:12px">Нашли баг или есть идея? Сообщите — мы читаем каждое сообщение и добавляем фичи в обновлениях.</div>' +
         '<div style="display:flex;gap:10px;flex-wrap:wrap">' +
-          '<a class="community-link" href="' + feedbackUrl + '" target="_blank" rel="noopener">📬 Сообщить об ошибке / идея</a>' +
+          '<a class="community-link" href="mailto:' + contactEmail + '">📬 Вопросы по сайту: ' + contactEmail + '</a>' +
+          '<a class="community-link" href="mailto:' + contactEmail + '?subject=CRYSTAL.NET%20-%20ошибка%20/%20идея">🐛 Сообщить об ошибке / идея</a>' +
+          '<a class="community-link" href="' + feedbackUrl + '" target="_blank" rel="noopener">📝 GitHub Issues</a>' +
           '<a class="community-link" href="' + repoUrl + '" target="_blank" rel="noopener">⭐ GitHub-репозиторий</a>' +
-          '<a class="community-link" href="' + changelogUrl + '" target="_blank" rel="noopener">📝 Список изменений</a>' +
+          '<a class="community-link" href="' + changelogUrl + '" target="_blank" rel="noopener">📖 Список изменений</a>' +
           '<a class="community-link" href="mailto:?subject=CRYSTAL.NET" >✉️ Поделиться игрой</a>' +
         '</div>' +
         '<div style="margin-top:14px;font-size:12px;color:var(--muted)">' +
+          'Связаться с поддержкой: <a href="mailto:' + contactEmail + '" style="color:var(--cyan)">' + contactEmail + '</a> · ' +
           'Команды чата: <code>/w ник текст</code> — личное сообщение · <code>/gift ник сумма</code> — подарок · <code>/help</code>' +
         '</div>';
     }

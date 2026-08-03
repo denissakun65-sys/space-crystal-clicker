@@ -22,6 +22,9 @@ window.CRYSTAL_CONFIG = {
      Включите выбранный провайдер в Firebase Console (Authentication). */
   authProvider: 'google',
 
+  /* Контакт для вопросов по сайту */
+  contactEmail: 'imrealzproject@gmail.com',
+
   /* true  — использовать Firebase (ключи заполнены)
      false — всегда офлайн-демо-режим */
   enabled: true
