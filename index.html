@@ -610,6 +610,11 @@
     .page:not(#page-crystal) .page-scroll {
       padding-left: 215px;
     }
+    /* Рынок центрируем: карточки по бокам, центр свободен для 3D-лавки */
+    #page-market .page-scroll {
+      padding-left: 32px;
+      padding-right: 32px;
+    }
   }
 
   .page#page-crystal {
@@ -1042,9 +1047,10 @@
   /* Пузырь речи 3D-продавца */
   .vendor-bubble {
     position: fixed;
-    top: 22%;
-    right: 22%;
-    max-width: 260px;
+    top: 26%;
+    left: 50%;
+    max-width: 300px;
+    width: max-content;
     padding: 14px 18px;
     border-radius: 18px;
     background: rgba(255, 255, 255, 0.1);
@@ -1057,14 +1063,14 @@
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 240, 255, 0.3);
     z-index: 80;
     opacity: 0;
-    transform: translateY(12px) scale(0.9);
+    transform: translate(-50%, 12px) scale(0.9);
     pointer-events: none;
     transition: opacity 0.3s, transform 0.3s;
   }
 
   .vendor-bubble.visible {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translate(-50%, 0) scale(1);
   }
 
   .vendor-bubble::after {
@@ -1078,9 +1084,40 @@
   }
 
   /* ---------- Shop ---------- */
-  #shop-grid {
+  /* ---------- 3D-магазин: 3 колонки (карточки слева/справа, центр — 3D) ---------- */
+  .shop-head {
+    max-width: 640px;
+    margin: 0 auto 14px;
+    text-align: center;
+  }
+
+  .shop-layout {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-template-columns: 1fr 1.15fr 1fr;
+    gap: 18px;
+    flex: 1;
+    align-items: stretch;
+    max-width: 1080px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .shop-col {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    justify-content: flex-start;
+    pointer-events: auto;
+  }
+
+  /* Центральная "сцена" — прозрачна, чтобы был виден 3D-магазин */
+  .shop-stage {
+    pointer-events: none;
+  }
+
+  #shop-grid {
+    display: flex;
+    flex-direction: column;
     gap: 16px;
   }
 
@@ -1225,6 +1262,24 @@
     font-weight: 800;
     color: var(--gold);
     margin-left: 6px;
+  }
+
+  /* Сообщения 3D-продавца в чате */
+  .chat-msg.vendor {
+    border-color: rgba(0, 240, 255, 0.45);
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.12), rgba(255, 0, 127, 0.12));
+  }
+
+  .chat-msg.vendor .m-nicktext {
+    color: var(--cyan);
+  }
+
+  .chat-msg.vendor .m-vtag {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--neon-3);
+    margin-left: 6px;
+    letter-spacing: 0.5px;
   }
 
   .m-react-row {
@@ -1675,11 +1730,14 @@
     .lab-grid { grid-template-columns: 1fr; }
     .net-grid { grid-template-columns: 1fr; }
     #activity-ticker { bottom: 96px; }
+    .shop-layout { grid-template-columns: 1fr; }
+    .shop-col { gap: 12px; }
+    .shop-stage { display: none; }
+    #shop-grid { flex-direction: column; }
   }
 
   @media (max-width: 480px) {
     .page-title { font-size: 22px; }
-    #shop-grid { grid-template-columns: 1fr; }
     #ach-list { grid-template-columns: 1fr; }
     .hud-balance { font-size: 38px; }
     .topbar { padding: 0 10px; }
@@ -1799,12 +1857,15 @@
       <span id="vendor-bubble-text"></span>
     </div>
     <div class="page-scroll">
-      <div class="panel">
-        <div class="page-title"><span class="title-ic" data-ic="cart"></span>Рынок</div>
-        <div class="page-sub">Инвестируй кристаллы в автоматизацию и ускорение производства.</div>
+      <div class="panel shop-head">
+        <div class="page-title"><span class="title-ic" data-ic="cart"></span>3D-Рынок</div>
+        <div class="page-sub">Подойди к кибер-торговцу и инвестируй кристаллы в автоматизацию.</div>
       </div>
-      <div style="height:20px"></div>
-      <div id="shop-grid"></div>
+      <div class="shop-layout">
+        <div class="shop-col" id="shop-col-left"></div>
+        <div class="shop-stage"></div>
+        <div class="shop-col" id="shop-col-right"></div>
+      </div>
     </div>
   </section>
 
@@ -1928,7 +1989,7 @@
     var SAVE_KEY = 'crystal-net-save-v1';
     var PASSIVE_TICK_MS = 100;
     var SAVE_INTERVAL_MS = 5000;
-    var GAME_VERSION = '1.8.0';
+    var GAME_VERSION = '1.9.0';
 
     /* ---------- Библиотека кастомных SVG-иконок ---------- */
     var SVG_ICONS = {
@@ -2806,6 +2867,8 @@
     var crystalGroup, crystalMesh, crystalMaterial, crystalLight;
     var particles = [];
     var clock = new THREE.Clock();
+    var cameraLookTarget = null;
+    var cameraLookCurrent = null;
 
     function initThree() {
       var container = document.getElementById('scene-container');
@@ -2822,6 +2885,8 @@
       camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
       camera.position.set(0, 0.4, 6);
       camera.lookAt(0, 0, 0);
+      cameraLookTarget = new THREE.Vector3(0, 0, 0);
+      cameraLookCurrent = new THREE.Vector3(0, 0, 0);
 
       scene.add(new THREE.AmbientLight(0x44446a, 0.6));
 
@@ -2839,7 +2904,7 @@
 
       createStars();
       createCrystal();
-      createVendor();
+      createShop();
     }
 
     function createStars() {
@@ -2929,74 +2994,184 @@
     }
 
     /* ----------------------------------------------------------------
-       7b. 3D-ПРОДАВЕЦ (для магазина)
+       7b. 3D-ЛАВКА И ПРОДАВЕЦ (для магазина)
        ---------------------------------------------------------------- */
+    var shopGroup = null;
     var vendorGroup = null;
     var vendorMouth = null;
-    var vendorArm = null;
+    var vendorArmR = null;
+    var vendorArmL = null;
+    var vendorHead = null;
+    var vendorBody = null;
+    var shopSignLight = null;
 
-    // Реплики продавца (появляются с озвучкой)
+    // Состояние анимации продавца (одобрение сделки)
+    var vendorAnim = { approve: 0 };
+
+    // Реплики продавца (приветствие и периодические)
     var VENDOR_LINES = [
       'Добро пожаловать на рынок!',
       'Кристаллы сегодня в цене!',
       'Купите апгрейд — и доход взлетит!',
-      'Удачных сделок, торговец!',
-      'Не забудьте заглянуть в лабораторию!'
+      'Удачных сделок, странник!',
+      'Загляни в лабораторию за новым скином!'
     ];
 
-    function createVendor() {
+    // Реплики одобрения при покупке
+    var VENDOR_APPROVE_LINES = [
+      'Отличный выбор, странник!',
+      'Ха-ха, выгодная сделка!',
+      'Доход теперь растёт быстрее!',
+      'Мудрое вложение, торговец!'
+    ];
+
+    // Шутки, когда не хватает кристаллов
+    var VENDOR_POOR_LINES = [
+      'Хм, вернись, когда у тебя будет больше 💎!',
+      'Не хватает кристаллов... поднакопи!',
+      'Эх, приходишь с пустым кошельком!',
+      'Кристаллы — всему голова. Копи их!'
+    ];
+
+    /* Построение всей 3D-лавки: прилавок, стойки, вывеска SHOP, полки с
+       кристаллами и кибер-продавец. Всё собрано иерархически. */
+    function createShop() {
+      shopGroup = new THREE.Group();
+      shopGroup.position.set(0, -0.1, 0);
+      scene.add(shopGroup);
+
+      var metal = new THREE.MeshStandardMaterial({ color: 0x6f6a9e, metalness: 0.9, roughness: 0.3 });
+      var darkMetal = new THREE.MeshStandardMaterial({ color: 0x2a2440, metalness: 0.8, roughness: 0.35 });
+      var glowCyan = new THREE.MeshStandardMaterial({ color: 0x00f0ff, emissive: 0x00f0ff, emissiveIntensity: 0.8, metalness: 0.6, roughness: 0.3 });
+      var glowPink = new THREE.MeshStandardMaterial({ color: 0xff007f, emissive: 0xff007f, emissiveIntensity: 0.7, metalness: 0.6, roughness: 0.3 });
+      var goldMat = new THREE.MeshStandardMaterial({ color: 0xffd700, emissive: 0x885500, emissiveIntensity: 0.4, metalness: 1.0, roughness: 0.2 });
+
+      // --- Пол лавки ---
+      var floor = new THREE.Mesh(new THREE.BoxGeometry(6.4, 0.12, 4.2), darkMetal);
+      floor.position.y = 0;
+      shopGroup.add(floor);
+
+      // --- Прилавок (стол) ---
+      var counter = new THREE.Mesh(new THREE.BoxGeometry(3.6, 1.0, 1.3), metal);
+      counter.position.set(0, 0.5, -0.5);
+      shopGroup.add(counter);
+
+      // Неоновая кромка прилавка
+      var counterEdge = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.06, 0.06), glowCyan);
+      counterEdge.position.set(0, 1.03, -0.1);
+      shopGroup.add(counterEdge);
+
+      // --- Боковые стойки ---
+      var rackMat = darkMetal;
+      var rackL = new THREE.Mesh(new THREE.BoxGeometry(0.5, 3.0, 0.6), rackMat);
+      rackL.position.set(-3.0, 1.5, 0);
+      shopGroup.add(rackL);
+      var rackR = new THREE.Mesh(new THREE.BoxGeometry(0.5, 3.0, 0.6), rackMat);
+      rackR.position.set(3.0, 1.5, 0);
+      shopGroup.add(rackR);
+
+      // --- Полки на стойках (по 2 на каждую) ---
+      var shelfMat = glowPink;
+      var shelfPositions = [
+        [-3.0, 1.0, 0], [-3.0, 2.2, 0],
+        [3.0, 1.0, 0], [3.0, 2.2, 0]
+      ];
+      for (var s = 0; s < shelfPositions.length; s++) {
+        var shelf = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.06, 0.9), shelfMat);
+        shelf.position.set(shelfPositions[s][0], shelfPositions[s][1], shelfPositions[s][2]);
+        shopGroup.add(shelf);
+      }
+
+      // --- Вывеска SHOP сверху ---
+      var sign = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.6, 0.18), glowCyan);
+      sign.position.set(0, 3.3, -0.9);
+      shopGroup.add(sign);
+      var signMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff });
+      var signText = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.32, 0.05), signMat);
+      signText.position.set(0, 3.3, -0.8);
+      shopGroup.add(signText);
+      // Неоновая лампа над вывеской
+      shopSignLight = new THREE.PointLight(0x00f0ff, 1.2, 8);
+      shopSignLight.position.set(0, 3.8, -0.4);
+      shopGroup.add(shopSignLight);
+
+      // --- Мелкие 3D-кристаллы на прилавке и полках ---
+      var crystalPositions = [
+        [-1.2, 1.06, -0.9], [0, 1.06, -1.0], [1.2, 1.06, -0.9],
+        [-3.0, 1.07, 0], [-3.0, 2.27, 0],
+        [3.0, 1.07, 0], [3.0, 2.27, 0]
+      ];
+      for (var c = 0; c < crystalPositions.length; c++) {
+        var smallCrystal = new THREE.Mesh(new THREE.OctahedronGeometry(0.16, 0), goldMat);
+        smallCrystal.position.set(crystalPositions[c][0], crystalPositions[c][1], crystalPositions[c][2]);
+        smallCrystal.userData.spin = Math.random() * Math.PI * 2;
+        shopGroup.add(smallCrystal);
+      }
+
+      // --- Неоновое освещение лавки (бирюзовое и розовое) ---
+      var neonLeft = new THREE.PointLight(0x00f0ff, 0.8, 7);
+      neonLeft.position.set(-3.2, 2.0, 1.2);
+      shopGroup.add(neonLeft);
+      var neonRight = new THREE.PointLight(0xff007f, 0.8, 7);
+      neonRight.position.set(3.2, 2.0, 1.2);
+      shopGroup.add(neonRight);
+
+      // ============ КИБЕР-ПРОДАВЕЦ (за прилавком) ============
       vendorGroup = new THREE.Group();
-      vendorGroup.position.set(4.2, -0.2, 0);
-      scene.add(vendorGroup);
+      vendorGroup.position.set(0, 0, 0.9);
+      shopGroup.add(vendorGroup);
 
-      var metal = new THREE.MeshStandardMaterial({ color: 0x8f7bff, metalness: 0.9, roughness: 0.3, emissive: 0x2a1a66, emissiveIntensity: 0.4 });
-      var dark = new THREE.MeshStandardMaterial({ color: 0x3a3550, metalness: 0.6, roughness: 0.4 });
-
-      // Корпус (робот-торговец)
-      var body = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.9, 1.7, 16), metal);
-      body.position.y = 1.2;
-      vendorGroup.add(body);
+      // Корпус
+      vendorBody = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.85, 1.6, 16), metal);
+      vendorBody.position.y = 1.15;
+      vendorGroup.add(vendorBody);
 
       // Голова
-      var head = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), metal);
-      head.position.y = 2.5;
-      vendorGroup.add(head);
+      vendorHead = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), metal);
+      vendorHead.position.y = 2.45;
+      vendorGroup.add(vendorHead);
 
-      // Глаза (светятся)
+      // Светящиеся глаза-полоски
       var eyeMat = new THREE.MeshBasicMaterial({ color: 0x38f0ff });
-      var eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 8), eyeMat);
-      eyeL.position.set(-0.2, 2.6, 0.4);
-      var eyeR = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 8), eyeMat);
-      eyeR.position.set(0.2, 2.6, 0.4);
+      var eyeL = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.06, 0.02), eyeMat);
+      eyeL.position.set(-0.18, 2.55, 0.41);
+      var eyeR = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.06, 0.02), eyeMat);
+      eyeR.position.set(0.18, 2.55, 0.41);
       vendorGroup.add(eyeL);
       vendorGroup.add(eyeR);
 
       // Рот (анимируется при разговоре)
-      vendorMouth = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.05, 0.1), dark);
-      vendorMouth.position.set(0, 2.3, 0.4);
+      vendorMouth = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.05, 0.02), eyeMat);
+      vendorMouth.position.set(0, 2.32, 0.41);
       vendorGroup.add(vendorMouth);
 
       // Антенна
-      var antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.5), dark);
-      antenna.position.y = 3.0;
+      var antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.5), darkMetal);
+      antenna.position.y = 3.05;
       vendorGroup.add(antenna);
       var antennaTip = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), eyeMat);
-      antennaTip.position.y = 3.25;
+      antennaTip.position.y = 3.3;
       vendorGroup.add(antennaTip);
 
-      // Рука (для жестов)
-      vendorArm = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.9, 8), dark);
-      vendorArm.position.set(0.9, 1.4, 0);
-      vendorArm.rotation.z = -0.5;
-      vendorGroup.add(vendorArm);
+      // Руки (для жестов и анимации)
+      var armMat = darkMetal;
+      vendorArmR = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.85, 8), armMat);
+      vendorArmR.position.set(0.95, 1.35, 0);
+      vendorArmR.rotation.z = -0.4;
+      vendorGroup.add(vendorArmR);
+
+      vendorArmL = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.85, 8), armMat);
+      vendorArmL.position.set(-0.95, 1.35, 0);
+      vendorArmL.rotation.z = 0.4;
+      vendorGroup.add(vendorArmL);
 
       vendorGroup.userData.mouth = vendorMouth;
-      vendorGroup.userData.arm = vendorArm;
+      vendorGroup.userData.armR = vendorArmR;
+      vendorGroup.userData.armL = vendorArmL;
     }
 
-    // Речь продавца: Web Speech API (озвучка) + текст по буквам в пузыре
+    /* Речь продавца: Web Speech API (озвучка) + текст по буквам в пузыре */
     function vendorSpeak(text) {
-      // Синтез речи
       if (soundEnabled && window.speechSynthesis) {
         try {
           window.speechSynthesis.cancel();
@@ -3007,7 +3182,6 @@
           window.speechSynthesis.speak(utter);
         } catch (e) { /* ignore */ }
       }
-      // Пузырь с текстом по буквам
       var bubble = document.getElementById('vendor-bubble');
       var bubbleText = document.getElementById('vendor-bubble-text');
       if (bubble && bubbleText) {
@@ -3032,7 +3206,19 @@
       }
     }
 
-    // Циклические реплики продавца
+    /* Анимация одобрения сделки: кивок головы + поднятие правой руки */
+    function vendorApprove() {
+      vendorAnim.approve = 1;
+      playSound('toast');
+      setTimeout(function () { vendorAnim.approve = 0; }, 1600);
+    }
+
+    /* Реплика продавца прямо в игровой чат с плашкой [ПРОДАВЕЦ] */
+    function vendorChat(text) {
+      addChatMessage('[ПРОДАВЕЦ]', text, false, { vendor: true });
+    }
+
+    /* Циклические реплики продавца */
     var vendorLineIndex = 0;
     function scheduleVendorSpeak() {
       var delay = 12000 + Math.random() * 8000;
@@ -3207,8 +3393,18 @@
       requestAnimationFrame(animate);
       var dt = Math.min(clock.getDelta(), 0.05);
       var time = clock.elapsedTime;
+      var isMarket = (activePage === 'page-market');
+      var isMobile = window.innerWidth < 820;
 
-      crystalGroup.position.y = Math.sin(time * 1.2) * 0.12;
+      // --- Позиция кристалла зависит от страницы ---
+      // На рынке кристалл отъезжает влево, чтобы не мешать 3D-лавке
+      var crystalTargetX = isMarket ? -4.6 : 0;
+      var crystalTargetY = 0;
+      if (!isMarket) {
+        crystalTargetY = Math.sin(time * 1.2) * 0.12; // левитация на главной
+      }
+      crystalGroup.position.x += (crystalTargetX - crystalGroup.position.x) * dt * 3;
+      crystalGroup.position.y += (crystalTargetY - crystalGroup.position.y) * dt * 3;
       crystalGroup.rotation.y += dt * 0.6;
       crystalGroup.rotation.x = Math.sin(time * 0.5) * 0.08;
       if (crystalGroup.scale.x < 0.999) {
@@ -3228,27 +3424,75 @@
 
       updateParticles(dt);
 
-      // Анимация продавца (покачивание, жесты руки)
-      if (vendorGroup) {
-        vendorGroup.position.y = -0.2 + Math.sin(time * 1.4) * 0.1;
-        if (vendorArm) {
-          vendorArm.rotation.z = -0.5 + Math.sin(time * 1.1) * 0.25;
-        }
+      // --- Камера: отдельные позиции для главной, рынка и прочих страниц ---
+      var camTarget = new THREE.Vector3();
+      var lookTarget = new THREE.Vector3();
+      if (activePage === 'page-crystal') {
+        camTarget.set(0, 0.4, 6);
+        lookTarget.set(0, 0, 0);
+      } else if (isMarket) {
+        // Камера 3D-лавки; на мобильных отлетает назад по Z
+        var marketZ = isMobile ? 9.2 : 6.6;
+        camTarget.set(0, 1.7, marketZ);
+        lookTarget.set(0, 1.3, 0);
+      } else {
+        camTarget.set(0, 1.4, 13.5);
+        lookTarget.set(0, 0, 0);
+      }
+      camera.position.x += (camTarget.x - camera.position.x) * dt * 3;
+      camera.position.y += (camTarget.y - camera.position.y) * dt * 3;
+      camera.position.z += (camTarget.z - camera.position.z) * dt * 3;
+      cameraLookCurrent.lerp(lookTarget, dt * 3);
+      camera.lookAt(cameraLookCurrent);
+
+      // Масштаб кристалла
+      var crystalTargetScale = activePage === 'page-crystal' ? 1 : (isMarket ? 0.45 : 0.55);
+      crystalGroup.scale.lerp(new THREE.Vector3(crystalTargetScale, crystalTargetScale, crystalTargetScale), dt * 4);
+
+      // --- 3D-лавка: видна только на рынке ---
+      if (shopGroup) {
+        shopGroup.visible = isMarket;
       }
 
-      var targetZ = onHomePage ? 6 : 13.5;
-      var targetY = onHomePage ? 0.4 : 1.4;
-      camera.position.z += (targetZ - camera.position.z) * dt * 3;
-      camera.position.y += (targetY - camera.position.y) * dt * 3;
-      var crystalTargetScale = onHomePage ? 1 : 0.55;
-      crystalGroup.scale.lerp(new THREE.Vector3(crystalTargetScale, crystalTargetScale, crystalTargetScale), dt * 4);
-      // Продавец виден только в магазине (на других страницах уезжает вправо)
-      if (vendorGroup) {
-        var vendorTargetX = (activePage === 'page-market') ? 4.2 : 9;
-        vendorGroup.position.x += (vendorTargetX - vendorGroup.position.x) * dt * 3;
-        vendorGroup.visible = (activePage === 'page-market');
+      // --- Анимация лавки: пульс вывески, вращение мелких кристаллов ---
+      if (shopGroup && isMarket) {
+        if (shopSignLight) {
+          shopSignLight.intensity = 1.0 + Math.sin(time * 3) * 0.5;
+        }
+        shopGroup.children.forEach(function (child) {
+          if (child.userData && child.userData.spin !== undefined) {
+            child.userData.spin += dt * 1.5;
+            child.rotation.y = child.userData.spin;
+            child.position.y += Math.sin(time * 2 + child.userData.spin) * 0.0005;
+          }
+        });
       }
-      camera.lookAt(0, 0, 0);
+
+      // --- Анимация кибер-продавца: дыхание, покачивание рук, одобрение ---
+      if (vendorGroup) {
+        // Дыхание: голова и тело плавно вверх-вниз
+        var breath = Math.sin(time * 1.6) * 0.04;
+        vendorBody.position.y = 1.15 + breath;
+        vendorHead.position.y = 2.45 + breath;
+        // Покачивание рук
+        if (vendorArmR) {
+          vendorArmR.rotation.z = -0.4 + Math.sin(time * 1.1) * 0.2;
+        }
+        if (vendorArmL) {
+          vendorArmL.rotation.z = 0.4 + Math.sin(time * 1.1 + 1.5) * 0.2;
+        }
+        // Анимация одобрения: кивок головы + поднятие правой руки
+        if (vendorAnim.approve > 0) {
+          vendorHead.rotation.x = Math.sin(vendorAnim.approve * 8) * 0.5;
+          vendorHead.position.z = 0.1;
+          if (vendorArmR) {
+            vendorArmR.rotation.z = -1.6 + Math.sin(vendorAnim.approve * 10) * 0.2;
+          }
+        } else {
+          vendorHead.rotation.x = 0;
+          vendorHead.position.z = 0;
+        }
+      }
 
       renderer.render(scene, camera);
     }
@@ -3557,6 +3801,16 @@
         return;
       }
       var versions = [
+        { tag: '1.9.0', date: '2026-08-03', title: 'Полноценная 3D-лавка',
+          items: [
+            'Полностью переписан «Рынок»: теперь это интерактивная 3D-лавка на Three.js.',
+            'Процедурная лавка: прилавок, боковые стойки, неоновая вывеска SHOP, полки с мелкими 3D-кристаллами.',
+            'Отдельная камера для рынка (свой ракурс), на мобильных отлетает назад по Z.',
+            'Кибер-продавец из примитивов: дыхание, покачивание рук, анимация одобрения (кивок + рука) при покупке.',
+            'Карточки товаров всплывают слева и справа от лавки (Glassmorphism), не перекрывая продавца.',
+            'При покупке продавец одобряет и пишет реплику в чат с плашкой [ПРОДАВЕЦ].',
+            'При нехватке кристаллов продавец шутит и пишет в чат.'
+          ] },
         { tag: '1.8.0', date: '2026-08-03', title: '3D-магазин с говорящим продавцом',
           items: [
             'Починена фоновая музыка: надёжный планировщик с lookahead, плавные огибающие без щелчков, авто-возобновление при паузе звука.',
@@ -3968,11 +4222,12 @@
       var key = opts.key || ('local_' + (++chatKeySeq));
       var uid = opts.uid || null;
       var whisper = !!opts.whisper;
+      var vendor = !!opts.vendor;
       var reactions = opts.reactions || {};
       var mine = opts.mine || [];
 
       var el = document.createElement('div');
-      el.className = 'chat-msg' + (isPlayer ? ' you' : '') + (whisper ? ' whisper' : '');
+      el.className = 'chat-msg' + (isPlayer ? ' you' : '') + (whisper ? ' whisper' : '') + (vendor ? ' vendor' : '');
       el.setAttribute('data-key', key);
       el.setAttribute('data-uid', uid || '');
       el.setAttribute('data-name', nick);
@@ -4369,10 +4624,18 @@
     /* ----------------------------------------------------------------
        18. МАГАЗИН (РЫНОК)
        ---------------------------------------------------------------- */
+    /* Рендер карточек товаров в 3D-лавке: слева и справа, центр остаётся
+       свободным для 3D-магазина и продавца. */
     function renderShop() {
-      var container = document.getElementById('shop-grid');
-      container.innerHTML = '';
-      UPGRADE_DEFS.forEach(function (def) {
+      var left = document.getElementById('shop-col-left');
+      var right = document.getElementById('shop-col-right');
+      if (!left || !right) {
+        return;
+      }
+      left.innerHTML = '';
+      right.innerHTML = '';
+      var mid = Math.ceil(UPGRADE_DEFS.length / 2);
+      UPGRADE_DEFS.forEach(function (def, idx) {
         var level = gameState.upgrades[def.id].level;
         var cost = getUpgradeCost(def);
         var affordable = gameState.balance >= cost;
@@ -4398,7 +4661,11 @@
         card.querySelector('.buy-btn').addEventListener('click', function () {
           purchaseUpgrade(def.id);
         });
-        container.appendChild(card);
+        if (idx < mid) {
+          left.appendChild(card);
+        } else {
+          right.appendChild(card);
+        }
       });
     }
 
@@ -4409,6 +4676,11 @@
       }
       var cost = getUpgradeCost(def);
       if (gameState.balance < cost) {
+        // Не хватает кристаллов: продавец шутит и пишет в чат
+        playSound('deny');
+        vendorSpeak(randomItem(VENDOR_POOR_LINES));
+        vendorChat(randomItem(VENDOR_POOR_LINES));
+        showToast('⛔', 'Недостаточно кристаллов', 'Нужно ' + formatNumber(cost) + ' 💎');
         return;
       }
       gameState.balance -= cost;
@@ -4418,6 +4690,12 @@
       renderShop();
       checkAchievements();
       playSound('buy');
+      // Анимация одобрения продавца
+      vendorApprove();
+      // Реплика одобрения (озвучка + пузырь + в чат с плашкой [ПРОДАВЕЦ])
+      var approveLine = randomItem(VENDOR_APPROVE_LINES);
+      vendorSpeak(approveLine + ' ' + def.name + ' теперь твой!');
+      vendorChat(approveLine + ' ' + def.name + ' теперь твой!');
       showToast(def.icon, 'Куплено: ' + def.name, 'Уровень ' + gameState.upgrades[id].level);
     }
 

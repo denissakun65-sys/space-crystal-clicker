@@ -4,7 +4,20 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 проект придерживается [Semantic Versioning](https://semver.org/lang/ru/).
 
-Текущая версия: **1.8.0** · Онлайн: https://denissakun65-sys.github.io/space-crystal-clicker/
+Текущая версия: **1.9.0** · Онлайн: https://denissakun65-sys.github.io/space-crystal-clicker/
+
+---
+
+## [1.9.0] — 2026-08-03
+
+### 🏪 Полноценная 3D-лавка (переписан «Рынок»)
+- **Интерактивная 3D-лавка** на Three.js вместо CSS-сетки.
+- **Процедурная лавка**: прилавок, боковые стойки, неоновая вывеска **SHOP** с PointLight, полки с мелкими 3D-кристаллами.
+- **Отдельная камера** для рынка (свой ракурс); на мобильных отлетает назад по Z, чтобы уместить продавца и карточки.
+- **Кибер-продавец** из примитивов: дыхание (голова/тело), покачивание рук, **анимация одобрения** (кивок + поднятие руки) при покупке.
+- **Карточки товаров** всплывают слева и справа от лавки (Glassmorphism), не перекрывая продавца.
+- При покупке продавец **одобряет** и пишет реплику в чат с плашкой **[ПРОДАВЕЦ]**.
+- При нехватке кристаллов продавец **шутит** и пишет в чат.
 
 ---
 
@@ -166,6 +179,7 @@
 - Реферальные ссылки.
 - Офлайн-доход с бонусом за премиум-скины.
 
+[1.9.0]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v1.9.0
 [1.8.0]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v1.8.0
 [1.7.0]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v1.7.0
 [1.6.0]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v1.6.0
