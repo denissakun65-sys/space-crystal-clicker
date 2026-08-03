@@ -291,6 +291,7 @@
     padding: 8px 16px;
     border-radius: 30px;
     background: linear-gradient(135deg, rgba(143, 123, 255, 0.25), rgba(255, 106, 213, 0.2));
+    background-size: 200% 200%;
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
     border: 1px solid var(--glass-border);
@@ -300,6 +301,12 @@
     color: #fff;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 18px rgba(143, 123, 255, 0.35);
     white-space: nowrap;
+    animation: chipGlow 5s ease-in-out infinite;
+  }
+
+  @keyframes chipGlow {
+    0%, 100% { box-shadow: 0 6px 20px rgba(0,0,0,0.4), 0 0 14px rgba(143,123,255,0.3); background-position: 0% 50%; }
+    50% { box-shadow: 0 6px 20px rgba(0,0,0,0.4), 0 0 26px rgba(255,0,127,0.5); background-position: 100% 50%; }
   }
 
   .logo {
@@ -457,6 +464,72 @@
 
   .nav-btn .nav-icon { font-size: 20px; }
 
+  /* ---------- Кастомные SVG-иконки ---------- */
+  .svg-ic {
+    display: inline-block;
+    vertical-align: middle;
+    filter: drop-shadow(0 0 4px currentColor);
+    transition: transform 0.3s, filter 0.3s;
+  }
+
+  .svg-ic.anim-float { animation: icFloat 3s ease-in-out infinite; }
+  .svg-ic.anim-spin { animation: icSpin 8s linear infinite; }
+  .svg-ic.anim-pulse { animation: icPulse 2s ease-in-out infinite; }
+
+  @keyframes icFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+
+  @keyframes icSpin {
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes icPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.15); opacity: 0.85; }
+  }
+
+  .btn-ic, .title-ic, .qt-icon {
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+
+  .btn-ic .svg-ic, .title-ic .svg-ic, .qt-icon .svg-ic {
+    animation: icFloat 3s ease-in-out infinite;
+  }
+
+  .title-ic {
+    margin-right: 10px;
+  }
+
+  .title-ic .svg-ic { width: 26px; height: 26px; color: var(--cyan); filter: drop-shadow(0 0 8px rgba(0,240,255,0.6)); }
+
+  /* Иконки активного пункта меню оживают */
+  .nav-btn.active .nav-icon .svg-ic {
+    color: #fff;
+    animation: icPulse 2.2s ease-in-out infinite;
+    filter: drop-shadow(0 0 8px rgba(255, 106, 213, 0.8));
+  }
+
+  /* Иконки апгрейдов мягко светятся и парят */
+  .upgrade-card .u-icon .svg-ic {
+    color: var(--neon-3);
+    animation: icFloat 3.5s ease-in-out infinite;
+  }
+
+  .upgrade-card.locked .u-icon .svg-ic {
+    animation: none;
+    filter: none;
+    opacity: 0.6;
+  }
+
+  .ach-card .a-icon .svg-ic { color: var(--gold); }
+  .ach-card.done .a-icon .svg-ic { color: var(--good); animation: icPulse 2s ease-in-out infinite; }
+  .q-icon .svg-ic { color: var(--cyan); }
+
   .nav-btn:hover {
     background: rgba(255, 255, 255, 0.08);
     color: var(--text);
@@ -613,6 +686,53 @@
   @keyframes rippleExpand {
     from { width: 10px; height: 10px; opacity: 1; transform: translate(-50%, -50%) scale(0.4); }
     to { width: 120px; height: 120px; opacity: 0; transform: translate(-50%, -50%) scale(1.6); }
+  }
+
+  /* Вращающееся свечение за кристаллом */
+  .crystal-glow {
+    position: absolute;
+    left: 50%;
+    top: 52%;
+    width: 46vmin;
+    height: 46vmin;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: conic-gradient(from 0deg,
+      rgba(143,123,255,0.0),
+      rgba(0,240,255,0.35),
+      rgba(255,0,127,0.3),
+      rgba(143,123,255,0.0));
+    filter: blur(42px);
+    animation: glowSpin 14s linear infinite;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  @keyframes glowSpin {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+  }
+
+  /* Световой блик, пробегающий по панелям при наведении */
+  .panel, .upgrade-card {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .panel::after, .upgrade-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(115deg, transparent, rgba(255,255,255,0.12), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.6s ease;
+    pointer-events: none;
+  }
+
+  .panel:hover::after, .upgrade-card:hover::after {
+    left: 130%;
   }
 
   .goal-track {
@@ -1372,9 +1492,9 @@
         <input id="login-pass" type="password" placeholder="Пароль" maxlength="32" autocomplete="current-password">
       </div>
       <div class="login-error" id="login-error"></div>
-      <button class="login-btn" id="login-btn">🔐 Войти</button>
-      <button class="login-btn register" id="register-btn">📝 Зарегистрироваться</button>
-      <button class="login-btn anonymous" id="anon-btn">🙂 Войти анонимно (без пароля)</button>
+      <button class="login-btn" id="login-btn"><span class="btn-ic" data-ic="shield"></span>Войти</button>
+      <button class="login-btn register" id="register-btn"><span class="btn-ic" data-ic="doc"></span>Зарегистрироваться</button>
+      <button class="login-btn anonymous" id="anon-btn"><span class="btn-ic" data-ic="net"></span>Войти анонимно (без пароля)</button>
       <div class="login-note">Аккаунт сохраняется в этом браузере и восстанавливается при повторном входе на сайт.</div>
     </div>
   </div>
@@ -1405,15 +1525,17 @@
 
   <!-- Navigation -->
   <nav class="sidebar" id="sidebar">
-    <button class="nav-btn active" data-target="page-crystal"><span class="nav-icon">🎮</span><span>Кристалл</span></button>
-    <button class="nav-btn" data-target="page-market"><span class="nav-icon">🛒</span><span>Рынок</span></button>
-    <button class="nav-btn" data-target="page-net"><span class="nav-icon">💬</span><span>Сеть</span></button>
-    <button class="nav-btn" data-target="page-lab"><span class="nav-icon">🛠️</span><span>Лаборатория</span></button>
-    <button class="nav-btn" data-target="page-changelog"><span class="nav-icon">📝</span><span>Версии</span></button>
+    <button class="nav-btn active" data-target="page-crystal"><span class="nav-icon" data-ic="gem"></span><span>Кристалл</span></button>
+    <button class="nav-btn" data-target="page-market"><span class="nav-icon" data-ic="cart"></span><span>Рынок</span></button>
+    <button class="nav-btn" data-target="page-net"><span class="nav-icon" data-ic="net"></span><span>Сеть</span></button>
+    <button class="nav-btn" data-target="page-lab"><span class="nav-icon" data-ic="lab"></span><span>Лаборатория</span></button>
+    <button class="nav-btn" data-target="page-changelog"><span class="nav-icon" data-ic="doc"></span><span>Версии</span></button>
   </nav>
 
   <!-- Page 1: Crystal -->
   <section id="page-crystal" class="page visible active">
+    <!-- Декоративное вращающееся свечение за 3D-кристаллом -->
+    <div class="crystal-glow"></div>
     <div class="page-scroll">
       <div class="clickable-ui hud">
         <div class="hud-balance" id="hud-balance">0 💎</div>
@@ -1434,7 +1556,7 @@
     <!-- Квесты в выдвижной панели, чтобы не перекрывали кристалл -->
     <div class="clickable-ui quest-drawer" id="quest-drawer">
       <button class="quest-toggle" id="quest-toggle">
-        <span class="qt-icon">📋</span><span class="qt-text">Задания</span><span class="qt-count" id="quest-count">0</span>
+        <span class="qt-icon" data-ic="doc"></span><span class="qt-text">Задания</span><span class="qt-count" id="quest-count">0</span>
       </button>
       <div class="quest-drawer-body" id="quest-drawer-body">
         <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:700">📋 АКТИВНЫЕ ЗАДАНИЯ</div>
@@ -1447,7 +1569,7 @@
   <section id="page-market" class="page">
     <div class="page-scroll">
       <div class="panel">
-        <div class="page-title">🛒 Рынок</div>
+        <div class="page-title"><span class="title-ic" data-ic="cart"></span>Рынок</div>
         <div class="page-sub">Инвестируй кристаллы в автоматизацию и ускорение производства.</div>
       </div>
       <div style="height:20px"></div>
@@ -1459,7 +1581,7 @@
   <section id="page-net" class="page">
     <div class="page-scroll">
       <div class="panel" style="margin-bottom:16px">
-        <div class="page-title">👤 Профиль</div>
+        <div class="page-title"><span class="title-ic" data-ic="contact"></span>Профиль</div>
         <div class="page-sub">Подключение к реальной сети: вход, никнейм и статус.</div>
         <div id="profile-box"></div>
         <div id="demo-box" style="display:none;margin-top:10px"></div>
@@ -1467,13 +1589,13 @@
       <div class="net-grid">
         <div class="panel chat-panel">
           <div class="panel-head">
-            <div class="chat-title">💬 Глобальный чат</div>
+            <div class="chat-title"><span class="title-ic" data-ic="net"></span>Глобальный чат</div>
             <div class="chat-live" id="chat-online">🟢</div>
           </div>
           <div class="chat-log" id="chat-log"></div>
           <div class="chat-input-row">
             <input id="chat-input" placeholder="Сообщение... (/help — команды)" maxlength="120" autocomplete="off">
-            <button id="chat-send" title="Отправить">➤</button>
+            <button id="chat-send" title="Отправить"><span class="btn-ic" data-ic="drone"></span></button>
           </div>
           <div style="font-size:11px;color:var(--muted);margin-top:6px">
             💬 клик по нику — профиль и подарок · 👍 наведите на сообщение для реакций · /w ник текст — ЛС
@@ -1481,12 +1603,12 @@
         </div>
         <div>
           <div class="panel">
-            <div class="page-title" style="font-size:20px">🟢 Онлайн-игроки</div>
+            <div class="page-title" style="font-size:20px"><span class="title-ic" data-ic="net"></span>Онлайн-игроки</div>
             <div style="height:10px"></div>
             <div class="plist" id="online-list"></div>
           </div>
           <div class="panel" style="margin-top:16px">
-            <div class="page-title" style="font-size:20px">🏆 Таблица лидеров</div>
+            <div class="page-title" style="font-size:20px"><span class="title-ic" data-ic="trophy"></span>Таблица лидеров</div>
             <div style="height:10px"></div>
             <div id="leaderboard"></div>
           </div>
@@ -1494,7 +1616,7 @@
       </div>
       <div style="height:16px"></div>
       <div class="panel" id="community-panel">
-        <div class="page-title" style="font-size:20px">💜 Сообщество и обратная связь</div>
+        <div class="page-title" style="font-size:20px"><span class="title-ic" data-ic="contact"></span>Сообщество и обратная связь</div>
         <div class="page-sub" style="margin-bottom:12px">Версия <b id="version-chip"></b></div>
         <div id="community-box"></div>
       </div>
@@ -1506,7 +1628,7 @@
     <div class="page-scroll">
       <div class="lab-grid">
         <div class="panel">
-          <div class="page-title">📊 Статистика</div>
+          <div class="page-title"><span class="title-ic" data-ic="leader"></span>Статистика</div>
           <div class="page-sub">Твои показатели в реальном времени.</div>
           <div class="stat-row"><span class="k">Всего совершено кликов</span><span class="v" id="stat-clicks">0</span></div>
           <div class="stat-row"><span class="k">Всего заработано за всё время</span><span class="v" id="stat-earned">0 💎</span></div>
@@ -1515,28 +1637,28 @@
           <div class="stat-row"><span class="k">Баланс (для лидерборда)</span><span class="v" id="stat-bal">0 💎</span></div>
         </div>
         <div class="panel">
-          <div class="page-title">🎨 Кастомизация кристалла</div>
+          <div class="page-title"><span class="title-ic" data-ic="spark"></span>Кастомизация кристалла</div>
           <div class="page-sub">Изменяй вид и силу своего кристалла за кристаллы.</div>
           <div class="skin-grid" id="skin-grid"></div>
-          <button class="reset-btn" id="reset-btn">🗑 Сбросить прогресс</button>
-          <button class="reset-btn" id="wipe-btn" style="background:rgba(255,90,90,0.2)">💥 Полный вайп (аккаунт + всё)</button>
+          <button class="reset-btn" id="reset-btn"><span class="btn-ic" data-ic="refresh"></span>Сбросить прогресс</button>
+          <button class="reset-btn" id="wipe-btn" style="background:rgba(255,90,90,0.2)"><span class="btn-ic" data-ic="hammer"></span>Полный вайп (аккаунт + всё)</button>
         </div>
       </div>
       <div style="height:18px"></div>
       <div class="panel">
-        <div class="page-title">📋 Задания</div>
+        <div class="page-title"><span class="title-ic" data-ic="doc"></span>Задания</div>
         <div class="page-sub">Цели на день и на неделю. Награды начисляются автоматически.</div>
         <div id="quests-box-lab"></div>
       </div>
       <div style="height:18px"></div>
       <div class="panel">
-        <div class="page-title">✨ Перерождение</div>
+        <div class="page-title"><span class="title-ic" data-ic="gem"></span>Перерождение</div>
         <div class="page-sub">Главная цель прогрессии: жертвуй прогрессом ради вечного множителя.</div>
         <div id="prestige-box"></div>
       </div>
       <div style="height:18px"></div>
       <div class="panel">
-        <div class="page-title">🏆 Достижения</div>
+        <div class="page-title"><span class="title-ic" data-ic="trophy"></span>Достижения</div>
         <div class="page-sub">Награды за игровые вехи.</div>
         <div id="ach-list"></div>
       </div>
@@ -1547,7 +1669,7 @@
   <section id="page-changelog" class="page">
     <div class="page-scroll">
       <div class="panel">
-        <div class="page-title">📝 Список изменений</div>
+        <div class="page-title"><span class="title-ic" data-ic="doc"></span>Список изменений</div>
         <div class="page-sub">История версий <b id="version-chip-2"></b></div>
         <div id="changelog-box"></div>
       </div>
@@ -1571,15 +1693,54 @@
     var SAVE_KEY = 'crystal-net-save-v1';
     var PASSIVE_TICK_MS = 100;
     var SAVE_INTERVAL_MS = 5000;
-    var GAME_VERSION = '1.4.0';
+    var GAME_VERSION = '1.5.0';
+
+    /* ---------- Библиотека кастомных SVG-иконок ---------- */
+    var SVG_ICONS = {
+      gem: '<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20"/><path d="M12 21L8 9"/><path d="M12 21l4-12"/><path d="M6 3l6 6 6-6"/>',
+      cart: '<circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>',
+      net: '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>',
+      lab: '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 3v6L4 21h16L16 9V3"/><path d="M9 13h6"/><path d="M10 3h4"/>',
+      doc: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h6"/>',
+      clicker: '<path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51z"/><path d="M13 13l6 6"/>',
+      drone: '<path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>',
+      drill: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"/>',
+      factory: '<path d="M4 20h16"/><path d="M6 20V8l6 4V8l6 4V20"/><path d="M8 12h2"/><path d="M14 12h2"/><path d="M10 16h2"/><path d="M16 16h2"/>',
+      clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+      galaxy: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+      spark: '<path d="M12 2l1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9z"/>',
+      muscle: '<path d="M6.5 6.5L17.5 17.5"/><path d="M3 8.5l5 5"/><path d="M16 3l5 5"/><path d="M8.5 3l-5 5"/><path d="M15.5 16l5 5"/><path d="M8.5 21l5-5"/>',
+      crown: '<path d="M2 18h20"/><path d="M3 6l5 5 4-7 4 7 5-5v10H3z"/>',
+      robot: '<rect x="4" y="8" width="16" height="12" rx="2"/><circle cx="9" cy="13" r="1"/><circle cx="15" cy="13" r="1"/><path d="M12 8V4"/><circle cx="12" cy="3" r="1"/><path d="M9 17h6"/>',
+      coin: '<path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
+      mouse: '<rect x="6" y="2" width="12" height="20" rx="6"/><path d="M12 6v4"/>',
+      gift: '<path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>',
+      trophy: '<circle cx="12" cy="8" r="6"/><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/>',
+      zap: '<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>',
+      shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+      star: '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01z"/>',
+      wallet: '<path d="M20 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2v-2"/><path d="M16 12h6v6h-6a3 3 0 0 1 0-6z"/>',
+      leader: '<path d="M6 21h12"/><path d="M6 21V9"/><path d="M18 21V4"/><path d="M12 21V13"/>',
+      contact: '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>',
+      exit: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/>',
+      refresh: '<path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/><path d="M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>',
+      hammer: '<path d="M15 12l-8.5 8.5a2.12 2.12 0 0 1-3-3L12 9"/><path d="M17.64 15L22 10.64"/><path d="M20.91 11.7a1 1 0 0 0-1.41-1.41l-7.79 7.79a1 1 0 1 0 1.41 1.41z"/>',
+      share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98"/><path d="M15.41 6.51l-6.82 3.98"/>'
+    };
+
+    function svgIcon(name, size) {
+      var s = size || 22;
+      var paths = SVG_ICONS[name] || SVG_ICONS.gem;
+      return '<svg class="svg-ic" width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + paths + '</svg>';
+    }
 
     var UPGRADE_DEFS = [
-      { id: 'clicker', name: 'Кликер-утилита',            icon: '👆', desc: '+1 к силе клика',      baseCost: 15,      kind: 'click', per: 1 },
-      { id: 'drone',   name: 'Квантовый Дрон',            icon: '🛸', desc: '+2 CPS',               baseCost: 100,     kind: 'cps',   per: 2 },
-      { id: 'drill',   name: 'Планетарный Бур',           icon: '🛠️', desc: '+20 CPS',              baseCost: 1100,    kind: 'cps',   per: 20 },
-      { id: 'factory', name: 'Звездная Фабрика',          icon: '⭐', desc: '+150 CPS',             baseCost: 12000,   kind: 'cps',   per: 150 },
-      { id: 'time',    name: 'Манипулятор Времени',       icon: '⏳', desc: '+1200 CPS',            baseCost: 130000,  kind: 'cps',   per: 1200 },
-      { id: 'galaxy',  name: 'Галактический Конденсатор', icon: '🌌', desc: '+8000 CPS',            baseCost: 1400000, kind: 'cps',   per: 8000 }
+      { id: 'clicker', name: 'Кликер-утилита',            icon: 'clicker', desc: '+1 к силе клика',      baseCost: 15,      kind: 'click', per: 1 },
+      { id: 'drone',   name: 'Квантовый Дрон',            icon: 'drone',   desc: '+2 CPS',               baseCost: 100,     kind: 'cps',   per: 2 },
+      { id: 'drill',   name: 'Планетарный Бур',           icon: 'drill',   desc: '+20 CPS',              baseCost: 1100,    kind: 'cps',   per: 20 },
+      { id: 'factory', name: 'Звездная Фабрика',          icon: 'factory', desc: '+150 CPS',             baseCost: 12000,   kind: 'cps',   per: 150 },
+      { id: 'time',    name: 'Манипулятор Времени',       icon: 'clock',   desc: '+1200 CPS',            baseCost: 130000,  kind: 'cps',   per: 1200 },
+      { id: 'galaxy',  name: 'Галактический Конденсатор', icon: 'galaxy',  desc: '+8000 CPS',            baseCost: 1400000, kind: 'cps',   per: 8000 }
     ];
 
     var SKINS = {
@@ -1590,22 +1751,22 @@
     };
 
     var ACHIEVEMENTS = [
-      { id: 'spark',   name: 'Первая искра',        icon: '✨', desc: 'Сделать 10 кликов вручную',             reward: 100,  check: function (s) { return s.totalClicks >= 10; } },
-      { id: 'worker',  name: 'Неутомимый труженик', icon: '💪', desc: 'Сделать 100 кликов вручную',            reward: 500,  check: function (s) { return s.totalClicks >= 100; } },
-      { id: 'tycoon',  name: 'Магнат',              icon: '👑', desc: 'Накопить 1 000 💎 на балансе',          reward: 500,  check: function (s) { return s.balance >= 1000; } },
-      { id: 'auto',    name: 'Автоматизация',       icon: '🤖', desc: 'Купить первого Квантового Дрона',      reward: 200,  check: function (s) { return s.upgrades.drone.level >= 1; } },
-      { id: 'million', name: 'Миллионер',           icon: '💰', desc: 'Накопить 1 000 000 💎 на балансе',      reward: 5000, check: function (s) { return s.balance >= 1000000; } }
+      { id: 'spark',   name: 'Первая искра',        icon: 'spark',   desc: 'Сделать 10 кликов вручную',             reward: 100,  check: function (s) { return s.totalClicks >= 10; } },
+      { id: 'worker',  name: 'Неутомимый труженик', icon: 'muscle',  desc: 'Сделать 100 кликов вручную',            reward: 500,  check: function (s) { return s.totalClicks >= 100; } },
+      { id: 'tycoon',  name: 'Магнат',              icon: 'crown',   desc: 'Накопить 1 000 💎 на балансе',          reward: 500,  check: function (s) { return s.balance >= 1000; } },
+      { id: 'auto',    name: 'Автоматизация',       icon: 'robot',   desc: 'Купить первого Квантового Дрона',      reward: 200,  check: function (s) { return s.upgrades.drone.level >= 1; } },
+      { id: 'million', name: 'Миллионер',           icon: 'coin',    desc: 'Накопить 1 000 000 💎 на балансе',      reward: 5000, check: function (s) { return s.balance >= 1000000; } }
     ];
 
     /* Задания (квесты). type задаёт источник прогресса.
        daily сбрасываются каждый день, weekly — раз в неделю. */
     var QUESTS = [
-      { id: 'q_click_25',  period: 'daily',  icon: '🖱️', name: 'Кликер на час',     type: 'clicks',   target: 25,      reward: 200,  desc: 'Сделать 25 кликов' },
-      { id: 'q_earn_5k',   period: 'daily',  icon: '💰', name: 'Первый капитал',    type: 'earn',     target: 5000,    reward: 300,  desc: 'Заработать 5 000 💎 за всё время' },
-      { id: 'q_buy_1',     period: 'daily',  icon: '🛒', name: 'Инвестор',          type: 'buy',      target: 1,       reward: 250,  desc: 'Купить любой апгрейд' },
-      { id: 'q_click_1000', period: 'weekly', icon: '🔥', name: 'Неутомимый',        type: 'clicks',   target: 1000,    reward: 2000, desc: 'Сделать 1 000 кликов' },
-      { id: 'q_earn_500k', period: 'weekly', icon: '🏦', name: 'Магнат',             type: 'earn',     target: 500000,  reward: 5000, desc: 'Заработать 500 000 💎 за всё время' },
-      { id: 'q_prestige_1', period: 'weekly', icon: '✨', name: 'Новое начало',      type: 'prestige', target: 1,       reward: 3000, desc: 'Совершить 1 перерождение' }
+      { id: 'q_click_25',  period: 'daily',  icon: 'clicker', name: 'Кликер на час',     type: 'clicks',   target: 25,      reward: 200,  desc: 'Сделать 25 кликов' },
+      { id: 'q_earn_5k',   period: 'daily',  icon: 'coin',    name: 'Первый капитал',    type: 'earn',     target: 5000,    reward: 300,  desc: 'Заработать 5 000 💎 за всё время' },
+      { id: 'q_buy_1',     period: 'daily',  icon: 'cart',    name: 'Инвестор',          type: 'buy',      target: 1,       reward: 250,  desc: 'Купить любой апгрейд' },
+      { id: 'q_click_1000', period: 'weekly', icon: 'zap',    name: 'Неутомимый',        type: 'clicks',   target: 1000,    reward: 2000, desc: 'Сделать 1 000 кликов' },
+      { id: 'q_earn_500k', period: 'weekly', icon: 'leader',  name: 'Магнат',             type: 'earn',     target: 500000,  reward: 5000, desc: 'Заработать 500 000 💎 за всё время' },
+      { id: 'q_prestige_1', period: 'weekly', icon: 'spark',  name: 'Новое начало',      type: 'prestige', target: 1,       reward: 3000, desc: 'Совершить 1 перерождение' }
     ];
 
     /* Прогресс конкретного квеста по текущему состоянию игры */
@@ -1743,7 +1904,7 @@
           card.className = 'quest-card' + (done ? ' done' : '');
           card.innerHTML =
             '<div class="q-top">' +
-              '<div class="q-icon">' + q.icon + '</div>' +
+              '<div class="q-icon">' + svgIcon(q.icon, 26) + '</div>' +
               '<div class="q-body">' +
                 '<div class="q-name"></div>' +
                 '<div class="q-desc"></div>' +
@@ -2502,12 +2663,12 @@
       box.innerHTML =
         '<div style="font-size:14px;color:var(--muted);margin-bottom:12px">Нашли баг или есть идея? Сообщите — мы читаем каждое сообщение и добавляем фичи в обновлениях.</div>' +
         '<div style="display:flex;gap:10px;flex-wrap:wrap">' +
-          '<a class="community-link" href="mailto:' + contactEmail + '">📬 Вопросы по сайту: ' + contactEmail + '</a>' +
-          '<a class="community-link" href="mailto:' + contactEmail + '?subject=CRYSTAL.NET%20-%20ошибка%20/%20идея">🐛 Сообщить об ошибке / идея</a>' +
-          '<a class="community-link" href="' + feedbackUrl + '" target="_blank" rel="noopener">📝 GitHub Issues</a>' +
-          '<a class="community-link" href="' + repoUrl + '" target="_blank" rel="noopener">⭐ GitHub-репозиторий</a>' +
-          '<a class="community-link" href="' + changelogUrl + '" target="_blank" rel="noopener">📖 Список изменений</a>' +
-          '<a class="community-link" href="mailto:?subject=CRYSTAL.NET" >✉️ Поделиться игрой</a>' +
+          '<a class="community-link" href="mailto:' + contactEmail + '">' + svgIcon('contact', 18) + ' Вопросы по сайту</a>' +
+          '<a class="community-link" href="mailto:' + contactEmail + '?subject=CRYSTAL.NET%20-%20ошибка%20/%20идея">' + svgIcon('zap', 18) + ' Ошибка / идея</a>' +
+          '<a class="community-link" href="' + feedbackUrl + '" target="_blank" rel="noopener">' + svgIcon('doc', 18) + ' GitHub Issues</a>' +
+          '<a class="community-link" href="' + repoUrl + '" target="_blank" rel="noopener">' + svgIcon('star', 18) + ' GitHub-репозиторий</a>' +
+          '<a class="community-link" href="' + changelogUrl + '" target="_blank" rel="noopener">' + svgIcon('doc', 18) + ' Список изменений</a>' +
+          '<a class="community-link" href="mailto:?subject=CRYSTAL.NET" >' + svgIcon('share', 18) + ' Поделиться игрой</a>' +
         '</div>' +
         '<div style="margin-top:14px;font-size:12px;color:var(--muted)">' +
           'Связаться с поддержкой: <a href="mailto:' + contactEmail + '" style="color:var(--cyan)">' + contactEmail + '</a> · ' +
@@ -2526,6 +2687,14 @@
         return;
       }
       var versions = [
+        { tag: '1.5.0', date: '2026-08-03', title: 'Кастомные иконки и анимации',
+          items: [
+            'Добавлена библиотека из 29 кастомных SVG-иконок вместо эмодзи (навигация, рынок, квесты, достижения, кнопки).',
+            'Иконки оживают: парение, пульсация, свечение; активный пункт меню пульсирует.',
+            'Вращающееся неоновое свечение за 3D-кристаллом.',
+            'Световой блик, пробегающий по панелям и карточкам при наведении.',
+            'Анимированный градиент и свечение индикатора баланса.'
+          ] },
         { tag: '1.4.0', date: '2026-08-03', title: 'Авторизация, вайп и улучшения',
           items: [
             'Добавлен экран входа при запуске — игра начинается с авторизации.',
@@ -3280,6 +3449,13 @@
       });
     }
 
+    /* Заполняем SVG-иконки в навигации и других data-ic элементах */
+    function populateIcons() {
+      document.querySelectorAll('[data-ic]').forEach(function (el) {
+        el.innerHTML = svgIcon(el.getAttribute('data-ic'), 22);
+      });
+    }
+
     /* ----------------------------------------------------------------
        18. МАГАЗИН (РЫНОК)
        ---------------------------------------------------------------- */
@@ -3296,7 +3472,7 @@
         card.className = 'upgrade-card' + (affordable ? '' : ' locked');
         card.innerHTML =
           '<div class="u-top">' +
-            '<div class="u-icon">' + def.icon + '</div>' +
+            '<div class="u-icon">' + svgIcon(def.icon, 30) + '</div>' +
             '<div>' +
               '<div class="u-name"></div>' +
               '<div class="u-level"></div>' +
@@ -3404,7 +3580,7 @@
         var card = document.createElement('div');
         card.className = 'ach-card' + (done ? ' done' : '');
         card.innerHTML =
-          '<div class="a-icon">' + ach.icon + '</div>' +
+          '<div class="a-icon">' + svgIcon(ach.icon, 28) + '</div>' +
           '<div class="a-body">' +
             '<div class="a-name"></div>' +
             '<div class="a-desc"></div>' +
@@ -3730,7 +3906,7 @@
         '<div class="stat-row"><span class="k">Осколков при перерождении</span><span class="v">+' + formatNumber(gain) + '</span></div>' +
         '<div class="stat-row"><span class="k">Множитель после</span><span class="v">x' + nextMult.toFixed(2) + '</span></div>' +
         '<div style="font-size:12px;color:var(--muted);margin:8px 0 12px">Перерождение сбрасывает баланс и апгрейды, но даёт постоянный множитель дохода. Так игра не заканчивается — каждый цикл делает вас сильнее.</div>' +
-        '<button class="buy-btn" id="prestige-btn" style="width:100%">✨ Переродиться (+' + formatNumber(gain) + ' осколков)</button>';
+        '<button class="buy-btn" id="prestige-btn" style="width:100%"><span class="btn-ic" data-ic="spark"></span>Переродиться (+' + formatNumber(gain) + ' осколков)</button>';
       var btn = document.getElementById('prestige-btn');
       btn.addEventListener('click', performPrestige);
       if (gain <= 0) {
@@ -3757,6 +3933,7 @@
       recomputeDerived();
 
       bindNavigation();
+      populateIcons();
       bindQuestDrawer();
       bindLoginWall();
       enforceLoginGate();
