@@ -1995,7 +1995,7 @@
     var SAVE_KEY = 'crystal-net-save-v1';
     var PASSIVE_TICK_MS = 100;
     var SAVE_INTERVAL_MS = 5000;
-    var GAME_VERSION = '2.0.0';
+    var GAME_VERSION = '2.1.0';
 
     /* ---------- Библиотека кастомных SVG-иконок ---------- */
     var SVG_ICONS = {
@@ -2876,6 +2876,10 @@
     var cameraLookTarget = null;
     var cameraLookCurrent = null;
 
+    /* ---------- Орбитальные спутники вокруг Кристалла (MOD 3) ---------- */
+    var orbitObjects = [];
+    var orbitRoot = null; // контейнер для всех спутников
+
     function initThree() {
       var container = document.getElementById('scene-container');
 
@@ -2977,6 +2981,81 @@
       }
       crystalGroup.add(orbitGroup);
       crystalGroup.userData.orbitGroup = orbitGroup;
+
+      // Контейнер для спутников прогресса (строится отдельно)
+      orbitRoot = new THREE.Group();
+      scene.add(orbitRoot);
+      orbitObjects = [];
+    }
+
+    /* Построение спутника по типу апгрейда */
+    function buildOrbitSatellite(kind) {
+      var geo, mat;
+      if (kind === 'sphere') {
+        geo = new THREE.SphereGeometry(0.22, 16, 12);
+        mat = new THREE.MeshStandardMaterial({ color: 0x00f0ff, emissive: 0x00f0ff, emissiveIntensity: 0.9, metalness: 0.6, roughness: 0.2 });
+      } else if (kind === 'cone') {
+        geo = new THREE.ConeGeometry(0.18, 0.55, 12);
+        mat = new THREE.MeshStandardMaterial({ color: 0x9aa3c8, emissive: 0x444466, emissiveIntensity: 0.5, metalness: 1.0, roughness: 0.3 });
+      } else if (kind === 'torus') {
+        geo = new THREE.TorusGeometry(0.2, 0.06, 10, 20);
+        mat = new THREE.MeshStandardMaterial({ color: 0xff007f, emissive: 0xff007f, emissiveIntensity: 0.8, metalness: 0.6, roughness: 0.2 });
+      } else {
+        geo = new THREE.IcosahedronGeometry(0.16, 0);
+        mat = new THREE.MeshStandardMaterial({ color: 0x8f7bff, emissive: 0x8f7bff, emissiveIntensity: 0.7, metalness: 0.7, roughness: 0.2 });
+      }
+      var mesh = new THREE.Mesh(geo, mat);
+      // Случайный угол старта, уникальный радиус и скорость вращения
+      mesh.userData.angle = Math.random() * Math.PI * 2;
+      mesh.userData.radius = 3.5 + Math.random() * 2.5;   // 3.5 .. 6
+      mesh.userData.speed = 0.4 + Math.random() * 0.7;
+      mesh.userData.height = (Math.random() - 0.5) * 1.2;
+      mesh.userData.spinX = Math.random() * Math.PI * 2;
+      mesh.userData.spinY = Math.random() * Math.PI * 2;
+      mesh.userData.spinSpeed = 1 + Math.random() * 1.5;
+      return mesh;
+    }
+
+    /* Полная пересборка спутников под текущий прогресс апгрейдов.
+       Удаляет старые (scene.remove + dispose) и строит новые. */
+    function refreshOrbitObjects() {
+      // Очищаем старые спутники
+      orbitObjects.forEach(function (obj) {
+        if (orbitRoot && obj.parent) {
+          orbitRoot.remove(obj);
+        }
+        if (obj.geometry) {
+          obj.geometry.dispose();
+        }
+        if (obj.material) {
+          obj.material.dispose();
+        }
+      });
+      orbitObjects = [];
+      if (!orbitRoot) {
+        return;
+      }
+
+      // Дроны (2-й апгрейд) -> бирюзовые сферы
+      var droneLevel = gameState.upgrades.drone ? gameState.upgrades.drone.level : 0;
+      for (var i = 0; i < droneLevel; i++) {
+        orbitObjects.push(buildOrbitSatellite('sphere'));
+      }
+      // Бур (3-й апгрейд) -> металлические конусы
+      var drillLevel = gameState.upgrades.drill ? gameState.upgrades.drill.level : 0;
+      for (var j = 0; j < drillLevel; j++) {
+        orbitObjects.push(buildOrbitSatellite('cone'));
+      }
+      // Фабрика (4-й апгрейд) -> розовые торы
+      var factoryLevel = gameState.upgrades.factory ? gameState.upgrades.factory.level : 0;
+      for (var k = 0; k < factoryLevel; k++) {
+        orbitObjects.push(buildOrbitSatellite('torus'));
+      }
+
+      // Добавляем в сцену
+      orbitObjects.forEach(function (obj) {
+        orbitRoot.add(obj);
+      });
     }
 
     function applySkin() {
@@ -3056,6 +3135,94 @@
       'Эх, приходишь с пустым кошельком!',
       'Кристаллы — всему голова. Копи их!'
     ];
+
+    // Фразы для бездействия игрока (30 сек без кликов на рынке)
+    var VENDOR_IDLE_LINES = [
+      'Ты уснул?',
+      'Если любуешься моей шляпой — спасибо!',
+      'Покупай, пока цены низкие!',
+      'Я тут, у прилавка, жду тебя!'
+    ];
+
+    // База реплик под конкретные ситуации (MOD 2, speak(type))
+    var SPEAK_DB = {
+      welcome: [
+        'Приветствую, оператор!',
+        'Мои дроны заждались хозяина!',
+        'Добро пожаловать на рынок!'
+      ],
+      successBuy: [
+        'Отличная сделка!',
+        'Эта штука увеличит твой доход!',
+        'Ха-ха, выгодно купил!'
+      ],
+      noFunds: [
+        'Твои карманы пусты!',
+        'Сначала заработай кристаллы!',
+        'Вернись, когда будут кристаллы!'
+      ],
+      idle: [
+        'Ты уснул?',
+        'Если любуешься моей шляпой — спасибо!',
+        'Покупай, пока цены низкие!'
+      ]
+    };
+
+    // Таймер бездействия: если на рынке 30 сек ничего не происходит — speak('idle')
+    var vendorIdleTimer = null;
+    function resetVendorIdleTimer() {
+      if (vendorIdleTimer) {
+        clearTimeout(vendorIdleTimer);
+      }
+      vendorIdleTimer = setTimeout(function () {
+        if (activePage === 'page-market') {
+          speak('idle');
+        }
+      }, 30000);
+    }
+
+    /* Диспетчер реплик по ситуации. type: welcome | successBuy | noFunds | idle */
+    function speak(type) {
+      var lines = SPEAK_DB[type];
+      if (!lines || lines.length === 0) {
+        return;
+      }
+      var line = lines[Math.floor(Math.random() * lines.length)];
+
+      // Эмоция и анимация по типу
+      if (type === 'successBuy') {
+        drawVendorFace('buy');
+        vendorAnim.approve = 1;
+        vendorAnim.poor = 0;
+        setTimeout(function () {
+          vendorAnim.approve = 0;
+          if (!vendorHover) {
+            drawVendorFace('idle');
+          }
+        }, 1600);
+      } else if (type === 'noFunds') {
+        drawVendorFace('poor');
+        vendorAnim.poor = 1;
+        vendorAnim.approve = 0;
+        setTimeout(function () {
+          vendorAnim.poor = 0;
+          if (!vendorHover) {
+            drawVendorFace('idle');
+          }
+        }, 1500);
+      } else if (type === 'welcome') {
+        drawVendorFace('hover');
+        setTimeout(function () { drawVendorFace('idle'); }, 2200);
+      }
+
+      vendorSpeak(line, type === 'successBuy' ? 'buy' : (type === 'noFunds' ? 'poor' : null));
+      if (type === 'successBuy') {
+        vendorChat(randomItem(VENDOR_APPROVE_LINES));
+      } else if (type === 'noFunds') {
+        vendorChat(line);
+      }
+      resetVendorIdleTimer();
+    }
 
     /* Построение всей 3D-лавки: прилавок, стойки, вывеска SHOP, полки с
        кристаллами и кибер-продавец. Всё собрано иерархически. */
@@ -3499,6 +3666,8 @@
       refreshUI();
       checkAchievements();
       checkQuests();
+      // Любая активность сбрасывает таймер бездействия продавца
+      resetVendorIdleTimer();
     }
 
     function updateMouse(event) {
@@ -3551,6 +3720,21 @@
       }
 
       updateParticles(dt);
+
+      // --- Движение орбитальных спутников прогресса вокруг кристалла ---
+      // Координаты X и Z считаем через sin/cos от времени; спутники медленно
+      // вращаются вокруг своей оси. Видны только на главном экране.
+      orbitObjects.forEach(function (sat) {
+        var a = sat.userData.angle + time * sat.userData.speed;
+        sat.position.x = Math.cos(a) * sat.userData.radius;
+        sat.position.z = Math.sin(a) * sat.userData.radius;
+        sat.position.y = sat.userData.height + Math.sin(time * 1.3 + sat.userData.angle) * 0.15;
+        sat.rotation.x = sat.userData.spinX + time * sat.userData.spinSpeed * 0.5;
+        sat.rotation.y = sat.userData.spinY + time * sat.userData.spinSpeed;
+      });
+      if (orbitRoot) {
+        orbitRoot.visible = (activePage === 'page-crystal');
+      }
 
       // --- Камера: отдельные позиции для главной, рынка и прочих страниц ---
       var camTarget = new THREE.Vector3();
@@ -3969,6 +4153,16 @@
         return;
       }
       var versions = [
+        { tag: '2.1.0', date: '2026-08-03', title: 'Орбитальные спутники прогресса',
+          items: [
+            'Добавлены орбитальные 3D-спутники вокруг Кристалла, отражающие уровень апгрейдов.',
+            'Дроны -> бирюзовые сферы, Буры -> металлические конусы, Фабрики -> розовые торы.',
+            'Спутники вращаются по уникальным орбитам (свой радиус 3.5-6, скорость, угол) и вокруг своей оси.',
+            'Функция refreshOrbitObjects() перестраивает спутники при загрузке и после каждой покупки.',
+            'Диспетчер реплик speak(type): welcome / successBuy / noFunds / idle.',
+            'Если на рынке 30 секунд ничего не нажимать — робот говорит speak(\'idle\').',
+            'Карточки товаров закреплены HTML-оверлеем по краям, центр полностью свободен для 3D-продавца.'
+          ] },
         { tag: '2.0.0', date: '2026-08-03', title: 'Харизматичный робот-продавец',
           items: [
             'Исправлено наложение: карточки товаров жёстко разнесены в две колонки по краям, центр экрана полностью свободен для 3D-сцены.',
@@ -4760,22 +4954,27 @@
       if (pageId === 'page-market') {
         renderShop();
         startZoneMusic('market');
-        // Продавец приветствует при входе (смайлик [? ?], печатная машинка)
+        // Продавец приветствует при входе (speak('welcome'), печатная машинка)
         setTimeout(function () {
           if (activePage === 'page-market') {
-            drawVendorFace('hover');
-            vendorSpeak('Добро пожаловать на рынок!');
-            setTimeout(function () { drawVendorFace('idle'); }, 2200);
+            speak('welcome');
           }
         }, 600);
+        resetVendorIdleTimer();
       } else if (pageId === 'page-net') {
         renderNetwork();
         startZoneMusic('net');
+        if (vendorIdleTimer) {
+          clearTimeout(vendorIdleTimer);
+        }
       } else if (pageId === 'page-lab') {
         renderSkins();
         renderStats();
         renderAchievements();
         renderPrestige();
+        if (vendorIdleTimer) {
+          clearTimeout(vendorIdleTimer);
+        }
         renderQuests();
         startZoneMusic('lab');
       } else {
@@ -4869,11 +5068,8 @@
       }
       var cost = getUpgradeCost(def);
       if (gameState.balance < cost) {
-        // Не хватает кристаллов: продавец разочарован и шутит в чат
-        var poorLine = randomItem(VENDOR_POOR_LINES);
-        vendorPoor();
-        vendorSpeak(poorLine, 'poor');
-        vendorChat(poorLine);
+        // Не хватает кристаллов: продавец разочарован (speak('noFunds')) + чат
+        speak('noFunds');
         showToast('⛔', 'Недостаточно кристаллов', 'Нужно ' + formatNumber(cost) + ' 💎');
         return;
       }
@@ -4884,12 +5080,11 @@
       renderShop();
       checkAchievements();
       playSound('buy');
-      // Анимация одобрения продавца (смайлик [$ $] + вскинутые руки)
-      vendorApprove();
-      // Реплика одобрения "Отличная сделка!" + ретро-голос + в чат [ПРОДАВЕЦ]
-      var approveLine = randomItem(VENDOR_APPROVE_LINES);
-      vendorSpeak('Отличная сделка! ' + def.name + ' теперь твой!', 'buy');
-      vendorChat(approveLine + ' ' + def.name + ' теперь твой!');
+      // Обновляем орбитальные спутники прогресса на главном экране
+      refreshOrbitObjects();
+      // Реплика одобрения "Отличная сделка!" (speak('successBuy')) + в чат
+      speak('successBuy');
+      vendorChat(randomItem(VENDOR_APPROVE_LINES) + ' ' + def.name + ' теперь твой!');
       showToast(def.icon, 'Куплено: ' + def.name, 'Уровень ' + gameState.upgrades[id].level);
     }
 
@@ -5338,6 +5533,7 @@
       initThree();
       applySkin();
       recomputeDerived();
+      refreshOrbitObjects();
 
       bindNavigation();
       populateIcons();

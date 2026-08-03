@@ -4,7 +4,22 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 проект придерживается [Semantic Versioning](https://semver.org/lang/ru/).
 
-Текущая версия: **2.0.0** · Онлайн: https://denissakun65-sys.github.io/space-crystal-clicker/
+Текущая версия: **2.1.0** · Онлайн: https://denissakun65-sys.github.io/space-crystal-clicker/
+
+---
+
+## [2.1.0] — 2026-08-03
+
+### 🛰️ Орбитальные спутники прогресса (MOD 3)
+- **Орбитальные 3D-спутники** вокруг Кристалла отражают уровень апгрейдов.
+- **Дроны** → бирюзовые сферы, **Буры** → металлические конусы, **Фабрики** → розовые торы.
+- Спутники вращаются по уникальным орбитам (свой радиус 3.5–6, скорость, угол) и вокруг своей оси.
+- Функция `refreshOrbitObjects()` перестраивает спутники при загрузке сохранения и после каждой покупки.
+
+### 🗣️ Диспетчер реплик speak(type)
+- `welcome` / `successBuy` / `noFunds` / `idle` с базами фраз.
+- Если на рынке **30 секунд** ничего не нажимать — робот говорит `speak('idle')`.
+- Карточки товаров закреплены HTML-оверлеем по краям, центр полностью свободен для 3D-продавца.
 
 ---
 
@@ -193,6 +208,7 @@
 - Реферальные ссылки.
 - Офлайн-доход с бонусом за премиум-скины.
 
+[2.1.0]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v2.1.0
 [2.0.0]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v2.0.0
 [1.9.0]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v1.9.0
 [1.8.0]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v1.8.0
