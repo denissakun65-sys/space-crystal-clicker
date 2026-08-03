@@ -4,7 +4,25 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 проект придерживается [Semantic Versioning](https://semver.org/lang/ru/).
 
-Текущая версия: **1.3.0** · Онлайн: https://denissakun65-sys.github.io/space-crystal-clicker/
+Текущая версия: **1.4.0** · Онлайн: https://denissakun65-sys.github.io/space-crystal-clicker/
+
+---
+
+## [1.4.0] — 2026-08-03
+
+### ✨ Добавлено
+- **Экран авторизации при запуске** — игра блокируется до входа/регистрации. Аккаунт хранится локально.
+- **Квесты в выдвижной панели** — больше не перекрывают 3D-кристалл; компактная кнопка с бейджем активных заданий.
+- **Полный вайп** — кнопка «💥 Полный вайп» в Лаборатории удаляет аккаунт и весь прогресс (возврат к экрану входа).
+
+### ✨ Анимации
+- Пульс цифр баланса при приросте.
+- Кольцо-вспышка в точке клика по кристаллу.
+- Дрейфующий фоновый градиент.
+- Свечение и подъём панелей при наведении.
+
+### 🐛 Исправлено
+- Квесты больше не закрывают кристалл на главном экране.
 
 ---
 
@@ -88,6 +106,7 @@
 - Реферальные ссылки.
 - Звуковые эффекты.
 
+[1.4.0]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v1.4.0
 [1.3.0]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v1.3.0
 [1.2.0]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v1.2.0
 [1.1.0]: https://github.com/denissakun65-sys/space-crystal-clicker/releases/tag/v1.1.0

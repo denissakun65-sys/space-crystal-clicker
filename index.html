@@ -48,6 +48,130 @@
     user-select: none;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+    animation: bgDrift 24s ease-in-out infinite alternate;
+  }
+
+  @keyframes bgDrift {
+    0% { background: radial-gradient(circle at 30% 30%, #1a1233 0%, var(--bg) 70%); }
+    50% { background: radial-gradient(circle at 70% 40%, #241538 0%, var(--bg) 72%); }
+    100% { background: radial-gradient(circle at 50% 70%, #1f1040 0%, var(--bg) 70%); }
+  }
+
+  /* ---------- Login wall ---------- */
+  .login-wall {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: radial-gradient(circle at 50% 30%, #1a1233 0%, var(--bg) 75%);
+    backdrop-filter: blur(6px);
+    transition: opacity 0.5s ease, visibility 0.5s;
+  }
+
+  .login-wall.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .login-card {
+    width: min(380px, 92vw);
+    background: rgba(20, 15, 40, 0.85);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 34px 28px;
+    text-align: center;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 40px rgba(143, 123, 255, 0.25);
+    animation: loginPop 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  }
+
+  @keyframes loginPop {
+    from { opacity: 0; transform: translateY(20px) scale(0.92); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .login-logo {
+    font-family: 'Orbitron', 'Courier New', monospace;
+    font-weight: 900;
+    font-size: 30px;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, var(--cyan), var(--magenta));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    filter: drop-shadow(0 0 14px rgba(0, 240, 255, 0.6));
+    margin-bottom: 8px;
+  }
+
+  .login-sub {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  .login-field {
+    margin-bottom: 14px;
+  }
+
+  .login-field input {
+    width: 100%;
+    padding: 13px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .login-field input::placeholder { color: var(--muted); }
+  .login-field input:focus { border-color: var(--cyan); box-shadow: 0 0 14px rgba(0, 240, 255, 0.3); }
+
+  .login-error {
+    min-height: 20px;
+    color: var(--bad);
+    font-size: 13px;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+
+  .login-btn {
+    width: 100%;
+    border: none;
+    border-radius: 12px;
+    padding: 13px;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 15px;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--cyan), var(--magenta));
+    color: #fff;
+    margin-bottom: 10px;
+    transition: transform 0.15s, filter 0.2s, box-shadow 0.2s;
+    box-shadow: 0 8px 24px rgba(255, 0, 127, 0.3);
+  }
+
+  .login-btn:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 12px 30px rgba(255, 0, 127, 0.45); }
+  .login-btn:active { transform: translateY(0) scale(0.98); }
+
+  .login-btn.register {
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: none;
+    border: 1px solid var(--glass-border);
+  }
+
+  .login-note {
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--muted);
   }
 
   /* ---------- 3D canvas ---------- */
@@ -407,6 +531,13 @@
     border-radius: 20px;
     padding: 20px;
     box-shadow: 0 10px 34px rgba(0, 0, 0, 0.4);
+    transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+  }
+
+  .panel:hover {
+    transform: translateY(-3px);
+    border-color: rgba(0, 240, 255, 0.25);
+    box-shadow: 0 16px 44px rgba(0, 0, 0, 0.5), 0 0 24px rgba(143, 123, 255, 0.15);
   }
 
   /* ---------- Crystal page HUD ---------- */
@@ -430,6 +561,15 @@
     color: transparent;
     animation: shimmer 4s linear infinite;
     filter: drop-shadow(0 0 18px rgba(56, 240, 255, 0.35));
+    transition: transform 0.2s;
+  }
+
+  .hud-balance.pop { animation: shimmer 4s linear infinite, balancePop 0.3s ease; }
+
+  @keyframes balancePop {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.12); filter: drop-shadow(0 0 34px rgba(56, 240, 255, 0.9)); }
+    100% { transform: scale(1); }
   }
 
   @keyframes shimmer {
@@ -452,6 +592,21 @@
   }
 
   .footer-spacer { flex: 1; }
+
+  .click-ripple {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    background: radial-gradient(circle, rgba(0, 240, 255, 0.6), rgba(255, 0, 127, 0.3), transparent 70%);
+    border: 2px solid rgba(0, 240, 255, 0.5);
+    animation: rippleExpand 0.7s ease-out forwards;
+    z-index: 65;
+  }
+
+  @keyframes rippleExpand {
+    from { width: 10px; height: 10px; opacity: 1; transform: translate(-50%, -50%) scale(0.4); }
+    to { width: 120px; height: 120px; opacity: 0; transform: translate(-50%, -50%) scale(1.6); }
+  }
 
   .goal-track {
     flex: 1;
@@ -513,16 +668,76 @@
     pointer-events: auto;
   }
 
+  /* Выдвижная панель квестов (не перекрывает кристалл) */
+  .quest-drawer {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 70;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    pointer-events: auto;
+  }
+
+  .quest-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--glass-border);
+    background: var(--glass);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    color: var(--text);
+    border-radius: 30px;
+    padding: 10px 16px;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 8px 26px rgba(0, 0, 0, 0.45), 0 0 16px rgba(0, 240, 255, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .quest-toggle:hover { transform: translateY(-2px); }
+
+  .quest-toggle .qt-count {
+    background: linear-gradient(135deg, var(--cyan), var(--magenta));
+    color: #fff;
+    border-radius: 20px;
+    padding: 1px 9px;
+    font-size: 12px;
+  }
+
+  .quest-drawer-body {
+    width: min(360px, 92vw);
+    max-height: 46vh;
+    overflow-y: auto;
+    padding: 16px;
+    border-radius: 16px;
+    background: rgba(20, 15, 40, 0.9);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 16px 50px rgba(0, 0, 0, 0.6);
+    transform-origin: bottom right;
+    animation: drawerIn 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  }
+
+  .quest-drawer-body.collapsed {
+    display: none;
+  }
+
+  @keyframes drawerIn {
+    from { opacity: 0; transform: translateY(16px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
   .quests-list {
     display: flex;
     flex-direction: column;
-    max-height: 34vh;
-    overflow-y: auto;
-    padding-right: 4px;
   }
-
-  .quests-list::-webkit-scrollbar { width: 6px; }
-  .quests-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 6px; }
 
   /* ---------- Shop ---------- */
   #shop-grid {
@@ -1138,6 +1353,24 @@
 </head>
 <body>
 
+  <!-- Login wall: блокирует игру до авторизации -->
+  <div id="login-wall" class="login-wall">
+    <div class="login-card">
+      <div class="login-logo">[CRYSTAL.NET]</div>
+      <div class="login-sub">Войдите в систему, чтобы продолжить</div>
+      <div class="login-field">
+        <input id="login-user" placeholder="Никнейм" maxlength="16" autocomplete="username">
+      </div>
+      <div class="login-field">
+        <input id="login-pass" type="password" placeholder="Пароль" maxlength="32" autocomplete="current-password">
+      </div>
+      <div class="login-error" id="login-error"></div>
+      <button class="login-btn" id="login-btn">🔐 Войти</button>
+      <button class="login-btn register" id="register-btn">📝 Зарегистрироваться</button>
+      <div class="login-note">Аккаунт хранится на этом устройстве. Без входа игра недоступна.</div>
+    </div>
+  </div>
+
   <!-- 3D scene -->
   <div id="scene-container"></div>
 
@@ -1188,7 +1421,14 @@
       <div class="clickable-ui hud-hint">
         <div class="hud-hint">Кликни по кристаллу в центре экрана ✨</div>
       </div>
-      <div class="clickable-ui quests-hud">
+    </div>
+
+    <!-- Квесты в выдвижной панели, чтобы не перекрывали кристалл -->
+    <div class="clickable-ui quest-drawer" id="quest-drawer">
+      <button class="quest-toggle" id="quest-toggle">
+        <span class="qt-icon">📋</span><span class="qt-text">Задания</span><span class="qt-count" id="quest-count">0</span>
+      </button>
+      <div class="quest-drawer-body" id="quest-drawer-body">
         <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:700">📋 АКТИВНЫЕ ЗАДАНИЯ</div>
         <div id="quests-box" class="quests-list"></div>
       </div>
@@ -1270,7 +1510,8 @@
           <div class="page-title">🎨 Кастомизация кристалла</div>
           <div class="page-sub">Изменяй вид и силу своего кристалла за кристаллы.</div>
           <div class="skin-grid" id="skin-grid"></div>
-          <button class="reset-btn" id="reset-btn">🗑 Сбросить весь прогресс</button>
+          <button class="reset-btn" id="reset-btn">🗑 Сбросить прогресс</button>
+          <button class="reset-btn" id="wipe-btn" style="background:rgba(255,90,90,0.2)">💥 Полный вайп (аккаунт + всё)</button>
         </div>
       </div>
       <div style="height:18px"></div>
@@ -1322,7 +1563,7 @@
     var SAVE_KEY = 'crystal-net-save-v1';
     var PASSIVE_TICK_MS = 100;
     var SAVE_INTERVAL_MS = 5000;
-    var GAME_VERSION = '1.3.0';
+    var GAME_VERSION = '1.4.0';
 
     var UPGRADE_DEFS = [
       { id: 'clicker', name: 'Кликер-утилита',            icon: '👆', desc: '+1 к силе клика',      baseCost: 15,      kind: 'click', per: 1 },
@@ -1448,6 +1689,18 @@
       }
     }
 
+    /* Переключатель выдвижной панели заданий */
+    function bindQuestDrawer() {
+      var toggle = document.getElementById('quest-toggle');
+      var body = document.getElementById('quest-drawer-body');
+      if (!toggle || !body) {
+        return;
+      }
+      toggle.addEventListener('click', function () {
+        body.classList.toggle('collapsed');
+      });
+    }
+
     function renderQuests() {
       var containers = [document.getElementById('quests-box'), document.getElementById('quests-box-lab')];
       var any = containers.some(function (c) { return !!c; });
@@ -1455,6 +1708,18 @@
         return;
       }
       resetQuestsIfNeeded();
+      // Обновляем счётчик невыполненных квестов на кнопке-панели
+      var active = 0;
+      QUESTS.forEach(function (q) {
+        var st = gameState.quests[q.id] || { done: false, claimed: false };
+        if (!st.claimed) {
+          active++;
+        }
+      });
+      var qc = document.getElementById('quest-count');
+      if (qc) {
+        qc.textContent = active;
+      }
       containers.forEach(function (box) {
         if (!box) {
           return;
@@ -1709,6 +1974,21 @@
       });
     }
 
+    /* Расширяющееся кольцо-вспышка в точке клика */
+    function spawnClickRipple(clientX, clientY) {
+      var layer = document.getElementById('fx-layer');
+      var el = document.createElement('div');
+      el.className = 'click-ripple';
+      el.style.left = clientX + 'px';
+      el.style.top = clientY + 'px';
+      layer.appendChild(el);
+      el.addEventListener('animationend', function () {
+        if (el.parentNode) {
+          el.parentNode.removeChild(el);
+        }
+      });
+    }
+
     /* ----------------------------------------------------------------
        7. THREE.JS — СЦЕНА
        ---------------------------------------------------------------- */
@@ -1889,6 +2169,7 @@
       var y = (event.clientY !== undefined ? event.clientY : event.changedTouches[0].clientY);
 
       spawnDamageText(x, y, '+' + formatNumber(gain) + ' 💎');
+      spawnClickRipple(x, y);
       spawnParticles(intersects[0].point.clone());
 
       refreshUI();
@@ -2232,6 +2513,13 @@
         return;
       }
       var versions = [
+        { tag: '1.4.0', date: '2026-08-03', title: 'Авторизация, вайп и улучшения',
+          items: [
+            'Добавлен экран входа при запуске — игра начинается с авторизации.',
+            'Квесты вынесены в компактную выдвижную панель — больше не перекрывают кристалл.',
+            'Добавлена кнопка «Полный вайп» (удаляет аккаунт и весь прогресс).',
+            'Добавлены анимации: пульс баланса, кольцо-вспышка при клике, фоновый градиент, свечение панелей.'
+          ] },
         { tag: '1.3.0', date: '2026-08-03', title: 'Регистрация, квесты и честный онлайн',
           items: [
             'Убран фейковый онлайн по умолчанию — счётчик честно показывает «—» при отсутствии подключения.',
@@ -2376,6 +2664,7 @@
       showToast('🎉', 'Регистрация успешна', 'Добро пожаловать, ' + username + '!');
       window.Online.signedIn = true;
       currentNick = username;
+      hideLoginWall();
       renderNetwork();
     }
 
@@ -2389,6 +2678,7 @@
       showToast('👋', 'С возвращением', username + '!');
       window.Online.signedIn = true;
       currentNick = username;
+      hideLoginWall();
       renderNetwork();
     }
 
@@ -2406,6 +2696,111 @@
       currentNick = '';
       renderNetwork();
       showToast('👋', 'Вы вышли', 'Сессия завершена');
+      showLoginWall();
+    }
+
+    /* ---------- Login wall (вход при старте) ---------- */
+    function showLoginWall() {
+      var wall = document.getElementById('login-wall');
+      if (wall) {
+        wall.classList.remove('hidden');
+      }
+    }
+
+    function hideLoginWall() {
+      var wall = document.getElementById('login-wall');
+      if (wall) {
+        wall.classList.add('hidden');
+      }
+    }
+
+    function bindLoginWall() {
+      var loginBtn = document.getElementById('login-btn');
+      var regBtn = document.getElementById('register-btn');
+      var errBox = document.getElementById('login-error');
+
+      function clearErr() {
+        if (errBox) {
+          errBox.textContent = '';
+        }
+      }
+
+      function doLogin() {
+        var u = document.getElementById('login-user').value.trim();
+        var p = document.getElementById('login-pass').value;
+        if (!u || !p) {
+          if (errBox) {
+            errBox.textContent = 'Введите никнейм и пароль';
+          }
+          return;
+        }
+        var store = getAccountsStore();
+        if (!store[u] || store[u].pass !== p) {
+          if (errBox) {
+            errBox.textContent = 'Неверные данные. Проверьте ник и пароль.';
+          }
+          return;
+        }
+        clearErr();
+        setSession({ username: u, created: store[u].created });
+        window.Online.signedIn = true;
+        currentNick = u;
+        hideLoginWall();
+        showToast('👋', 'С возвращением', u + '!');
+      }
+
+      function doRegister() {
+        var u = document.getElementById('login-user').value.trim();
+        var p = document.getElementById('login-pass').value;
+        if (!u || !p) {
+          if (errBox) {
+            errBox.textContent = 'Введите никнейм и пароль';
+          }
+          return;
+        }
+        if (p.length < 4) {
+          if (errBox) {
+            errBox.textContent = 'Пароль должен быть не короче 4 символов';
+          }
+          return;
+        }
+        var store = getAccountsStore();
+        if (store[u]) {
+          if (errBox) {
+            errBox.textContent = 'Такой ник уже занят. Выберите другой.';
+          }
+          return;
+        }
+        store[u] = { pass: p, created: Date.now() };
+        saveAccountsStore(store);
+        setSession({ username: u, created: Date.now() });
+        window.Online.signedIn = true;
+        currentNick = u;
+        hideLoginWall();
+        showToast('🎉', 'Добро пожаловать', u + '!');
+      }
+
+      loginBtn.addEventListener('click', doLogin);
+      regBtn.addEventListener('click', doRegister);
+      document.getElementById('login-pass').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          doLogin();
+        }
+      });
+      document.getElementById('login-user').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          doLogin();
+        }
+      });
+    }
+
+    /* Показать login-wall, если нет активной сессии */
+    function enforceLoginGate() {
+      if (!getLocalAccount()) {
+        showLoginWall();
+      }
     }
 
     function renderOnlineList() {
@@ -3008,13 +3403,23 @@
       label.textContent = '+' + formatNumber(gain) + ' ✨';
     }
 
+    var lastShownBalance = -1;
+
     function refreshUI() {
       var balText = formatBalance(gameState.balance);
       var chip = document.getElementById('balance-chip');
       if (chip) {
         chip.textContent = balText;
       }
-      document.getElementById('hud-balance').textContent = balText;
+      var balEl = document.getElementById('hud-balance');
+      balEl.textContent = balText;
+      // Лёгкая "пульсация" при заметном приросте баланса
+      if (gameState.balance - lastShownBalance > derived.cps * 0.1) {
+        balEl.classList.remove('pop');
+        void balEl.offsetWidth;
+        balEl.classList.add('pop');
+      }
+      lastShownBalance = gameState.balance;
       document.getElementById('hud-cps').textContent = '💠 ' + formatNumber(derived.cps) + ' / сек';
       updateGoal();
       if (activePage === 'page-lab') {
@@ -3187,6 +3592,52 @@
       showToast('🗑', 'Прогресс сброшен', 'Всё началось заново');
     }
 
+    /* Полный вайп: прогресс, аккаунт, все данные. Перезагрузка к экрану входа. */
+    function wipeEverything() {
+      var confirmed = confirm('ПОЛНЫЙ СБРОС. Удалятся: прогресс, аккаунт, задания, всё.\n\nПродолжить?');
+      if (!confirmed) {
+        return;
+      }
+      // Удаляем все ключи игры
+      ['crystal-net-save-v1', 'crystal-net-session', 'crystal-net-accounts', 'crystal-net-nick'].forEach(function (k) {
+        try { localStorage.removeItem(k); } catch (e) { /* ignore */ }
+      });
+      // Сброс состояния
+      gameState = {
+        balance: 0,
+        totalEarned: 0,
+        totalClicks: 0,
+        playTime: 0,
+        upgrades: freshUpgrades(),
+        ownedSkins: ['default'],
+        activeSkin: 'default',
+        achievements: freshAchievements(),
+        chatHistory: [],
+        prestigeShards: 0,
+        prestigeCount: 0,
+        quests: {},
+        questsDayKey: getDayKey(),
+        questsWeekKey: getWeekKey()
+      };
+      window.Online.signedIn = false;
+      currentNick = '';
+      recomputeDerived();
+      applySkin();
+      refreshUI();
+      renderShop();
+      renderSkins();
+      renderStats();
+      renderAchievements();
+      renderNetwork();
+      renderPrestige();
+      renderCommunity();
+      renderQuests();
+      showToast('🗑', 'Полный вайп', 'Все данные удалены');
+      showLoginWall();
+      document.getElementById('login-user').value = '';
+      document.getElementById('login-pass').value = '';
+    }
+
     /* ----------------------------------------------------------------
        21b. ПЕРЕРОЖДЕНИЕ (ПРЕСТИЖ)
        ---------------------------------------------------------------- */
@@ -3267,6 +3718,9 @@
       recomputeDerived();
 
       bindNavigation();
+      bindQuestDrawer();
+      bindLoginWall();
+      enforceLoginGate();
       bindLogoSparkles();
       bindChat();
 
@@ -3285,6 +3739,7 @@
       }, { passive: true });
 
       document.getElementById('reset-btn').addEventListener('click', resetProgress);
+      document.getElementById('wipe-btn').addEventListener('click', wipeEverything);
       window.addEventListener('resize', onResize);
 
       setInterval(passiveTick, PASSIVE_TICK_MS);
