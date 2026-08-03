@@ -376,6 +376,7 @@ body.tutorial-lock .col-center .panel{opacity:.5}
           <button class="tab-btn" data-tab="tab-locations" data-view="locations">🪐 Локации</button>
           <button class="tab-btn" data-tab="tab-journal" data-view="journal">📚 Журнал</button>
           <button class="tab-btn" data-tab="tab-settings" data-view="settings">⚙️ Настройки</button>
+          <button class="tab-btn" data-tab="tab-online" data-view="online">🌐 Онлайн</button>
         </div>
 
         <!-- Вкладка Лаборатория -->
@@ -516,6 +517,19 @@ body.tutorial-lock .col-center .panel{opacity:.5}
             <div style="margin-top:14px;font-size:11px;color:var(--muted)">Настройки автоматически сохраняются.</div>
           </div>
         </div>
+
+        <!-- Вкладка Онлайн -->
+        <div class="tab-panel" id="tab-online">
+          <div class="panel">
+            <div class="panel-title">🌐 Онлайн-сеть</div>
+            <div class="panel-sub">Реальное подключение: счётчик игроков, чат и глобальный лидерборд.</div>
+            <div class="stat-row"><span class="k">Игроков в сети</span><span class="v" id="online-count-big">—</span></div>
+            <div class="stat-row"><span class="k">Ваш статус</span><span class="v" id="online-status">не подключён</span></div>
+            <div style="height:12px"></div>
+            <div style="font-weight:800;font-size:14px;margin-bottom:8px">🏆 Глобальный лидерборд</div>
+            <div id="leaderboard-list"></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -567,7 +581,7 @@ body.tutorial-lock .col-center .panel{opacity:.5}
 var SAVE_KEY='crystal-net-save-v5';
 var PASSIVE_TICK_MS=100;
 var SAVE_INTERVAL_MS=5000;
-var GAME_VERSION='5.5.1';
+var GAME_VERSION='5.6.0';
 
 var SVG_ICONS={
   gem:'<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20"/><path d="M12 21L8 9"/><path d="M12 21l4-12"/>',
@@ -1574,8 +1588,16 @@ function getLocalAccount(){try{return JSON.parse(localStorage.getItem('crystal-n
 function setSession(a){try{localStorage.setItem('crystal-net-session',JSON.stringify(a));}catch(e){}}
 function showLoginWall(){var w=document.getElementById('login-wall');if(w)w.classList.remove('hidden');}
 function hideLoginWall(){var w=document.getElementById('login-wall');if(w)w.classList.add('hidden');}
-function bindLoginWall(){var loginBtn=document.getElementById('login-btn'),regBtn=document.getElementById('register-btn'),anonBtn=document.getElementById('anon-btn'),errBox=document.getElementById('login-error');function err(m){if(errBox)errBox.textContent=m;}function doLogin(){var u=document.getElementById('login-user').value.trim(),p=document.getElementById('login-pass').value;if(!u||!p)return err('Введите никнейм и пароль');var store=getAccountsStore();if(!store[u]||store[u].pass!==p)return err('Неверные данные');setSession({username:u});window.Online.signedIn=true;currentNick=u;hideLoginWall();err('');}function doRegister(){var u=document.getElementById('login-user').value.trim(),p=document.getElementById('login-pass').value;if(!u||!p)return err('Введите никнейм и пароль');if(p.length<4)return err('Пароль минимум 4');var store=getAccountsStore();if(store[u])return err('Ник занят');store[u]={pass:p};saveAccountsStore(store);setSession({username:u});window.Online.signedIn=true;currentNick=u;hideLoginWall();err('');}function doAnonymous(){var name='Гость_'+Math.floor(1000+Math.random()*9000);var store=getAccountsStore();store[name]={pass:'anon',anonymous:true};saveAccountsStore(store);setSession({username:name,anonymous:true});window.Online.signedIn=true;currentNick=name;hideLoginWall();err('');}loginBtn.addEventListener('click',doLogin);regBtn.addEventListener('click',doRegister);anonBtn.addEventListener('click',doAnonymous);}
-function enforceLoginGate(){var a=getLocalAccount();if(a){window.Online.signedIn=true;currentNick=a.username;hideLoginWall();}else showLoginWall();}
+function bindLoginWall(){var loginBtn=document.getElementById('login-btn'),regBtn=document.getElementById('register-btn'),anonBtn=document.getElementById('anon-btn'),errBox=document.getElementById('login-error');function err(m){if(errBox)errBox.textContent=m;}function doLogin(){var u=document.getElementById('login-user').value.trim(),p=document.getElementById('login-pass').value;if(!u||!p)return err('Введите никнейм и пароль');var store=getAccountsStore();if(!store[u]||store[u].pass!==p)return err('Неверные данные');setSession({username:u});window.Online.signedIn=true;currentNick=u;hideLoginWall();err('');connectToOnline(u);}function doRegister(){var u=document.getElementById('login-user').value.trim(),p=document.getElementById('login-pass').value;if(!u||!p)return err('Введите никнейм и пароль');if(p.length<4)return err('Пароль минимум 4');var store=getAccountsStore();if(store[u])return err('Ник занят');store[u]={pass:p};saveAccountsStore(store);setSession({username:u});window.Online.signedIn=true;currentNick=u;hideLoginWall();err('');connectToOnline(u);}function doAnonymous(){var name='Гость_'+Math.floor(1000+Math.random()*9000);var store=getAccountsStore();store[name]={pass:'anon',anonymous:true};saveAccountsStore(store);setSession({username:name,anonymous:true});window.Online.signedIn=true;currentNick=name;hideLoginWall();err('');connectToOnline(name);}loginBtn.addEventListener('click',doLogin);regBtn.addEventListener('click',doRegister);anonBtn.addEventListener('click',doAnonymous);}
+/* Подключение локального аккаунта к онлайн-сети */
+function connectToOnline(nick){
+  if(window.Online.real&&window.Online.connectLocal){window.Online.connectLocal(nick);}
+  else{
+    var st=document.getElementById('online-status');
+    if(st)st.textContent='локально (без сети)';
+  }
+}
+function enforceLoginGate(){var a=getLocalAccount();if(a){window.Online.signedIn=true;currentNick=a.username;hideLoginWall();setTimeout(function(){connectToOnline(a.username);},800);}else showLoginWall();}
 
 /* ==== СОХРАНЕНИЕ ==== */
 function saveGame(){var data={balance:gameState.balance,totalEarned:gameState.totalEarned,totalClicks:gameState.totalClicks,playTime:gameState.playTime,upgrades:gameState.upgrades,ownedSkins:gameState.ownedSkins,activeSkin:gameState.activeSkin,achievements:gameState.achievements,chatHistory:gameState.chatHistory,resources:gameState.resources,superDrones:gameState.superDrones,darkMatter:gameState.darkMatter,dmClick:gameState.dmClick,dmCps:gameState.dmCps,openedContainers:gameState.openedContainers,bestCombo:gameState.bestCombo,level:gameState.level,xp:gameState.xp,lastDailyBonus:gameState.lastDailyBonus,totalBonuses:gameState.totalBonuses,tutorialStep:gameState.tutorialStep,tutorialCompleted:tutorialCompleted,crits:gameState.crits,totalSpent:gameState.totalSpent,prestiges:gameState.prestiges,energy:gameState.energy,locationIndex:gameState.locationIndex,lastSeen:Date.now()};try{localStorage.setItem(SAVE_KEY,JSON.stringify(data));}catch(e){}}
@@ -1687,7 +1709,7 @@ if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded'
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
     import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-    import { getDatabase, ref, onValue, set, push, onDisconnect, onChildAdded, query, orderByChild, limitToLast } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+    import { getDatabase, ref, onValue, set, push, onDisconnect, remove, onChildAdded, query, orderByChild, limitToLast } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
     'use strict';
     var config=(window.CRYSTAL_CONFIG&&typeof window.CRYSTAL_CONFIG==='object')?window.CRYSTAL_CONFIG:{};
     var fb=config.firebase||{};
@@ -1700,11 +1722,116 @@ if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded'
         var currentUid=null;
         var currentNick='';
         window.Online.real=true;
-        function refreshPresence(){if(!currentUid)return;var r=ref(db,'online/'+currentUid);set(r,{name:currentNick,lastSeen:Date.now()});onDisconnect(r).remove();}
-        function initChat(){onChildAdded(query(ref(db,'messages'),limitToLast(50)),function(snap){var m=snap.val();if(!m||!m.text)return;addChatMessage(m.name||'Гость',m.text,m.uid===currentUid);});}
-        window.Online.onSendPlayerChat=function(text){if(!currentUid)return;push(ref(db,'messages'),{name:currentNick,uid:currentUid,text:text,ts:Date.now()});};
-        window.Online.sendPlayerStats=function(stats){if(!currentUid)return;set(ref(db,'players/'+currentUid),{name:currentNick,balance:Math.floor(stats.balance||0),updatedAt:Date.now()});set(ref(db,'online/'+currentUid),{name:currentNick,lastSeen:Date.now(),balance:Math.floor(stats.balance||0)});};
-        onAuthStateChanged(auth,function(user){if(user){currentUid=user.uid;var saved='';try{saved=localStorage.getItem('crystal-net-nick')||'';}catch(e){}currentNick=user.displayName||saved||('Player_'+Math.floor(1000+Math.random()*9000));window.Online.currentNick=currentNick;refreshPresence();initChat();hideLoginWall();}else{currentUid=null;currentNick='';}});
+
+        function updateOnlineStatusUI(text,count){
+          var st=document.getElementById('online-status');
+          if(st)st.textContent=text;
+          var big=document.getElementById('online-count-big');
+          if(big&&typeof count==='number')big.textContent=count;
+          var chatOn=document.getElementById('chat-online');
+          if(chatOn&&typeof count==='number')chatOn.textContent='🟢 '+count+' в сети';
+        }
+
+        function refreshPresence(){
+          if(!currentUid)return;
+          var r=ref(db,'online/'+currentUid);
+          set(r,{name:currentNick,lastSeen:Date.now(),balance:Math.floor(gameState.balance||0)});
+          onDisconnect(r).remove();
+        }
+
+        /* Счётчик онлайна + очистка зависших */
+        function initPresence(){
+          setInterval(refreshPresence,20000);
+          onValue(ref(db,'online'),function(snap){
+            var n=snap.numChildren();
+            updateOnlineStatusUI('🟢 в сети',n);
+            /* Очистка старых записей */
+            var now=Date.now();
+            snap.forEach(function(child){
+              var v=child.val();
+              if(v&&child.key!==currentUid&&now-(v.lastSeen||0)>120000){
+                remove(ref(db,'online/'+child.key));
+              }
+            });
+          });
+        }
+
+        /* Чат */
+        function initChat(){
+          onChildAdded(query(ref(db,'messages'),limitToLast(50)),function(snap){
+            var m=snap.val();
+            if(!m||!m.text)return;
+            addChatMessage(m.name||'Гость',m.text,m.uid===currentUid);
+          });
+        }
+        window.Online.onSendPlayerChat=function(text){
+          if(!currentUid)return;
+          push(ref(db,'messages'),{name:currentNick,uid:currentUid,text:text,ts:Date.now()});
+        };
+
+        /* Лидерборд */
+        function initLeaderboard(){
+          onValue(query(ref(db,'players'),orderByChild('balance'),limitToLast(10)),function(snap){
+            var box=document.getElementById('leaderboard-list');
+            if(!box)return;
+            var rows=[];
+            snap.forEach(function(child){var v=child.val();rows.push({name:v.name||'Гость',balance:v.balance||0,uid:child.key});});
+            rows.sort(function(a,b){return b.balance-a.balance;});
+            var html='';
+            rows.forEach(function(e,i){
+              var you=e.uid===currentUid;
+              html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)'+(you?';color:var(--cyan);font-weight:800':'')+'">'+
+                '<span>'+(i+1)+'. '+e.name+(you?' (вы)':'')+'</span><span>'+formatBalance(e.balance)+'</span></div>';
+            });
+            if(rows.length===0)html='<div style="color:var(--muted);font-size:12px">Пока нет игроков в топе.</div>';
+            box.innerHTML=html;
+          });
+        }
+
+        /* Статистика в лидерборд */
+        window.Online.sendPlayerStats=function(stats){
+          if(!currentUid)return;
+          set(ref(db,'players/'+currentUid),{name:currentNick,balance:Math.floor(stats.balance||0),updatedAt:Date.now()});
+          refreshPresence();
+        };
+
+        /* Публичный вход: позволяет локальному аккаунту войти в онлайн */
+        window.Online.connectLocal=function(nick){
+          currentNick=nick;
+          window.Online.currentNick=nick;
+          /* Локальному аккаунту даём стабильный uid из ника, чтобы он мог
+             участвовать в онлайн-чате и лидерборде без OAuth. */
+          if(!currentUid){
+            currentUid='local_'+nick.toLowerCase().replace(/[^a-z0-9]/g,'');
+          }
+          refreshPresence();
+          initChat();
+          initLeaderboard();
+          hideLoginWall();
+          updateOnlineStatusUI('🟢 в сети как '+nick);
+        };
+
+        /* Синхронизация ника с локальным аккаунтом */
+        onAuthStateChanged(auth,function(user){
+          if(user){
+            currentUid=user.uid;
+            var local=null;
+            try{local=JSON.parse(localStorage.getItem('crystal-net-session')||'null');}catch(e){}
+            var saved='';
+            try{saved=localStorage.getItem('crystal-net-nick')||'';}catch(e){}
+            currentNick=user.displayName||(local&&local.username)||saved||('Player_'+Math.floor(1000+Math.random()*9000));
+            window.Online.currentNick=currentNick;
+            refreshPresence();
+            initPresence();
+            initChat();
+            initLeaderboard();
+            hideLoginWall();
+            updateOnlineStatusUI('🟢 в сети как '+currentNick);
+          }else{
+            currentUid=null;currentNick='';
+            updateOnlineStatusUI('не подключён',null);
+          }
+        });
       }catch(err){window.Online.real=false;console.error('[CRYSTAL.NET] Firebase init failed:',err);}
     }
   </script>
