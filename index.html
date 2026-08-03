@@ -1047,7 +1047,7 @@
   /* Пузырь речи 3D-продавца */
   .vendor-bubble {
     position: fixed;
-    top: 26%;
+    top: 12%;
     left: 50%;
     max-width: 300px;
     width: max-content;
@@ -1091,28 +1091,32 @@
     text-align: center;
   }
 
+  /* Трёхколоночная витрина: карточки строго по краям, центр свободен
+     для 3D-продавца. Боковые колонки фиксированной ширины. */
   .shop-layout {
     display: grid;
-    grid-template-columns: 1fr 1.15fr 1fr;
-    gap: 18px;
+    grid-template-columns: 250px 1fr 250px;
+    gap: 14px;
     flex: 1;
-    align-items: stretch;
-    max-width: 1080px;
+    align-items: start;
+    max-width: 1200px;
     width: 100%;
     margin: 0 auto;
+    padding: 0 6px;
   }
 
   .shop-col {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
     justify-content: flex-start;
     pointer-events: auto;
   }
 
-  /* Центральная "сцена" — прозрачна, чтобы был виден 3D-магазин */
+  /* Центральная "сцена" — 100% пустая от HTML, здесь 3D-продавец */
   .shop-stage {
     pointer-events: none;
+    min-width: 200px;
   }
 
   #shop-grid {
@@ -1126,11 +1130,11 @@
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
     border: 1px solid var(--glass-border);
-    border-radius: 18px;
-    padding: 18px;
+    border-radius: 16px;
+    padding: 13px 14px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     transition: transform 0.2s, box-shadow 0.2s, opacity 0.25s;
     position: relative;
     overflow: hidden;
@@ -1146,27 +1150,27 @@
   .upgrade-card .u-top { display: flex; align-items: center; gap: 12px; }
 
   .upgrade-card .u-icon {
-    font-size: 34px;
-    width: 54px;
-    height: 54px;
+    font-size: 28px;
+    width: 46px;
+    height: 46px;
     display: grid;
     place-items: center;
     background: rgba(255, 255, 255, 0.06);
-    border-radius: 14px;
+    border-radius: 12px;
   }
 
-  .upgrade-card .u-name { font-weight: 800; font-size: 16px; }
-  .upgrade-card .u-desc { color: var(--muted); font-size: 13px; }
-  .upgrade-card .u-level { color: var(--neon-3); font-size: 13px; font-weight: 700; }
-  .upgrade-card .u-cost { font-weight: 800; font-size: 17px; color: var(--gold); }
+  .upgrade-card .u-name { font-weight: 800; font-size: 14px; }
+  .upgrade-card .u-desc { color: var(--muted); font-size: 12px; }
+  .upgrade-card .u-level { color: var(--neon-3); font-size: 12px; font-weight: 700; }
+  .upgrade-card .u-cost { font-weight: 800; font-size: 15px; color: var(--gold); }
 
   .upgrade-card .buy-btn {
     margin-top: auto;
     border: none;
-    border-radius: 12px;
-    padding: 12px;
+    border-radius: 11px;
+    padding: 10px;
     font-weight: 800;
-    font-size: 15px;
+    font-size: 14px;
     font-family: inherit;
     cursor: pointer;
     background: linear-gradient(135deg, var(--neon), var(--neon-2));
@@ -1730,10 +1734,12 @@
     .lab-grid { grid-template-columns: 1fr; }
     .net-grid { grid-template-columns: 1fr; }
     #activity-ticker { bottom: 96px; }
+    /* Мобильные: 3D-продавец в верхней трети, карточки уходят вниз в скролл */
     .shop-layout { grid-template-columns: 1fr; }
-    .shop-col { gap: 12px; }
+    .shop-col { gap: 10px; }
     .shop-stage { display: none; }
     #shop-grid { flex-direction: column; }
+    #page-market .page-scroll { padding-top: 30vh; }
   }
 
   @media (max-width: 480px) {
@@ -1989,7 +1995,7 @@
     var SAVE_KEY = 'crystal-net-save-v1';
     var PASSIVE_TICK_MS = 100;
     var SAVE_INTERVAL_MS = 5000;
-    var GAME_VERSION = '1.9.0';
+    var GAME_VERSION = '2.0.0';
 
     /* ---------- Библиотека кастомных SVG-иконок ---------- */
     var SVG_ICONS = {
@@ -3001,12 +3007,30 @@
     var vendorMouth = null;
     var vendorArmR = null;
     var vendorArmL = null;
+    var vendorArmRFore = null;
+    var vendorArmLFore = null;
     var vendorHead = null;
     var vendorBody = null;
+    var vendorHat = null;
+    var vendorFace = null;
+    var vendorFaceCanvas = null;
+    var vendorFaceCtx = null;
+    var vendorFaceTexture = null;
+    var vendorSpot = null;
     var shopSignLight = null;
 
-    // Состояние анимации продавца (одобрение сделки)
-    var vendorAnim = { approve: 0 };
+    // Эмоции на лице-мониторе и состояние анимации продавца
+    var vendorEmotion = 'idle';
+    var vendorHover = false;
+    var vendorAnim = { approve: 0, poor: 0 };
+
+    // Смайлики для лицевой панели-монитора
+    var VENDOR_FACES = {
+      idle: '[ ^ _ ^ ]',
+      hover: '[ ?  ? ]',
+      buy: '[ $  $ ]',
+      poor: '[ T  T ]'
+    };
 
     // Реплики продавца (приветствие и периодические)
     var VENDOR_LINES = [
@@ -3121,69 +3145,156 @@
       vendorGroup.position.set(0, 0, 0.9);
       shopGroup.add(vendorGroup);
 
-      // Корпус
-      vendorBody = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.85, 1.6, 16), metal);
-      vendorBody.position.y = 1.15;
+      // Корпус: массивный перевёрнутый конус со срезанным верхом
+      vendorBody = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.9, 1.5, 16, 1, true), metal);
+      vendorBody.position.y = 1.2;
       vendorGroup.add(vendorBody);
 
-      // Голова
-      vendorHead = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), metal);
-      vendorHead.position.y = 2.45;
+      // Воротник-шея
+      var neck = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.26, 0.2, 12), darkMetal);
+      neck.position.y = 1.95;
+      vendorGroup.add(neck);
+
+      // Голова-монитор: чёткий куб
+      vendorHead = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.7, 0.7), metal);
+      vendorHead.position.y = 2.35;
       vendorGroup.add(vendorHead);
 
-      // Светящиеся глаза-полоски
-      var eyeMat = new THREE.MeshBasicMaterial({ color: 0x38f0ff });
-      var eyeL = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.06, 0.02), eyeMat);
-      eyeL.position.set(-0.18, 2.55, 0.41);
-      var eyeR = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.06, 0.02), eyeMat);
-      eyeR.position.set(0.18, 2.55, 0.41);
-      vendorGroup.add(eyeL);
-      vendorGroup.add(eyeR);
+      // Лицевая панель (эмоции на Canvas-текстуре)
+      vendorFaceCanvas = document.createElement('canvas');
+      vendorFaceCanvas.width = 256;
+      vendorFaceCanvas.height = 128;
+      vendorFaceCtx = vendorFaceCanvas.getContext('2d');
+      vendorFaceTexture = new THREE.CanvasTexture(vendorFaceCanvas);
+      vendorFaceTexture.minFilter = THREE.LinearFilter;
+      var faceMat = new THREE.MeshBasicMaterial({ map: vendorFaceTexture, transparent: true });
+      vendorFace = new THREE.Mesh(new THREE.PlaneGeometry(0.76, 0.6), faceMat);
+      vendorFace.position.set(0, 2.35, 0.351);
+      vendorGroup.add(vendorFace);
+      drawVendorFace('idle');
 
-      // Рот (анимируется при разговоре)
-      vendorMouth = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.05, 0.02), eyeMat);
-      vendorMouth.position.set(0, 2.32, 0.41);
-      vendorGroup.add(vendorMouth);
+      // Шляпа-цилиндр: два цилиндра разного диаметра (низкий + высокий борт)
+      vendorHat = new THREE.Group();
+      var hatBrim = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.08, 24), glowPink);
+      hatBrim.position.y = 2.72;
+      var hatTop = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.4, 0.4, 24), glowCyan);
+      hatTop.position.y = 2.96;
+      var hatBand = new THREE.Mesh(new THREE.CylinderGeometry(0.41, 0.41, 0.09, 24), glowPink);
+      hatBand.position.y = 2.76;
+      vendorHat.add(hatBrim);
+      vendorHat.add(hatTop);
+      vendorHat.add(hatBand);
+      vendorGroup.add(vendorHat);
 
-      // Антенна
-      var antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.5), darkMetal);
-      antenna.position.y = 3.05;
+      // Антенна на шляпе
+      var antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.45, 8), darkMetal);
+      antenna.position.y = 3.3;
       vendorGroup.add(antenna);
-      var antennaTip = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), eyeMat);
-      antennaTip.position.y = 3.3;
+      var antennaTip = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 8), new THREE.MeshBasicMaterial({ color: 0xff007f }));
+      antennaTip.position.y = 3.55;
       vendorGroup.add(antennaTip);
 
-      // Руки (для жестов и анимации)
+      // Руки: шарнирные сегменты из цилиндров и сфер
       var armMat = darkMetal;
-      vendorArmR = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.85, 8), armMat);
-      vendorArmR.position.set(0.95, 1.35, 0);
-      vendorArmR.rotation.z = -0.4;
+      // Правое плечо (верхний сегмент)
+      vendorArmR = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.55, 8), armMat);
+      vendorArmR.position.set(0.78, 1.5, 0);
+      vendorArmR.rotation.z = -0.5;
       vendorGroup.add(vendorArmR);
+      // Правый локоть (сфера) + предплечье
+      var elbowR = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 8), metal);
+      elbowR.position.set(1.0, 1.15, 0);
+      vendorGroup.add(elbowR);
+      vendorArmRFore = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.1, 0.5, 8), armMat);
+      vendorArmRFore.position.set(1.15, 0.95, 0);
+      vendorArmRFore.rotation.z = -0.7;
+      vendorGroup.add(vendorArmRFore);
+      var handR = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 8), glowCyan);
+      handR.position.set(1.3, 0.78, 0);
+      vendorGroup.add(handR);
 
-      vendorArmL = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.85, 8), armMat);
-      vendorArmL.position.set(-0.95, 1.35, 0);
-      vendorArmL.rotation.z = 0.4;
+      // Левое плечо
+      vendorArmL = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.55, 8), armMat);
+      vendorArmL.position.set(-0.78, 1.5, 0);
+      vendorArmL.rotation.z = 0.5;
       vendorGroup.add(vendorArmL);
+      var elbowL = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 8), metal);
+      elbowL.position.set(-1.0, 1.15, 0);
+      vendorGroup.add(elbowL);
+      vendorArmLFore = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.1, 0.5, 8), armMat);
+      vendorArmLFore.position.set(-1.15, 0.95, 0);
+      vendorArmLFore.rotation.z = 0.7;
+      vendorGroup.add(vendorArmLFore);
+      var handL = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 8), glowPink);
+      handL.position.set(-1.3, 0.78, 0);
+      vendorGroup.add(handL);
 
       vendorGroup.userData.mouth = vendorMouth;
       vendorGroup.userData.armR = vendorArmR;
       vendorGroup.userData.armL = vendorArmL;
+
+      // --- Индивидуальный мощный прожектор на продавца спереди-сверху ---
+      vendorSpot = new THREE.SpotLight(0x38f0ff, 1.6, 12, Math.PI / 6, 0.6, 1);
+      vendorSpot.position.set(0, 4.5, 3.5);
+      vendorSpot.target.position.set(0, 1.6, 0.9);
+      shopGroup.add(vendorSpot);
+      shopGroup.add(vendorSpot.target);
+      var spotHelper = new THREE.PointLight(0x8f7bff, 1.2, 8);
+      spotHelper.position.set(0, 4.2, 2.5);
+      shopGroup.add(spotHelper);
     }
 
-    /* Речь продавца: Web Speech API (озвучка) + текст по буквам в пузыре */
-    function vendorSpeak(text) {
-      if (soundEnabled && window.speechSynthesis) {
-        try {
-          window.speechSynthesis.cancel();
-          var utter = new SpeechSynthesisUtterance(text);
-          utter.lang = 'ru-RU';
-          utter.rate = 1.05;
-          utter.pitch = 1.1;
-          window.speechSynthesis.speak(utter);
-        } catch (e) { /* ignore */ }
+    /* Рисование эмоции на лицевой панели-мониторе */
+    function drawVendorFace(emotion) {
+      vendorEmotion = emotion;
+      if (!vendorFaceCtx || !vendorFaceCanvas) {
+        return;
       }
+      var ctx = vendorFaceCtx;
+      ctx.clearRect(0, 0, vendorFaceCanvas.width, vendorFaceCanvas.height);
+      var text = VENDOR_FACES[emotion] || VENDOR_FACES.idle;
+      ctx.font = '900 46px "Courier New", monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.shadowColor = (emotion === 'buy') ? '#00f0ff' : '#ff007f';
+      ctx.shadowBlur = 18;
+      ctx.fillStyle = (emotion === 'buy') ? '#00f0ff' : '#ff007f';
+      ctx.fillText(text, 128, 66);
+      ctx.shadowBlur = 0;
+      if (vendorFaceTexture) {
+        vendorFaceTexture.needsUpdate = true;
+      }
+    }
+
+    /* Ретро-писк робота: короткий "бип" со случайной девиацией частоты */
+    function robotBlip() {
+      if (!audioCtx || !soundEnabled) {
+        return;
+      }
+      try {
+        var osc = audioCtx.createOscillator();
+        var g = audioCtx.createGain();
+        osc.type = 'square';
+        var freq = 320 + Math.random() * 320;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.4, audioCtx.currentTime + 0.04);
+        g.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+        osc.connect(g);
+        g.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.06);
+      } catch (e) { /* ignore */ }
+    }
+
+    /* Речь продавца: печатная машинка по буквам + ретро-писки Web Audio.
+       Возвращает длительность озвучки, чтобы синхронизировать анимацию. */
+    function vendorSpeak(text, emotion) {
       var bubble = document.getElementById('vendor-bubble');
       var bubbleText = document.getElementById('vendor-bubble-text');
+      if (emotion) {
+        drawVendorFace(emotion);
+      }
       if (bubble && bubbleText) {
         bubble.classList.add('visible');
         bubbleText.textContent = '';
@@ -3192,25 +3303,41 @@
         bubble._t = setInterval(function () {
           i++;
           bubbleText.textContent = text.slice(0, i);
-          if (vendorMouth) {
-            vendorMouth.scale.y = 1 + Math.abs(Math.sin(i * 0.5));
-          }
+          robotBlip();
           if (i >= text.length) {
             clearInterval(bubble._t);
-            if (vendorMouth) {
-              vendorMouth.scale.y = 1;
-            }
             setTimeout(function () { bubble.classList.remove('visible'); }, 1200);
           }
-        }, 60);
+        }, 55);
       }
     }
 
-    /* Анимация одобрения сделки: кивок головы + поднятие правой руки */
+    /* Анимация одобрения сделки: смайлик [$ $], кивок + вскинутые руки */
     function vendorApprove() {
       vendorAnim.approve = 1;
+      vendorAnim.poor = 0;
+      drawVendorFace('buy');
       playSound('toast');
-      setTimeout(function () { vendorAnim.approve = 0; }, 1600);
+      setTimeout(function () {
+        vendorAnim.approve = 0;
+        if (!vendorHover) {
+          drawVendorFace('idle');
+        }
+      }, 1600);
+    }
+
+    /* Анимация отказа: смайлик [T T], разочарованное качание головы */
+    function vendorPoor() {
+      vendorAnim.poor = 1;
+      vendorAnim.approve = 0;
+      drawVendorFace('poor');
+      playSound('deny');
+      setTimeout(function () {
+        vendorAnim.poor = 0;
+        if (!vendorHover) {
+          drawVendorFace('idle');
+        }
+      }, 1500);
     }
 
     /* Реплика продавца прямо в игровой чат с плашкой [ПРОДАВЕЦ] */
@@ -3397,8 +3524,9 @@
       var isMobile = window.innerWidth < 820;
 
       // --- Позиция кристалла зависит от страницы ---
-      // На рынке кристалл отъезжает влево, чтобы не мешать 3D-лавке
-      var crystalTargetX = isMarket ? -4.6 : 0;
+      // На рынке кристалл полностью скрыт с фона (видна только 3D-лавка)
+      crystalGroup.visible = !isMarket;
+      var crystalTargetX = 0;
       var crystalTargetY = 0;
       if (!isMarket) {
         crystalTargetY = Math.sin(time * 1.2) * 0.12; // левитация на главной
@@ -3431,10 +3559,13 @@
         camTarget.set(0, 0.4, 6);
         lookTarget.set(0, 0, 0);
       } else if (isMarket) {
-        // Камера 3D-лавки; на мобильных отлетает назад по Z
-        var marketZ = isMobile ? 9.2 : 6.6;
-        camTarget.set(0, 1.7, marketZ);
-        lookTarget.set(0, 1.3, 0);
+        // Камера 3D-лавки; на мобильных отлетает назад по Z и смотрит выше,
+        // чтобы продавец оказался в верхней трети экрана, а карточки — внизу.
+        var marketZ = isMobile ? 9.0 : 6.6;
+        var marketY = isMobile ? 2.6 : 1.7;
+        var marketLookY = isMobile ? 2.2 : 1.3;
+        camTarget.set(0, marketY, marketZ);
+        lookTarget.set(0, marketLookY, 0);
       } else {
         camTarget.set(0, 1.4, 13.5);
         lookTarget.set(0, 0, 0);
@@ -3468,29 +3599,66 @@
         });
       }
 
-      // --- Анимация кибер-продавца: дыхание, покачивание рук, одобрение ---
+      // --- Анимация кибер-продавца ---
       if (vendorGroup) {
-        // Дыхание: голова и тело плавно вверх-вниз
-        var breath = Math.sin(time * 1.6) * 0.04;
-        vendorBody.position.y = 1.15 + breath;
-        vendorHead.position.y = 2.45 + breath;
-        // Покачивание рук
-        if (vendorArmR) {
-          vendorArmR.rotation.z = -0.4 + Math.sin(time * 1.1) * 0.2;
+        // "Дыхание": тело и голова плавно вверх-вниз
+        var breath = Math.sin(time * 1.6) * 0.035;
+        vendorBody.position.y = 1.2 + breath;
+        vendorHead.position.y = 2.35 + breath;
+        if (vendorHat) {
+          vendorHat.position.y = vendorHead.position.y;
         }
-        if (vendorArmL) {
-          vendorArmL.rotation.z = 0.4 + Math.sin(time * 1.1 + 1.5) * 0.2;
+
+        // Голова следует за курсором мыши (плавный lerp)
+        var headTargetX = 0;
+        var headTargetY = 0;
+        if (activePage === 'page-market') {
+          headTargetX = mouseNDC.y * 0.35;   // вертикаль
+          headTargetY = mouseNDC.x * 0.5;    // горизонталь
         }
-        // Анимация одобрения: кивок головы + поднятие правой руки
+        vendorHead.rotation.x += (headTargetX - vendorHead.rotation.x) * dt * 4;
+        vendorHead.rotation.y += (headTargetY - vendorHead.rotation.y) * dt * 4;
+        if (vendorHat) {
+          vendorHat.rotation.x = vendorHead.rotation.x;
+          vendorHat.rotation.y = vendorHead.rotation.y;
+        }
+        if (vendorFace) {
+          vendorFace.rotation.x = vendorHead.rotation.x;
+          vendorFace.rotation.y = vendorHead.rotation.y;
+        }
+
+        // Покачивание рук (покой)
+        var armRz = -0.5 + Math.sin(time * 1.1) * 0.18;
+        var armLz = 0.5 + Math.sin(time * 1.1 + 1.5) * 0.18;
+
+        // Наведение на карточку: лёгкий наклон вперёд
+        if (vendorHover && vendorAnim.approve <= 0 && vendorAnim.poor <= 0) {
+          vendorHead.rotation.x += 0.12;
+          vendorBody.rotation.x += (0.08 - vendorBody.rotation.x) * dt * 3;
+        } else {
+          vendorBody.rotation.x += (0 - vendorBody.rotation.x) * dt * 3;
+        }
+
+        // Покупка: радостно вскидывает руки + кивок головы
         if (vendorAnim.approve > 0) {
           vendorHead.rotation.x = Math.sin(vendorAnim.approve * 8) * 0.5;
-          vendorHead.position.z = 0.1;
-          if (vendorArmR) {
-            vendorArmR.rotation.z = -1.6 + Math.sin(vendorAnim.approve * 10) * 0.2;
+          armRz = -1.7 + Math.sin(vendorAnim.approve * 12) * 0.3;
+          armLz = 1.7 + Math.sin(vendorAnim.approve * 12 + 1) * 0.3;
+        }
+
+        // Нехватка средств: разочарованно качает головой
+        if (vendorAnim.poor > 0) {
+          vendorHead.rotation.y = Math.sin(vendorAnim.poor * 9) * 0.6;
+          if (vendorHat) {
+            vendorHat.rotation.y = vendorHead.rotation.y;
           }
-        } else {
-          vendorHead.rotation.x = 0;
-          vendorHead.position.z = 0;
+        }
+
+        if (vendorArmR) {
+          vendorArmR.rotation.z = armRz;
+        }
+        if (vendorArmL) {
+          vendorArmL.rotation.z = armLz;
         }
       }
 
@@ -3801,6 +3969,16 @@
         return;
       }
       var versions = [
+        { tag: '2.0.0', date: '2026-08-03', title: 'Харизматичный робот-продавец',
+          items: [
+            'Исправлено наложение: карточки товаров жёстко разнесены в две колонки по краям, центр экрана полностью свободен для 3D-сцены.',
+            'Пересобран узнаваемый low-poly робот-продавец: конусный корпус, голова-монитор, шарнирные руки, шляпа-цилиндр.',
+            'Динамические эмоции на лице-экране: [ ^ _ ^ ] (покой), [ ? ? ] (интерес), [ $ $ ] (покупка), [ T T ] (нет денег).',
+            'Голова робота плавно следует за курсором мыши (lerp), при наведении на карточку наклоняется вперёд.',
+            'Ретро-голос: печатная машинка по буквам + Web Audio «бипы» со случайной тональностью (без аудиофайлов).',
+            'Мощный SpotLight спереди-сверху подчёркивает грани робота, камера рынка центрируется на нём.',
+            'Мобильная адаптация: робот в верхней трети, карточки уходят вниз в скролл.'
+          ] },
         { tag: '1.9.0', date: '2026-08-03', title: 'Полноценная 3D-лавка',
           items: [
             'Полностью переписан «Рынок»: теперь это интерактивная 3D-лавка на Three.js.',
@@ -4582,10 +4760,12 @@
       if (pageId === 'page-market') {
         renderShop();
         startZoneMusic('market');
-        // Продавец приветствует при входе
+        // Продавец приветствует при входе (смайлик [? ?], печатная машинка)
         setTimeout(function () {
           if (activePage === 'page-market') {
+            drawVendorFace('hover');
             vendorSpeak('Добро пожаловать на рынок!');
+            setTimeout(function () { drawVendorFace('idle'); }, 2200);
           }
         }, 600);
       } else if (pageId === 'page-net') {
@@ -4661,6 +4841,19 @@
         card.querySelector('.buy-btn').addEventListener('click', function () {
           purchaseUpgrade(def.id);
         });
+        // При наведении на карточку продавец проявляет интерес
+        card.addEventListener('mouseenter', function () {
+          vendorHover = true;
+          if (vendorAnim.approve <= 0 && vendorAnim.poor <= 0) {
+            drawVendorFace('hover');
+          }
+        });
+        card.addEventListener('mouseleave', function () {
+          vendorHover = false;
+          if (vendorAnim.approve <= 0 && vendorAnim.poor <= 0) {
+            drawVendorFace('idle');
+          }
+        });
         if (idx < mid) {
           left.appendChild(card);
         } else {
@@ -4676,10 +4869,11 @@
       }
       var cost = getUpgradeCost(def);
       if (gameState.balance < cost) {
-        // Не хватает кристаллов: продавец шутит и пишет в чат
-        playSound('deny');
-        vendorSpeak(randomItem(VENDOR_POOR_LINES));
-        vendorChat(randomItem(VENDOR_POOR_LINES));
+        // Не хватает кристаллов: продавец разочарован и шутит в чат
+        var poorLine = randomItem(VENDOR_POOR_LINES);
+        vendorPoor();
+        vendorSpeak(poorLine, 'poor');
+        vendorChat(poorLine);
         showToast('⛔', 'Недостаточно кристаллов', 'Нужно ' + formatNumber(cost) + ' 💎');
         return;
       }
@@ -4690,11 +4884,11 @@
       renderShop();
       checkAchievements();
       playSound('buy');
-      // Анимация одобрения продавца
+      // Анимация одобрения продавца (смайлик [$ $] + вскинутые руки)
       vendorApprove();
-      // Реплика одобрения (озвучка + пузырь + в чат с плашкой [ПРОДАВЕЦ])
+      // Реплика одобрения "Отличная сделка!" + ретро-голос + в чат [ПРОДАВЕЦ]
       var approveLine = randomItem(VENDOR_APPROVE_LINES);
-      vendorSpeak(approveLine + ' ' + def.name + ' теперь твой!');
+      vendorSpeak('Отличная сделка! ' + def.name + ' теперь твой!', 'buy');
       vendorChat(approveLine + ' ' + def.name + ' теперь твой!');
       showToast(def.icon, 'Куплено: ' + def.name, 'Уровень ' + gameState.upgrades[id].level);
     }
@@ -5157,6 +5351,14 @@
 
       renderer.domElement.addEventListener('pointerdown', onPointerDown);
       renderer.domElement.addEventListener('pointerup', onPointerUp);
+      // Отслеживание мыши для поворота головы продавца
+      renderer.domElement.addEventListener('pointermove', updateMouse);
+      renderer.domElement.addEventListener('touchmove', function (e) {
+        if (e.touches.length > 0) {
+          var t = { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY, touches: e.touches };
+          updateMouse(t);
+        }
+      }, { passive: true });
       renderer.domElement.addEventListener('touchstart', function (e) {
         if (e.touches.length > 0) {
           isDown = true;
