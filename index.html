@@ -567,7 +567,7 @@ body.tutorial-lock .col-center .panel{opacity:.5}
 var SAVE_KEY='crystal-net-save-v5';
 var PASSIVE_TICK_MS=100;
 var SAVE_INTERVAL_MS=5000;
-var GAME_VERSION='5.5.0';
+var GAME_VERSION='5.5.1';
 
 var SVG_ICONS={
   gem:'<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20"/><path d="M12 21L8 9"/><path d="M12 21l4-12"/>',
@@ -839,10 +839,15 @@ function startIntroCutscene(){
   var timer=setInterval(function(){
     i++;
     textEl.textContent=text.slice(0,i);
-    if(i>=text.length){clearInterval(timer);/* после текста запускаем туториал */setTimeout(endIntroCutscene,2200);}
+    if(i>=text.length){clearInterval(timer);}
   },35);
-  /* Параллельно — озвучка лора */
-  playAssistantFile('intro');
+  /* Параллельно — озвучка лора; экран держим до конца аудио */
+  var audio=playAssistantFile('intro');
+  var holdMs=10000; /* запас, если аудио отсутствует */
+  if(audio&&typeof audio.duration==='number'&&isFinite(audio.duration)&&audio.duration>0){
+    holdMs=audio.duration/1.25*1000+1000;
+  }
+  setTimeout(endIntroCutscene,holdMs);
 }
 function endIntroCutscene(){
   var screen=document.getElementById('intro-screen');
@@ -858,14 +863,33 @@ function endIntroCutscene(){
 /* Воспроизведение конкретного файла ассистента без баббла (для лора) */
 function playAssistantFile(key){
   var entry=ASSISTANT_PLAYLIST[key];
-  if(!entry)return;
+  if(!entry)return null;
   if(assistantAudio){try{assistantAudio.pause();assistantAudio.currentTime=0;}catch(e){}}
   assistantAudio=new Audio(entry.file);
   assistantAudio.volume=voiceVolume;
   assistantAudio.playbackRate=1.25;
   if(soundEnabled&&voiceEnabled){assistantAudio.play().catch(function(){});}
+  return assistantAudio;
 }
-/* Полный вызов реплики: баббл + текст + звук */
+/* Полный вызов реплики: баббл + текст + звук.
+   Баббл держится, пока играет аудио (событие ended), с запасом 1 сек. */
+var assistantHideTimer=null;
+function scheduleBubbleHide(bubble,audio){
+  if(assistantHideTimer){clearTimeout(assistantHideTimer);assistantHideTimer=null;}
+  var minMs=4000;
+  var done=function(){
+    if(assistantHideTimer){clearTimeout(assistantHideTimer);assistantHideTimer=null;}
+    if(bubble)bubble.classList.remove('visible');
+  };
+  if(audio&&typeof audio.duration==='number'&&isFinite(audio.duration)&&audio.duration>0){
+    /* Учитываем скорость воспроизведения 1.25 */
+    var ms=audio.duration/1.25*1000+1000;
+    assistantHideTimer=setTimeout(done,Math.max(minMs,ms));
+  }else{
+    /* Если аудио нет — держим по минимуму текста */
+    assistantHideTimer=setTimeout(done,minMs);
+  }
+}
 function assistantSpeak(key){
   var entry=ASSISTANT_PLAYLIST[key];
   if(!entry)return;
@@ -883,11 +907,13 @@ function assistantSpeak(key){
     var body=bubble.querySelector('.ad-body');
     var i=0;
     if(assistantBubbleTimer)clearInterval(assistantBubbleTimer);
+    /* Печатаем текст, но баббл скрываем по длительности аудио */
     assistantBubbleTimer=setInterval(function(){
       i++;
       body.textContent=entry.text.slice(0,i);
-      if(i>=entry.text.length){clearInterval(assistantBubbleTimer);setTimeout(function(){bubble.classList.remove('visible');},3500);}
+      if(i>=entry.text.length){clearInterval(assistantBubbleTimer);}
     },25);
+    scheduleBubbleHide(bubble,assistantAudio);
   }
 }
 
@@ -1197,18 +1223,43 @@ function animateMerchant(){
   mScene.children.forEach(function(ch){if(ch.userData&&ch.userData.spin!==undefined){ch.userData.spin+=dt*1.5;ch.rotation.y=ch.userData.spin;}});
   mRenderer.render(mScene,mCamera);
 }
-function vendorSpeak(text,emotion){var b=document.getElementById('vendor-bubble');var t=document.getElementById('vendor-bubble-text');if(emotion)drawMerchantFace(emotion);if(b&&t){b.classList.add('visible');t.textContent='';var i=0;clearInterval(b._t);b._t=setInterval(function(){i++;t.textContent=text.slice(0,i);robotBlip();if(i>=text.length){clearInterval(b._t);setTimeout(function(){b.classList.remove('visible');},1500);}},55);}}
+var merchantHideTimer=null;
+function vendorSpeak(text,emotion){
+  var b=document.getElementById('vendor-bubble');
+  var t=document.getElementById('vendor-bubble-text');
+  if(emotion)drawMerchantFace(emotion);
+  if(b&&t){
+    b.classList.add('visible');
+    t.textContent='';
+    var i=0;
+    clearInterval(b._t);
+    b._t=setInterval(function(){
+      i++;
+      t.textContent=text.slice(0,i);
+      robotBlip();
+      if(i>=text.length){clearInterval(b._t);}
+    },55);
+  }
+  /* Баббл держим до конца озвучки продавца (если она есть) */
+  if(merchantHideTimer){clearTimeout(merchantHideTimer);merchantHideTimer=null;}
+  var holdMs=3000;
+  if(merchantAudio&&typeof merchantAudio.duration==='number'&&isFinite(merchantAudio.duration)&&merchantAudio.duration>0){
+    holdMs=merchantAudio.duration/1.1*1000+800;
+  }
+  merchantHideTimer=setTimeout(function(){if(b)b.classList.remove('visible');},holdMs);
+}
 var merchantIdleTimer=null;
 function resetMerchantIdle(){if(merchantIdleTimer)clearTimeout(merchantIdleTimer);merchantIdleTimer=setTimeout(function(){if(activeView==='market')speak('idle');},30000);}
 var merchantAudio=null;
 function playMerchantVoice(type){
   var entry=MERCHANT_PHRASES[type];
-  if(!entry)return;
+  if(!entry)return null;
   if(merchantAudio){try{merchantAudio.pause();merchantAudio.currentTime=0;}catch(e){}}
   merchantAudio=new Audio(entry.file);
   merchantAudio.volume=0.8;
   merchantAudio.playbackRate=1.1;
   if(soundEnabled&&voiceEnabled){merchantAudio.play().catch(function(){});}
+  return merchantAudio;
 }
 function speak(type){
   var lines=merchantPhrases[type];
