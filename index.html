@@ -79,6 +79,11 @@ body.market-open .col-right{display:block}
 @keyframes shimmer{0%{background-position:0% 0}100%{background-position:300% 0}}
 .hud-cps{font-size:14px;color:var(--cyan);font-weight:700;margin-top:4px}
 .balance-chip{position:fixed;top:10px;right:10px;z-index:25;padding:6px 12px;border-radius:20px;background:linear-gradient(135deg,rgba(143,123,255,.25),rgba(255,106,213,.2));backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1px solid var(--gb);font-family:'Orbitron',monospace;font-weight:900;font-size:14px;color:#fff}
+/* Не перекрывать кнопку ✕ рынка: при открытом рынке уводим чип влево */
+body.market-open .balance-chip{right:78px}
+/* Верхняя HUD-панель энергии */
+.energy-hud{position:fixed;top:52px;right:10px;z-index:25;display:flex;align-items:center;gap:6px;padding:5px 11px;border-radius:18px;background:linear-gradient(135deg,rgba(0,240,255,.18),rgba(0,255,136,.12));backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(0,240,255,.35);font-family:'Orbitron',monospace;font-weight:800;font-size:12px;color:var(--cyan)}
+body.market-open .energy-hud{right:78px}
 
 /* Комбо снизу */
 .combo-box{position:absolute;bottom:14px;left:200px;right:14px;z-index:22;pointer-events:none}
@@ -216,7 +221,9 @@ body.market-open .col-right{display:block}
 .chat-widget-btn{position:fixed;right:14px;bottom:14px;z-index:110;width:48px;height:48px;border-radius:50%;border:1px solid var(--gb);background:var(--glass);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);color:var(--cyan);cursor:pointer;display:grid;place-items:center;box-shadow:0 8px 30px rgba(0,0,0,.5)}
 .chat-drawer{position:fixed;right:14px;bottom:70px;z-index:110;width:min(320px,92vw);height:min(46vh,400px);display:none;flex-direction:column;background:rgba(20,15,40,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--gb);border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.6)}
 .chat-drawer.show{display:flex}
-.cd-head{padding:10px 14px;font-weight:900;border-bottom:1px solid var(--gb);display:flex;justify-content:space-between}
+.cd-head{padding:10px 14px;font-weight:900;border-bottom:1px solid var(--gb);display:flex;justify-content:space-between;align-items:center}
+.chat-close{border:none;background:rgba(255,255,255,.08);color:var(--muted);width:24px;height:24px;border-radius:6px;cursor:pointer;font-weight:900;font-family:inherit;line-height:1}
+.chat-close:hover{color:var(--bad);background:rgba(255,90,90,.15)}
 .chat-log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:7px;padding:10px}
 .chat-msg{background:rgba(255,255,255,.05);border-radius:10px;padding:6px 10px;font-size:12px}
 .chat-msg.you{background:linear-gradient(135deg,rgba(0,240,255,.12),rgba(255,0,127,.12));align-self:flex-end}
@@ -334,6 +341,7 @@ body.tutorial-lock .col-center .panel{opacity:.5}
   <div id="fx-layer"></div>
   <div id="toast-container"></div>
   <div class="balance-chip" id="balance-chip">0 💎</div>
+  <div class="energy-hud" id="energy-hud" style="display:none">⚡ 0</div>
 
   <!-- 3-КОЛОНОЧНЫЙ КАРКАС -->
   <div id="app">
@@ -375,10 +383,12 @@ body.tutorial-lock .col-center .panel{opacity:.5}
           <button class="tab-btn" data-tab="tab-containers" data-view="containers">Контейнеры</button>
           <button class="tab-btn" data-tab="tab-versions" data-view="versions">Версии</button>
           <button class="tab-btn" data-tab="tab-restart" data-view="restart">Рестарт</button>
-          <button class="tab-btn" data-tab="tab-locations" data-view="locations">🪐 Локации</button>
-          <button class="tab-btn" data-tab="tab-journal" data-view="journal">📚 Журнал</button>
-          <button class="tab-btn" data-tab="tab-settings" data-view="settings">⚙️ Настройки</button>
-          <button class="tab-btn" data-tab="tab-online" data-view="online">🌐 Онлайн</button>
+          <button class="tab-btn" data-tab="tab-locations" data-view="locations"><svg class="svg-ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> Локации</button>
+          <button class="tab-btn" data-tab="tab-journal" data-view="journal"><svg class="svg-ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h6"/></svg> Журнал</button>
+          <button class="tab-btn" data-tab="tab-inventory" data-view="inventory"><svg class="svg-ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12l2 7a4 4 0 0 1-4 4 2 2 0 0 1-4 0 2 2 0 0 1-4 0 4 4 0 0 1-4-4z"/><path d="M6 2L4 22h16L18 2"/><path d="M9 8h6"/></svg> Инвентарь</button>
+          <button class="tab-btn" data-tab="tab-trades" data-view="trades"><svg class="svg-ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg> Трейды</button>
+          <button class="tab-btn" data-tab="tab-settings" data-view="settings"><svg class="svg-ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Настройки</button>
+          <button class="tab-btn" data-tab="tab-online" data-view="online"><svg class="svg-ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 21v-2a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v2"/><path d="M17 8a3 3 0 0 1 0 6"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg> Онлайн</button>
         </div>
 
         <!-- Вкладка Лаборатория -->
@@ -467,6 +477,50 @@ body.tutorial-lock .col-center .panel{opacity:.5}
             <div class="panel-title">📚 Журнал обучения механикам</div>
             <div class="panel-sub">Краткий путеводитель по всем системам игры.</div>
             <div id="journal-box"></div>
+          </div>
+        </div>
+
+        <!-- Вкладка Инвентарь -->
+        <div class="tab-panel" id="tab-inventory">
+          <div class="panel">
+            <div class="panel-title">🎒 Инвентарь</div>
+            <div class="panel-sub">Все твои ресурсы, дроны и коллекция — в одном месте.</div>
+            <div style="font-weight:800;margin:6px 0">Валюта</div>
+            <div class="resource-grid">
+              <div class="resource"><div class="r-ico">💎</div><div class="r-name">Кристаллы</div><div class="r-count" id="inv-crystal">0</div></div>
+              <div class="resource"><div class="r-ico">⚡</div><div class="r-name">Энергия</div><div class="r-count" id="inv-energy">0</div></div>
+              <div class="resource"><div class="r-ico">🌑</div><div class="r-name">Тёмная Материя</div><div class="r-count" id="inv-dm">0</div></div>
+            </div>
+            <div style="font-weight:800;margin:10px 0 6px">Ресурсы крафта</div>
+            <div class="resource-grid">
+              <div class="resource"><div class="r-ico">⚙️</div><div class="r-name">Сплав</div><div class="r-count" id="inv-alloy">0</div></div>
+              <div class="resource"><div class="r-ico">💾</div><div class="r-name">Микросхемы</div><div class="r-count" id="inv-chip">0</div></div>
+              <div class="resource"><div class="r-ico">⚡</div><div class="r-name">Энерго-ядро</div><div class="r-count" id="inv-core">0</div></div>
+            </div>
+            <div style="font-weight:800;margin:10px 0 6px">Улучшения</div>
+            <div id="inv-upgrades"></div>
+            <div style="font-weight:800;margin:10px 0 6px">Супер-Дроны</div>
+            <div style="font-size:13px" id="inv-drones">0 шт · +50 CPS каждый</div>
+            <div style="font-weight:800;margin:10px 0 6px">Коллекция кристаллов</div>
+            <div id="inv-skins"></div>
+          </div>
+        </div>
+
+        <!-- Вкладка Трейды -->
+        <div class="tab-panel" id="tab-trades">
+          <div class="panel">
+            <div class="panel-title">⇄ Трейды и биржа</div>
+            <div class="panel-sub">Обменивай ресурсы и валюту между собой. Энергию можно купить за кристаллы!</div>
+            <div id="trade-list"></div>
+          </div>
+          <div class="panel" style="margin-top:10px">
+            <div class="panel-title">🌐 Глобальный торговый пост</div>
+            <div class="panel-sub">Размести предложение обмена для других игроков сети.</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;font-size:12px">
+              <input id="trade-post-title" placeholder="Что предлагаете?" maxlength="60" style="flex:1;min-width:120px;padding:8px 10px;border-radius:8px;border:1px solid var(--gb);background:rgba(255,255,255,.06);color:var(--text);font-family:inherit">
+              <button class="craft-btn" id="trade-post-btn">Разместить</button>
+            </div>
+            <div id="trade-board"></div>
           </div>
         </div>
 
@@ -575,10 +629,10 @@ body.tutorial-lock .col-center .panel{opacity:.5}
   </div>
 
   <!-- Чат -->
-  <button class="chat-widget-btn" id="market-open-btn">🛒</button>
+  <button class="chat-widget-btn" id="market-open-btn"><svg class="svg-ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></button>
   <button class="chat-widget-btn" id="chat-widget-btn"></button>
   <div class="chat-drawer" id="chat-drawer">
-    <div class="cd-head"><span>Глобальный чат</span><span id="chat-online">—</span></div>
+    <div class="cd-head"><span>Глобальный чат</span><span style="display:flex;align-items:center;gap:8px"><span id="chat-online">—</span><button class="chat-close" id="chat-close">✕</button></span></div>
     <div class="chat-log" id="chat-log"></div>
     <div class="chat-input-row"><input id="chat-input" placeholder="Сообщение..." maxlength="120" autocomplete="off"><button id="chat-send">➤</button></div>
   </div>
@@ -590,7 +644,7 @@ body.tutorial-lock .col-center .panel{opacity:.5}
 var SAVE_KEY='crystal-net-save-v5';
 var PASSIVE_TICK_MS=100;
 var SAVE_INTERVAL_MS=5000;
-var GAME_VERSION='5.6.1';
+var GAME_VERSION='5.7.0';
 
 var SVG_ICONS={
   gem:'<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20"/><path d="M12 21L8 9"/><path d="M12 21l4-12"/>',
@@ -613,7 +667,15 @@ var SVG_ICONS={
   trophy:'<circle cx="12" cy="8" r="6"/><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12"/>',
   music:'<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
   mute:'<path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M23 9l-6 6"/><path d="M17 9l6 6"/>',
-  net:'<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>'
+  net:'<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>',
+  bolt:'<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>',
+  bag:'<path d="M6 2h12l2 7a4 4 0 0 1-4 4 2 2 0 0 1-4 0 2 2 0 0 1-4 0 4 4 0 0 1-4-4z"/><path d="M6 2L4 22h16L18 2"/><path d="M9 8h6"/>',
+  swap:'<path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/>',
+  users:'<circle cx="9" cy="8" r="4"/><path d="M2 21v-2a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v2"/><path d="M17 8a3 3 0 0 1 0 6"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/>',
+  globe:'<circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10z"/>',
+  gift:'<path d="M20 12v10H4V12"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>',
+  shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+  boxopen:'<path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/>'
 };
 function svgIcon(name,size){var s=size||22;var p=SVG_ICONS[name]||SVG_ICONS.gem;return '<svg class="svg-ic" width="'+s+'" height="'+s+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';}
 
@@ -670,7 +732,7 @@ var gameState={
   openedContainers:0,bestCombo:0,level:1,xp:0,lastDailyBonus:'',totalBonuses:0,tutorialStep:0,
   crits:0,totalSpent:0,prestiges:0,energy:0,locationIndex:0
 };
-var derived={clickPower:1,skinMult:1,levelMult:1,hyperMult:1,cps:0,locationMult:1};
+var derived={clickPower:1,skinMult:1,levelMult:1,hyperMult:1,cps:0,locationMult:1,energyPerSec:1};
 
 /* Локации: планеты, открываемые за Энергию. Каждая даёт множитель дохода. */
 var LOCATIONS=[
@@ -682,11 +744,38 @@ var LOCATIONS=[
   {id:'blackhole',name:'Чёрная Дыра',icon:'⚫',desc:'Финальный рубеж, где рождается Тёмная Материя.',cost:1000000,mult:10,energyReward:2500}
 ];
 var comboState={count:0,mult:1,timer:null};
+/* ==== Анти-автокликер: детекция неестественно частых/равномерных кликов ==== */
+var acTimes=[];            /* кольцо последних временных меток кликов */
+var acLockUntil=0;         /* время блокировки кристалла */
+var acWarned=false;
+function isAutoclickerBlocked(){return Date.now()<acLockUntil;}
+function antiAutoclickerTick(){
+  var now=Date.now();
+  acTimes.push(now);
+  if(acTimes.length>40)acTimes.shift();
+  if(now<acLockUntil)return true;               /* уже в блокировке */
+  if(acTimes.length>=12){
+    var recent=acTimes.slice(-12);
+    var span=recent[recent.length-1]-recent[0];
+    if(span<=900){                               /* 12 кликов меньше чем за 0.9 сек — это не человек */
+      acLockUntil=now+3000;                      /* стоп на 3 сек */
+      acTimes.length=0;
+      acWarned=true;
+      showToast(svgIcon('shield',24),'Обнаружен авто-кликер!','Подозрительно быстрые клики. Кристалл заморожен на 3 сек.');
+      return true;
+    }
+  }
+  return false;
+}
+function antiAutoclickerFreezeBanner(){
+  var b=document.getElementById('ad-bubble');
+  if(b&&acWarned){b.classList.add('visible');b.innerHTML='<div class="ad-head">[ ИИ АРГУС ]</div><div class="ad-body">Стоп, оператор! Слишком частые клики — так точно не пойдёт. Кристалл охлаждается 3 секунды.</div>';setTimeout(function(){b.classList.remove('visible');},3000);acWarned=false;}
+}
 var activeView='crystal';
 var currentNick='';
 var hyperdriveActive=false;
 var hyperdriveTimer=null;
-window.Online={real:false,signedIn:false,onSendPlayerChat:null,sendPlayerStats:null};
+window.Online={real:false,signedIn:false,onSendPlayerChat:null,sendPlayerStats:null,connectLocal:null,onPostTrade:null,tradeReady:false,currentNick:''};
 
 function formatNumber(n){if(!isFinite(n))return '∞';n=Math.floor(n);if(n<1000)return String(n);var s=['','K','M','B','T','Qa','Qi'];var t=Math.floor(Math.log10(n)/3);if(t>=s.length)t=s.length-1;var sc=n/Math.pow(10,t*3);return sc.toFixed(sc>=100?0:sc>=10?1:2)+s[t];}
 function formatBalance(n){return formatNumber(n)+' 💎';}
@@ -711,6 +800,9 @@ function recomputeDerived(){
   derived.locationMult=loc?loc.mult:1;
   derived.clickPower=clickBase*skin.mult*derived.levelMult*dmClickMult*derived.hyperMult*derived.locationMult;
   derived.cps=cpsBase*skin.mult*derived.levelMult*dmCpsMult*derived.hyperMult*derived.locationMult;
+  /* Генерация Энергии: базовая + растёт от дохода и Супер-Дронов.
+     Энергия нужна для открытия планет — она добывается сама, не за кристаллы. */
+  derived.energyPerSec=1+Math.floor(derived.cps/40)+gameState.superDrones;
 }
 function getComboMult(){return 1+comboState.count*0.01;}
 
@@ -1117,6 +1209,8 @@ function onPointerUp(e){
   updateMouse(e);
   /* Жёсткая блокировка: кристалл кликается только на ШАГЕ 1 (step 0) и в свободном режиме */
   if(tutorialLocked&&gameState.tutorialStep!==0)return;
+  /* Анти-автокликер: при детекции замораживаем кристалл на время блокировки */
+  if(antiAutoclickerTick()){antiAutoclickerFreezeBanner();return;}
   raycaster.setFromCamera(mouseNDC,camera);
   var hits=raycaster.intersectObject(crystalMesh);
   if(hits.length===0)return;
@@ -1376,6 +1470,8 @@ function setView(view){
   if(view==='versions')renderChangelog();
   if(view==='locations')renderLocations();
   if(view==='journal')renderJournal();
+  if(view==='inventory')renderInventory();
+  if(view==='trades'){renderTrades();renderTradeBoard();}
 }
 function openMarket(){
   /* Колонка становится видимой — пересчитываем размер сцены робота */
@@ -1522,8 +1618,8 @@ function renderLocations(){
     }else{
       var btn=document.createElement('button');
       btn.className='dm-btn';btn.textContent='Открыть (⚡'+formatNumber(cost)+')';
-      btn.disabled=!affordable;
-      if(affordable){btn.addEventListener('click',function(){unlockLocation(idx);});}
+      btn.style.opacity=affordable?'1':'0.6';
+      btn.addEventListener('click',function(){unlockLocation(idx);});
       div.appendChild(btn);
     }
     box.appendChild(div);
@@ -1533,7 +1629,7 @@ function unlockLocation(idx){
   var loc=LOCATIONS[idx];
   if(!loc)return;
   if(idx>gameState.locationIndex+1){showToast(svgIcon('zap',24),'Сначала','Откройте предыдущие локации');return;}
-  if(gameState.energy<loc.cost){showToast(svgIcon('zap',24),'Нет Энергии','Нужно ⚡'+formatNumber(loc.cost));return;}
+  if(gameState.energy<loc.cost){showToast(svgIcon('zap',24),'Не хватает Энергии','Нужно ⚡'+formatNumber(loc.cost)+', у вас ⚡'+formatNumber(Math.floor(gameState.energy))+'. Энергия капает сама: +'+formatNumber(derived.energyPerSec)+' ⚡/сек.');playTone(300,0.2,'sawtooth',sfxVolume);return;}
   gameState.energy-=loc.cost;
   gameState.locationIndex=idx;
   gameState.energy+=loc.energyReward;
@@ -1544,7 +1640,7 @@ function unlockLocation(idx){
 
 /* ==== ПРЕСТИЖ ==== */
 function performPrestige(){
-  if(gameState.balance<10000000){showToast(svgIcon('zap',24),'Мало','Нужно 10 000 000 💎');return;}
+  if(gameState.balance<10000000){showToast(svgIcon('zap',24),'Не хватает 💎','Перерождение стоит 10 000 000 💎. Сейчас: '+formatNumber(gameState.balance)+' 💎');playTone(300,0.2,'sawtooth',sfxVolume);return;}
   if(!confirm('Переродиться?\nСбросить баланс и апгрейды за 1 Тёмную Материю?'))return;
   gameState.darkMatter++;gameState.prestiges++;
   gameState.balance=0;gameState.totalEarned=0;gameState.totalClicks=0;
@@ -1559,7 +1655,10 @@ function renderPrestige(){
   document.getElementById('dm-count').textContent=gameState.darkMatter;
   document.getElementById('dm-click-lvl').textContent=gameState.dmClick;
   document.getElementById('dm-cps-lvl').textContent=gameState.dmCps;
-  document.getElementById('prestige-btn').disabled=gameState.balance<10000000;
+  /* Не блокируем кнопку через disabled: даём клик, чтобы показать ошибку в performPrestige */
+  var pb=document.getElementById('prestige-btn');
+  pb.disabled=false;
+  pb.style.opacity=gameState.balance<10000000?'0.65':'1';
   var d1=document.getElementById('dm-click-btn'),d2=document.getElementById('dm-cps-btn');
   var poor=gameState.darkMatter<1;
   if(d1){d1.textContent=poor?'Купить · 1 ТМ (не хватает)':'Купить · 1 ТМ';d1.style.opacity=poor?'0.6':'1';}
@@ -1582,7 +1681,8 @@ function renderJournal(){
     {icon:'🛒',title:'Рынок (авто-майнеры)',items:['6 авто-кликеров увеличивают силу клика или CPS.','Цена растёт экспоненциально: Цена = База × 1.15^уровень.','Каждый купленный дрон/бур/фабрика летает спутником вокруг кристалла.']},
     {icon:'📦',title:'Контейнеры',items:['Лутбоксы за 5 000 💎.','Выпадает скин для кристалла (от Обычного до Секретного 1%).','Скины меняют цвет/материал 3D-модели и множитель дохода.']},
     {icon:'🛠️',title:'Лаборатория (крафт)',items:['При кликах (5% шанс) выпадают Сплав, Микросхемы, Энерго-ядра.','Собирай Супер-Дронов — они дают +50 CPS каждый.']},
-    {icon:'⚡',title:'Энергия',items:['Энергия — особая валюта для открытия новых локаций.','Как добыть: за открой планеты начисляется Энергия.','Марс +50 · Венера +150 · Юпитер +400 · Нептун +1000 · Чёрная Дыра +2500.','Энергия тратится на открытие следующей планеты, а её множитель растёт.']},
+    {icon:'⚡',title:'Энергия',items:['Энергия — особая валюта для открытия новых локаций.','Добывается сама: базовая генерация +1 ⚡/сек плюс растёт от дохода и Супер-Дронов.','Скорость видно при попытке открыть планету: например «+3 ⚡/сек».','Энергию также можно купить за кристаллы во вкладке Трейды.','Тратится на открытие планеты, а её множитель растёт.']},
+    {icon:'⇄',title:'Трейды и биржа',items:['Во вкладке Трейды обменивай ресурсы и валюту: кристаллы ↔ энергия, ресурсы ↔ кристаллы.','«Купить Энергию»: 5 000 💎 → 50 ⚡ — быстрый способ начать осваивать планеты.','В онлайн-сети работает глобальный торговый пост — публикуй предложения для других игроков.']},
     {icon:'🪐',title:'Локации',items:['6 планет: от Земли до Чёрной Дыры.','Открывай планеты за Энергию — каждая даёт постоянный множитель дохода.','Цена растёт: Марс 100⚡, Венера 1 000⚡, Юпитер 10 000⚡, Нептун 100 000⚡, Чёрная Дыра 1 000 000⚡.','Доход x1 → x1.5 → x2.5 → x4 → x6.5 → x10.']},
     {icon:'🔄',title:'Рестарт (престиж)',items:['При 10 000 000 💎 можно переродиться за 1 Тёмную Материю.','Тёмная Материя покупает вечные множители клика/CPS.']},
     {icon:'🌀',title:'Аномалии и Гипер-Драйв',items:['Раз в 2-3 минуты появляется бирюзовая аномалия.','Кликни по ней — Гипер-Драйв даст x5 к доходу на 15 секунд.']},
@@ -1596,6 +1696,99 @@ function renderJournal(){
     html+='</ul></div>';
   });
   box.innerHTML=html;
+}
+
+/* ==== ИНВЕНТАРЬ ==== */
+function renderInventory(){
+  var g=function(id){return document.getElementById(id);};
+  var c=function(id,v){var el=g(id);if(el)el.textContent=formatNumber(Math.floor(v));};
+  c('inv-crystal',gameState.balance);c('inv-energy',gameState.energy);c('inv-dm',gameState.darkMatter);
+  c('inv-alloy',gameState.resources.alloy);c('inv-chip',gameState.resources.chip);c('inv-core',gameState.resources.core);
+  var d=g('inv-drones');if(d)d.textContent=formatNumber(gameState.superDrones)+' шт · +50 CPS каждый';
+  var ub=g('inv-upgrades');
+  if(ub){var html='';UPGRADE_DEFS.forEach(function(def){var lv=gameState.upgrades[def.id].level;html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px"><span>'+svgIcon(def.icon,15)+' '+def.name+'</span><span style="color:var(--cyan);font-weight:800">ур. '+lv+'</span></div>';});if(html==='')html='<div style="color:var(--muted);font-size:12px">Пусто.</div>';ub.innerHTML=html;}
+  var sb=g('inv-skins');
+  if(sb){var owned=gameState.ownedSkins.filter(function(id){return SKINS[id];});var sh='<div style="display:flex;flex-wrap:wrap;gap:6px">';Object.keys(SKINS).forEach(function(id){var s=SKINS[id];var has=owned.indexOf(id)!==-1;var active=gameState.activeSkin===id;sh+='<div style="padding:6px 9px;border-radius:10px;border:1px solid '+(has?RARITY_COLORS[s.rarity]:'var(--gb)')+';opacity:'+(has?1:0.4)+';font-size:10px;cursor:'+(has?'pointer':'default')+'">'+s.name+'<br><span style="color:'+RARITY_COLORS[s.rarity]+'">'+(active?'✓ ':'')+SKIN_RARITIES[s.rarity]+'</span></div>';});sh+='</div>';sb.innerHTML='<div style="font-size:12px;color:var(--muted);margin-bottom:6px">'+owned.length+'/'+Object.keys(SKINS).length+' скинов</div>'+sh;}
+}
+
+/* ==== ТРЕЙДЫ / БИРЖА (локальный обмен) ==== */
+var TRADES=[
+  {name:'Купить Энергию',icon:'bolt',give:{cur:'crystal',amt:5000},get:{cur:'energy',amt:50},desc:'Обмен 5 000 💎 на 50 ⚡'},
+  {name:'Продать Энергию',icon:'bolt',give:{cur:'energy',amt:5},get:{cur:'crystal',amt:1500},desc:'Обмен 5 ⚡ на 1 500 💎'},
+  {name:'Продать Сплав',icon:'',give:{cur:'alloy',amt:1},get:{cur:'crystal',amt:60},desc:'Обмен 1 Сплав на 60 💎'},
+  {name:'Купить Сплав',icon:'',give:{cur:'crystal',amt:120},get:{cur:'alloy',amt:1},desc:'Обмен 120 💎 на 1 Сплав'},
+  {name:'Продать Микросхему',icon:'',give:{cur:'chip',amt:1},get:{cur:'crystal',amt:120},desc:'Обмен 1 Микросхему на 120 💎'},
+  {name:'Купить Микросхему',icon:'',give:{cur:'crystal',amt:240},get:{cur:'chip',amt:1},desc:'Обмен 240 💎 на 1 Микросхему'},
+  {name:'Продать Ядро',icon:'',give:{cur:'core',amt:1},get:{cur:'crystal',amt:400},desc:'Обмен 1 Ядро на 400 💎'},
+  {name:'Купить Ядро',icon:'',give:{cur:'crystal',amt:800},get:{cur:'core',amt:1},desc:'Обмен 800 💎 на 1 Ядро'}
+];
+var CUR_META={crystal:{name:'💎 Кристаллы',key:'balance'},energy:{name:'⚡ Энергия',key:'energy'},alloy:{name:'⚙️ Сплав',key:'alloy'},chip:{name:'💾 Микросхема',key:'chip'},core:{name:'⚡ Ядро',key:'core'}};
+function curVal(cur){var m=CUR_META[cur];if(cur==='crystal')return gameState.balance;if(cur==='energy')return Math.floor(gameState.energy);return gameState.resources[cur];}
+function curAdd(cur,amt){
+  if(cur==='crystal'){gameState.balance+=amt;gameState.totalEarned+=amt;}
+  else if(cur==='energy'){gameState.energy+=amt;}
+  else gameState.resources[cur]+=amt;
+}
+function renderTrades(){
+  var box=document.getElementById('trade-list');if(!box)return;
+  box.innerHTML='';
+  TRADES.forEach(function(t,idx){
+    var giveAmt=CUR_META[t.give.cur]?t.give.amt:0;
+    var have=curVal(t.give.cur);
+    var affordable=have>=giveAmt;
+    var div=document.createElement('div');
+    div.className='craft-item';
+    div.innerHTML='<div class="r-ico" style="font-size:22px">'+t.icon+'</div><div style="flex:1;min-width:120px"><b>'+t.name+'</b><div class="ci-cost" style="margin-top:2px">'+t.desc+'</div><div style="font-size:10px;color:var(--muted)">Есть: '+formatNumber(have)+' '+(CUR_META[t.give.cur]?CUR_META[t.give.cur].name:'')+'</div></div>';
+    var btn=document.createElement('button');
+    btn.className='craft-btn';btn.textContent='Обменять';
+    btn.style.opacity=affordable?'1':'0.6';
+    btn.addEventListener('click',function(){doTrade(idx);});
+    div.appendChild(btn);
+    box.appendChild(div);
+  });
+}
+function doTrade(idx){
+  var t=TRADES[idx];if(!t)return;
+  if(curVal(t.give.cur)<t.give.amt){
+    showToast(svgIcon('zap',24),'Не хватает','Нужно '+formatNumber(t.give.amt)+' '+(CUR_META[t.give.cur]?CUR_META[t.give.cur].name:''));
+    playTone(300,0.2,'sawtooth',sfxVolume);return;
+  }
+  curAdd(t.give.cur,-t.give.amt);
+  curAdd(t.get.cur,t.get.amt);
+  recomputeDerived();renderTrades();refreshUI();
+  playSound('buy');
+  showToast(svgIcon('swap',24),'Обмен выполнен!',t.name+' · +'+formatNumber(t.get.amt)+' '+(CUR_META[t.get.cur]?CUR_META[t.get.cur].name:''));
+}
+
+/* ==== ГЛОБАЛЬНЫЙ ТОРГОВЫЙ ПОСТ (через Firebase) ==== */
+var localTradeCache=[];
+function renderTradeBoard(){
+  var box=document.getElementById('trade-board');if(!box)return;
+  if(!window.Online.real||!window.Online.tradeReady){
+    box.innerHTML='<div style="color:var(--muted);font-size:12px">Торговый пост доступен, когда вы в сети (вкладка Онлайн).</div>';
+    return;
+  }
+  if(localTradeCache.length===0){box.innerHTML='<div style="color:var(--muted);font-size:12px">Пока нет предложений. Размести своё!</div>';return;}
+  var html='';
+  localTradeCache.forEach(function(o){
+    var you=o.uid===window.Online.currentUid;
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px;border:1px solid var(--gb);border-radius:10px;margin-bottom:6px;font-size:12px;'+(you?';border-color:var(--cyan)':'')+'"><span style="flex:1">'+o.name+': <b>'+o.text+'</b></span><span style="color:var(--muted)">'+new Date(o.ts).toLocaleTimeString()+'</span></div>';
+  });
+  box.innerHTML=html;
+}
+function bindTradePost(){
+  var btn=document.getElementById('trade-post-btn');
+  var input=document.getElementById('trade-post-title');
+  if(!btn||!input)return;
+  function post(){
+    var t=input.value.trim();
+    if(!t){showToast(svgIcon('swap',24),'Введите текст','Что вы предлагаете?');return;}
+    if(window.Online.real&&window.Online.onPostTrade){window.Online.onPostTrade(t);showToast(svgIcon('swap',24),'Опубликовано!','Предложение ушло в сеть');}
+    else{showToast(svgIcon('zap',24),'Не в сети','Сначала войдите в онлайн (вкладка Онлайн)');}
+    input.value='';
+  }
+  btn.addEventListener('click',post);
+  input.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();post();}});
 }
 
 /* ==== ЧАТ ==== */
@@ -1639,8 +1832,14 @@ function refreshUI(){
   if(gameState.balance-lastShownBalance>derived.cps*0.1){bal.classList.remove('pop');void bal.offsetWidth;bal.classList.add('pop');}
   lastShownBalance=gameState.balance;
   document.getElementById('hud-cps').textContent='💠 '+formatNumber(derived.cps)+' / сек'+(hyperdriveActive?' ⚡x5':'');
+  /* HUD энергии */
+  var eh=document.getElementById('energy-hud');
+  if(eh){eh.style.display=gameState.energy>0?'flex':'none';eh.innerHTML=''+svgIcon('bolt',14)+' '+formatNumber(Math.floor(gameState.energy));}
   if(activeView==='lab')renderLab();
   if(activeView==='restart')renderPrestige();
+  if(activeView==='inventory')renderInventory();
+  if(activeView==='trades')renderTrades();
+  if(activeView==='locations')renderLocations();
 }
 
 /* ==== RESIZE ==== */
@@ -1660,8 +1859,8 @@ function onResize(){
 
 /* ==== INIT ==== */
 function populateIcons(){document.querySelectorAll('[data-ic]').forEach(function(el){el.innerHTML=svgIcon(el.getAttribute('data-ic'),18);});document.getElementById('chat-widget-btn').innerHTML=svgIcon('net',22);}
-function checkDailyBonus(){var today=new Date().toISOString().slice(0,10);if(gameState.lastDailyBonus===today)return;var bonus=100+gameState.level*50;gameState.lastDailyBonus=today;gameState.balance+=bonus;gameState.totalEarned+=bonus;showToast(svgIcon('gem',24),'Ежедневный бонус!','+'+formatNumber(bonus)+' 💎');refreshUI();}
-function passiveTick(){var gain=derived.cps*(PASSIVE_TICK_MS/1000);gameState.balance+=gain;gameState.totalEarned+=gain;gameState.playTime+=PASSIVE_TICK_MS/1000;if(gameState.playTime>30&&Math.random()<0.006)addXp(1);refreshUI();checkAchievements();}
+function checkDailyBonus(){var today=new Date().toISOString().slice(0,10);if(gameState.lastDailyBonus===today)return;var bonus=100+gameState.level*50;gameState.lastDailyBonus=today;gameState.balance+=bonus;gameState.totalEarned+=bonus;var eB=25+gameState.level*5;gameState.energy+=eB;showToast(svgIcon('gem',24),'Ежедневный бонус!','+'+formatNumber(bonus)+' 💎 · +'+formatNumber(eB)+' ⚡');refreshUI();}
+function passiveTick(){var gain=derived.cps*(PASSIVE_TICK_MS/1000);gameState.balance+=gain;gameState.totalEarned+=gain;gameState.playTime+=PASSIVE_TICK_MS/1000;if(gameState.playTime>30&&Math.random()<0.006)addXp(1);gameState.energy+=derived.energyPerSec*(PASSIVE_TICK_MS/1000);refreshUI();checkAchievements();}
 
 function init(){
   loadGame();
@@ -1684,8 +1883,10 @@ function init(){
   document.getElementById('dm-click-btn').addEventListener('click',buyDMClick);
   document.getElementById('dm-cps-btn').addEventListener('click',buyDMCps);
   document.getElementById('chat-widget-btn').addEventListener('click',toggleChat);
+  var cc=document.getElementById('chat-close');if(cc)cc.addEventListener('click',function(){document.getElementById('chat-drawer').classList.remove('show');});
   document.getElementById('market-open-btn').addEventListener('click',openMarket);
   document.getElementById('market-close').addEventListener('click',closeMarket);
+  bindTradePost();
   document.getElementById('reveal-close').addEventListener('click',function(){document.getElementById('box-reveal').classList.remove('show');});
   bindSettings();
 
@@ -1792,52 +1993,78 @@ if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded'
           push(ref(db,'messages'),{name:currentNick,uid:currentUid,text:text,ts:Date.now()});
         };
 
-        /* Лидерборд */
+        /* Лидерборд: динамически строится из online/ (живой баланс в реальном времени,
+           без индекс-запроса по балансу). Обновляется при каждом onValue на online. */
         function initLeaderboard(){
-          onValue(query(ref(db,'players'),orderByChild('balance'),limitToLast(10)),function(snap){
+          onValue(ref(db,'online'),function(snap){
+            var n=snap.numChildren();
+            updateOnlineStatusUI('🟢 в сети',n);
             var box=document.getElementById('leaderboard-list');
-            if(!box)return;
-            var rows=[];
-            snap.forEach(function(child){var v=child.val();rows.push({name:v.name||'Гость',balance:v.balance||0,uid:child.key});});
-            rows.sort(function(a,b){return b.balance-a.balance;});
-            var html='';
-            rows.forEach(function(e,i){
-              var you=e.uid===currentUid;
-              html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)'+(you?';color:var(--cyan);font-weight:800':'')+'">'+
-                '<span>'+(i+1)+'. '+e.name+(you?' (вы)':'')+'</span><span>'+formatBalance(e.balance)+'</span></div>';
+            if(box){
+              var rows=[];
+              snap.forEach(function(child){var v=child.val();if(v&&typeof v.balance==='number')rows.push({name:v.name||'Гость',balance:v.balance,uid:child.key});});
+              rows.sort(function(a,b){return b.balance-a.balance;});
+              rows=rows.slice(0,10);
+              var html='';
+              if(rows.length===0){html='<div style="color:var(--muted);font-size:12px">Пока нет игроков в сети.</div>';}
+              else{rows.forEach(function(e,i){
+                var you=e.uid===currentUid;
+                html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)'+(you?';color:var(--cyan);font-weight:800':'')+'">'+
+                  '<span>'+(i+1)+'. '+e.name+(you?' (вы)':'')+'</span><span>'+formatBalance(e.balance)+'</span></div>';
+              });}
+              box.innerHTML=html;
+            }
+            /* Очистка зависших записей */
+            var now=Date.now();
+            snap.forEach(function(child){
+              var v=child.val();
+              if(v&&child.key!==currentUid&&now-(v.lastSeen||0)>120000){remove(ref(db,'online/'+child.key));}
             });
-            if(rows.length===0)html='<div style="color:var(--muted);font-size:12px">Пока нет игроков в топе.</div>';
-            box.innerHTML=html;
           });
         }
 
-        /* Статистика в лидерборд */
+        /* Статистика в лидерборд: пишет и в online (живой), и в players (история) */
         window.Online.sendPlayerStats=function(stats){
           if(!currentUid)return;
-          set(ref(db,'players/'+currentUid),{name:currentNick,balance:Math.floor(stats.balance||0),updatedAt:Date.now()});
-          refreshPresence();
+          var bal=Math.floor(stats.balance||0);
+          set(ref(db,'online/'+currentUid),{name:currentNick,lastSeen:Date.now(),balance:bal});
+          set(ref(db,'players/'+currentUid),{name:currentNick,balance:bal,updatedAt:Date.now()});
         };
 
         /* Публичный вход: позволяет локальному аккаунту войти в онлайн */
         window.Online.connectLocal=function(nick){
           currentNick=nick;
           window.Online.currentNick=nick;
-          /* Локальному аккаунту даём стабильный uid из ника, чтобы он мог
-             участвовать в онлайн-чате и лидерборде без OAuth. */
           if(!currentUid){
             currentUid='local_'+nick.toLowerCase().replace(/[^a-z0-9]/g,'');
           }
+          window.Online.currentUid=currentUid;
           refreshPresence();
+          initPresence();   /* жизненно важно: подписываемся на online и обновляем счётчик */
           initChat();
           initLeaderboard();
           hideLoginWall();
           updateOnlineStatusUI('🟢 в сети как '+nick);
         };
 
+        /* Торговый пост */
+        window.Online.tradeReady=true;
+        window.Online.onPostTrade=function(text){
+          if(!currentUid)return;
+          push(ref(db,'trades'),{name:currentNick,uid:currentUid,text:text,ts:Date.now()});
+        };
+        onChildAdded(query(ref(db,'trades'),limitToLast(50)),function(snap){
+          var t=snap.val();if(!t)return;
+          localTradeCache.unshift({name:t.name||'Гость',uid:t.uid,text:t.text||'',ts:t.ts||Date.now()});
+          if(localTradeCache.length>50)localTradeCache.length=50;
+          renderTradeBoard();
+        });
+
         /* Синхронизация ника с локальным аккаунтом */
         onAuthStateChanged(auth,function(user){
           if(user){
             currentUid=user.uid;
+            window.Online.currentUid=currentUid;
             var local=null;
             try{local=JSON.parse(localStorage.getItem('crystal-net-session')||'null');}catch(e){}
             var saved='';
